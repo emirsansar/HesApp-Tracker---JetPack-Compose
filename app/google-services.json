@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "973564931728",
+    "project_id": "hesapp-tracker",
+    "storage_bucket": "hesapp-tracker.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:973564931728:android:f98b070bd54d17bc4b7215",
+        "android_client_info": {
+          "package_name": "com.emirsansar.hesapptracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGiPqygYyZNAl1ahd_djlb-zSbMRlC92M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
