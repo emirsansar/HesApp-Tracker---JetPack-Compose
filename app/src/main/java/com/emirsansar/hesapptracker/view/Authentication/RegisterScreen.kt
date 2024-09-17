@@ -1,5 +1,7 @@
 package com.emirsansar.hesapptracker.view.Authentication
 
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,25 +17,59 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.emirsansar.hesapptracker.R
 import com.emirsansar.hesapptracker.ui.theme.AppBackgroundColor
+import com.emirsansar.hesapptracker.viewModel.AuthenticationViewModel
 
 @Composable
-fun RegisterScreen(navController: NavController){
+fun RegisterScreen(navController: NavController, authVM: AuthenticationViewModel = AuthenticationViewModel() ){
+
+    val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     val nameState = remember { mutableStateOf("") }
     val surnameState = remember { mutableStateOf("") }
     val emailState = remember { mutableStateOf("") }
     val passwordState = remember { mutableStateOf("") }
     val rePasswordState = remember { mutableStateOf("") }
+
+    val registerState by authVM.registerState.observeAsState(AuthenticationViewModel.RegisterState.IDLE)
+    val registerError by authVM.registrationError.observeAsState()
+
+    LaunchedEffect(registerState) {
+        when (registerState) {
+            AuthenticationViewModel.RegisterState.SUCCESS -> {
+                Toast.makeText(context, "Registration successful.", Toast.LENGTH_SHORT).show()
+                navController.navigate("login_screen")
+            }
+            AuthenticationViewModel.RegisterState.FAILURE -> {
+                Toast.makeText(context, "Registration failed: ${registerError.toString()}", Toast.LENGTH_LONG).show()
+                authVM.setRegisterStateIdle()
+            }
+            else -> {}
+        }
+    }
+
+    BackHandler {
+        navController.navigate("login_screen") {
+            navigateToLoginScreen(navController)
+        }
+    }
 
     Column (
         modifier = Modifier.fillMaxSize(),
@@ -117,13 +153,15 @@ fun RegisterScreen(navController: NavController){
             )
         }
 
-
-        Button(onClick = {  }) {
+        Button(
+            onClick = {
+                keyboardController?.hide()
+                authVM.registerUserToFirebaseAuth(emailState.value, passwordState.value, nameState.value, surnameState.value) })
+        {
             Text(text = "Register")
         }
 
-        // Login link
-        androidx.compose.material.Text(
+        Text(
             text = "Do you have an account? Sign In",
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier
@@ -131,9 +169,12 @@ fun RegisterScreen(navController: NavController){
                 .clickable { navigateToLoginScreen(navController) },
             color = MaterialTheme.colorScheme.primary
         )
+
     }
 }
 
 fun navigateToLoginScreen(navController: NavController) {
-    navController.navigate("login_screen")
+    navController.navigate("login_screen") {
+        popUpTo("register_screen") { inclusive = true }
+    }
 }
