@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">HesApp Tracker</string>
     <string name="title_activity_authentication">AuthenticationActivity</string>
+    <string name="title_activity_startup">StartupActivity</string>
 </resources>

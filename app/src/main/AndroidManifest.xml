@@ -13,11 +13,10 @@
         android:theme="@style/Theme.HesAppTracker"
         tools:targetApi="31">
 
-        <!-- AuthenticationActivity is now the launch screen -->
         <activity
-            android:name=".view.Authentication.AuthenticationActivity"
+            android:name=".view.StartupActivity"
             android:exported="true"
-            android:label="@string/title_activity_authentication"
+            android:label="@string/title_activity_startup"
             android:theme="@style/Theme.HesAppTracker">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,7 +24,12 @@
             </intent-filter>
         </activity>
 
-        <!-- MainActivity without the launcher intent-filter -->
+        <activity
+            android:name=".view.Authentication.AuthenticationActivity"
+            android:exported="false"
+            android:label="@string/title_activity_authentication"
+            android:theme="@style/Theme.HesAppTracker" />
+
         <activity
             android:name=".view.AppMain.MainActivity"
             android:exported="false"
