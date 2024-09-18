@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
@@ -53,11 +54,11 @@ fun MainActivityScreen(modifier: Modifier = Modifier) {
         topBar = {
             TopAppBar(title = { Text(text = "HesApp")})
         },
-        content = {
+        content = { paddingValues ->
             when (selectedBar.value) {
-                0 -> HomeScreen()
-                1 -> ServicesScreen()
-                2 -> UserSubscriptionsScreen()
+                0 -> HomeScreen(modifier = Modifier.padding(paddingValues))
+                1 -> ServicesScreen(modifier = Modifier.padding(paddingValues))
+                2 -> UserSubscriptionsScreen(modifier = Modifier.padding(paddingValues))
             }
         },
         bottomBar = {

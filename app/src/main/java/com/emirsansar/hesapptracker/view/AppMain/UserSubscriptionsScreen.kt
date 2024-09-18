@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun UserSubscriptionsScreen(){
+fun UserSubscriptionsScreen(modifier: Modifier){
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally)
     {
         Text(text = "User Subscriptions Screen", fontSize = 30.sp)

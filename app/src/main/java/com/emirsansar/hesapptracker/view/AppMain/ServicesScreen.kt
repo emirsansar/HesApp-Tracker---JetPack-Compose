@@ -27,7 +27,7 @@ import com.emirsansar.hesapptracker.viewModel.AuthenticationViewModel
 import com.emirsansar.hesapptracker.viewModel.ServiceViewModel
 
 @Composable
-fun ServicesScreen(serviceVM: ServiceViewModel = ServiceViewModel()) {
+fun ServicesScreen(modifier: Modifier, serviceVM: ServiceViewModel = ServiceViewModel()) {
 
     var servicesList by remember { mutableStateOf(emptyList<Service>()) }
 
@@ -42,7 +42,7 @@ fun ServicesScreen(serviceVM: ServiceViewModel = ServiceViewModel()) {
     }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
