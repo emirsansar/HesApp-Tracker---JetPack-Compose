@@ -24,6 +24,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.emirsansar.hesapptracker.ui.theme.HesAppTrackerTheme
 
 class MainActivity : ComponentActivity() {
@@ -49,16 +53,31 @@ class MainActivity : ComponentActivity() {
 fun MainActivityScreen(modifier: Modifier = Modifier) {
     val items = listOf("Home", "Services", "UserSubscriptions")
     val selectedBar = remember { mutableStateOf(0)}
+    val navController = rememberNavController()
 
     Scaffold(
-        topBar = {
-            TopAppBar(title = { Text(text = "HesApp")})
-        },
         content = { paddingValues ->
-            when (selectedBar.value) {
-                0 -> HomeScreen(modifier = Modifier.padding(paddingValues))
-                1 -> ServicesScreen(modifier = Modifier.padding(paddingValues))
-                2 -> UserSubscriptionsScreen(modifier = Modifier.padding(paddingValues))
+            NavHost(navController = navController, startDestination = "home_screen") {
+                composable("home_screen") {
+                    HomeScreen(modifier = Modifier.padding(paddingValues))
+                }
+                composable("services_screen") {
+                    ServicesScreen(
+                        modifier = Modifier.padding(paddingValues),
+                        navController = navController
+                    )
+                }
+                composable("usersubscriptions_screen") {
+                    UserSubscriptionsScreen(modifier = Modifier.padding(paddingValues))
+                }
+                composable("service_plans_screen/{serviceName}") { backStackEntry ->
+                    val serviceName = backStackEntry.arguments?.getString("serviceName")
+                    PlansScreen(
+                        modifier = Modifier.padding(paddingValues),
+                        serviceName = serviceName!!,
+                        navController = navController
+                    )
+                }
             }
         },
         bottomBar = {
@@ -66,8 +85,15 @@ fun MainActivityScreen(modifier: Modifier = Modifier) {
                 items.forEachIndexed { index, item ->
                     NavigationBarItem(
                         selected = selectedBar.value == index,
-                        onClick = { selectedBar.value = index },
-                        label = { Text(item) },
+                        onClick = {
+                            selectedBar.value = index;
+                            navigateAndClearBackStack(
+                                navController = navController,
+                                destination = "${item.lowercase()}_screen"
+                            ) },
+                        label = {
+                            if (item == "UserSubscriptions" ) Text(text = "Subscriptions")
+                            else Text(item) },
                         icon = {
                             when (item) {
                                 "Home" -> Icon(Icons.Default.Home, contentDescription = "Home Icon")
@@ -80,6 +106,16 @@ fun MainActivityScreen(modifier: Modifier = Modifier) {
             }
         }
     )
+}
+
+// Navigate to a new destination while clearing all previous screens from the back stack.
+private fun navigateAndClearBackStack(
+    navController: NavController,
+    destination: String
+) {
+    navController.navigate(destination) {
+        popUpTo(navController.graph.startDestinationId) { inclusive = false }
+    }
 }
 
 @Preview(showBackground = true)
