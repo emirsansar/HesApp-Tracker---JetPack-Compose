@@ -4,9 +4,12 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.emirsansar.hesapptracker.model.Plan
 import com.emirsansar.hesapptracker.model.Service
 import com.emirsansar.hesapptracker.model.UserSubscription
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 class UserSubscriptionViewModel: ViewModel() {
 
@@ -25,6 +28,7 @@ class UserSubscriptionViewModel: ViewModel() {
     var userSubscriptionList: LiveData<List<UserSubscription>> = _userSubscriptionList
 
     private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
 
     // Fetches the user's subscriptions from Firestore.
@@ -71,6 +75,54 @@ class UserSubscriptionViewModel: ViewModel() {
                 _fetchingSubscriptionsState.value  = FetchingSubscriptionsState.FAILURE
             }
         }
+    }
+
+    // Adds a subscription plan to the user's collection in Firestore.
+    fun addPlanToUserOnFirestore(serviceName: String, plan: Plan, personCount: Int, completion: (Boolean) -> Unit) {
+        val userEmail = auth.currentUser!!.email
+
+        val userRef = db.collection("Users").document(userEmail!!)
+
+        userRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                val updateData: MutableMap<String, Any> = mutableMapOf()
+
+                if (documentSnapshot.exists()) {
+                    val existingSubscriptions = documentSnapshot.data?.get("Subscriptions") as? Map<String, Any> ?: emptyMap()
+                    val updatedSubscriptions = existingSubscriptions.toMutableMap()
+
+                    updatedSubscriptions[serviceName] = mapOf(
+                        "PlanName" to plan.planName,
+                        "Price" to plan.planPrice,
+                        "PersonCount" to personCount
+                    )
+
+                    updateData["Subscriptions"] = updatedSubscriptions
+                }
+                else {
+                    updateData["Subscriptions"] = mapOf(
+                        serviceName to mapOf(
+                            "PlanName" to plan.planName,
+                            "Price" to plan.planPrice,
+                            "PersonCount" to personCount
+                        )
+                    )
+                }
+
+                userRef.set(updateData, SetOptions.merge())
+                    .addOnSuccessListener {
+                        println("Successfully added plan ${plan.planName} to user $userEmail.")
+                        completion(true)
+                    }
+                    .addOnFailureListener { error ->
+                        println("Error: ${error.localizedMessage}")
+                        completion(false)
+                    }
+            }
+            .addOnFailureListener { error ->
+                println("There was an error: ${error.localizedMessage}")
+                completion(false)
+            }
     }
 
 }
