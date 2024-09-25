@@ -14,18 +14,28 @@ import com.google.firebase.firestore.SetOptions
 class UserSubscriptionViewModel: ViewModel() {
 
     enum class FetchingSubscriptionsState {
-        IDLE,
-        SUCCESS,
-        FAILURE
+        IDLE, SUCCESS, FAILURE
+    }
+
+    enum class FetchingSummaryState {
+        IDLE, SUCCESS, FAILURE
     }
 
     private val _fetchingSubscriptionsState = MutableLiveData<FetchingSubscriptionsState>()
     var fetchingSubscriptionsState: LiveData<FetchingSubscriptionsState> = _fetchingSubscriptionsState
 
-    var userSubscriptions: MutableList<UserSubscription> = mutableListOf()
-
     private val _userSubscriptionList = MutableLiveData<List<UserSubscription>>()
     var userSubscriptionList: LiveData<List<UserSubscription>> = _userSubscriptionList
+
+    private val _fetchingSummaryState = MutableLiveData<FetchingSummaryState>()
+    var fetchingSummaryState: LiveData<FetchingSummaryState> = _fetchingSummaryState
+
+    private val _totalSubscriptionCount = MutableLiveData<Int>()
+    var totalSubscriptionCount: LiveData<Int> = _totalSubscriptionCount
+
+    private val _totalMonthlySpending = MutableLiveData<Double>()
+    var totalMonthlySpending: LiveData<Double> = _totalMonthlySpending
+
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -122,6 +132,48 @@ class UserSubscriptionViewModel: ViewModel() {
             .addOnFailureListener { error ->
                 println("There was an error: ${error.localizedMessage}")
                 completion(false)
+            }
+    }
+
+    // Fetches a summary of the user's total subscription count and monthly spending from Firestore.
+    fun fetchSubscriptionsSummary() {
+        val userEmail = auth.currentUser!!.email
+
+        val userRef = db.collection("Users").document(userEmail!!)
+
+        userRef.get()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val document = task.result
+                    if (document != null && document.exists()) {
+                        val subscriptions = document.data?.get("Subscriptions") as? Map<String, Map<String, Any>>
+
+                        if (subscriptions != null) {
+                            var monthlySpend = 0.0
+                            val serviceCount = subscriptions.size
+
+                            for ((_, serviceDetails) in subscriptions) {
+                                val price = serviceDetails["Price"] as? Double ?: 0.0
+                                val personCount = serviceDetails["PersonCount"] as? Long ?: 1
+                                monthlySpend += price / personCount.toDouble()
+                            }
+
+                            _totalSubscriptionCount.value = serviceCount
+                            _totalMonthlySpending.value = monthlySpend
+
+                            _fetchingSummaryState.value = FetchingSummaryState.SUCCESS
+                            Log.i("UserViewModel", "User's subscriptions summary have been fetched successfully.")
+                        } else {
+                            Log.e("UserViewModel", "No subscriptions found.")
+                            _fetchingSummaryState.value = FetchingSummaryState.FAILURE
+                        }
+                    }
+                }
+                else {
+                    val error = task.exception
+                    Log.e("UserViewModel", "User's summary error: ${error?.localizedMessage}")
+                    _fetchingSummaryState.value = FetchingSummaryState.FAILURE
+                }
             }
     }
 
