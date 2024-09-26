@@ -1,5 +1,8 @@
 package com.emirsansar.hesapptracker.view.AppMain
 
+import android.content.Context
+import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,16 +26,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.emirsansar.hesapptracker.model.UserSubscription
-import com.emirsansar.hesapptracker.viewModel.AuthenticationViewModel
 import com.emirsansar.hesapptracker.viewModel.UserSubscriptionViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -51,19 +55,21 @@ fun UserSubscriptionsScreen(
 {
     val fetchedUserSubList by userSubsVM.userSubscriptionList.observeAsState(emptyList())
     // This holds the list to be displayed after sorting, ensuring the original fetched list remains unchanged.
-    var displayedUserSubList by remember { mutableStateOf<List<UserSubscription>>(emptyList()) }
+    var displayedUserSubList = remember { mutableStateListOf<UserSubscription>() }
 
     var sortType by remember { mutableStateOf(SortType.Default) }
     val fetchingSubsState by userSubsVM.fetchingSubscriptionsState.observeAsState(UserSubscriptionViewModel.FetchingSubscriptionsState.IDLE)
 
     val userEmail = FirebaseAuth.getInstance().currentUser!!.email
+    val context = LocalContext.current
 
     LaunchedEffect(userEmail) {
         userSubsVM.fetchUserSubscriptionsFromFirestore(userEmail!!)
     }
 
     LaunchedEffect(fetchedUserSubList) {
-        displayedUserSubList = sortSubscriptions(fetchedUserSubList, SortType.PriceAscending)
+        displayedUserSubList.clear()
+        displayedUserSubList.addAll(fetchedUserSubList)
     }
 
 
@@ -78,14 +84,21 @@ fun UserSubscriptionsScreen(
             sortType = sortType,
             onSortTypeChanged = { selectedSortType ->
                 sortType = selectedSortType
-                displayedUserSubList = sortSubscriptions(fetchedUserSubList, selectedSortType)
+                displayedUserSubList.clear()
+                displayedUserSubList.addAll(sortSubscriptions(fetchedUserSubList, selectedSortType))
             }
         )
 
         when (fetchingSubsState) {
             UserSubscriptionViewModel.FetchingSubscriptionsState.SUCCESS -> {
                 if (fetchedUserSubList.isNotEmpty()) {
-                    SubscriptionList(displayedUserSubList)
+                    SubscriptionList(
+                        subscriptionList = displayedUserSubList,
+                        onEdit = { },
+                        onRemove = { subscription ->
+                            removeSubscription(context, userSubsVM, subscription, displayedUserSubList)
+                        }
+                    )
                 } else {
                     CenteredText("You currently have no subscriptions.")
                 }
@@ -103,27 +116,37 @@ fun UserSubscriptionsScreen(
     }
 }
 
+
+// Composable:
+
 // Composable function to display a list of subscriptions in a LazyColumn.
 @Composable
-fun SubscriptionList(changeableSubList: List<UserSubscription>) {
+fun SubscriptionList(subscriptionList: List<UserSubscription>, onEdit: () -> Unit, onRemove: (UserSubscription) -> Unit,) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(all = 10.dp)
     ) {
-        items(changeableSubList) { sub ->
-            SubscriptionCard(sub = sub)
+        items(subscriptionList) { sub ->
+            SubscriptionCard(
+                sub = sub,
+                onEditClick = onEdit,
+                onRemove = { onRemove(sub) }
+            )
         }
     }
 }
 
 // Composable function to display a card with subscription details.
 @Composable
-fun SubscriptionCard(sub: UserSubscription) {
+fun SubscriptionCard(sub: UserSubscription, onEditClick: () -> Unit, onRemove: () -> Unit) {
+    var expandedMenu by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .padding(all = 10.dp)
             .fillMaxWidth()
+            .clickable { expandedMenu = true }
     ) {
         Row(
             modifier = Modifier
@@ -141,6 +164,39 @@ fun SubscriptionCard(sub: UserSubscription) {
             }
 
             Text(text = sub.planPrice.toString(), fontSize = 20.sp)
+        }
+
+        SubscriptionMenu(
+            expanded = expandedMenu,
+            onDismiss = { expandedMenu = false },
+            onEdit = { onEditClick() },
+            onRemove = { onRemove() }
+        )
+    }
+}
+
+@Composable
+fun SubscriptionMenu(
+    expanded: Boolean,
+    onDismiss: () -> Unit,
+    onEdit: () -> Unit,
+    onRemove: () -> Unit
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { onDismiss() }
+    ) {
+        DropdownMenuItem(onClick = {
+            onDismiss()
+            onEdit()
+        }) {
+            Text("Edit")
+        }
+        DropdownMenuItem(onClick = {
+            onDismiss()
+            onRemove()
+        }) {
+            Text("Remove")
         }
     }
 }
@@ -220,5 +276,18 @@ fun CenteredCircularProgress() {
             modifier = Modifier.size(30.dp),
             color = Color.Blue
         )
+    }
+}
+
+// Functions:
+
+private fun removeSubscription(context: Context, userSubsVM: UserSubscriptionViewModel, sub: UserSubscription, displayedUserSubList: MutableList<UserSubscription>) {
+    userSubsVM.removeSubscriptionFromUser(sub) { success ->
+        if (success) {
+            Toast.makeText(context, "${sub.serviceName} removed successfully.", Toast.LENGTH_SHORT).show()
+            displayedUserSubList.remove(sub)
+        } else {
+            Toast.makeText(context, "${sub.serviceName} could not be removed", Toast.LENGTH_SHORT).show()
+        }
     }
 }

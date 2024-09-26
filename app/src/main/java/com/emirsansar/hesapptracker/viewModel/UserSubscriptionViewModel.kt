@@ -8,8 +8,11 @@ import com.emirsansar.hesapptracker.model.Plan
 import com.emirsansar.hesapptracker.model.Service
 import com.emirsansar.hesapptracker.model.UserSubscription
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 class UserSubscriptionViewModel: ViewModel() {
 
@@ -174,6 +177,40 @@ class UserSubscriptionViewModel: ViewModel() {
                     Log.e("UserViewModel", "User's summary error: ${error?.localizedMessage}")
                     _fetchingSummaryState.value = FetchingSummaryState.FAILURE
                 }
+            }
+    }
+
+    // Removes a selected subscription from the user's collection in Firestore.
+    fun removeSubscriptionFromUser(selectedSub: UserSubscription, onComplete: (Boolean) -> Unit) {
+        val userEmail = auth.currentUser!!.email
+
+        val userRef = db.collection("Users").document(userEmail!!)
+
+        userRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                val fieldToRemove = selectedSub.serviceName
+
+                userRef.update(mapOf("Subscriptions.$fieldToRemove" to FieldValue.delete()))
+                    .addOnSuccessListener {
+                        MainScope().launch {
+                            val currentList = _userSubscriptionList.value?.toMutableList() ?: mutableListOf()
+                            val index = currentList.indexOfFirst { it.serviceName == selectedSub.serviceName }
+                            if (index != -1) {
+                                currentList.removeAt(index)
+                                _userSubscriptionList.value = currentList
+                            }
+                        }
+                        Log.d("RemoveSubscription", "Subscription successfully removed.")
+                        onComplete(true)
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e("RemoveSubscription", "Error while trying to remove subscription: ", exception)
+                        onComplete(false)
+                    }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("RemoveSubscription", "Error while trying to remove subscription: ", exception)
+                onComplete(false)
             }
     }
 
