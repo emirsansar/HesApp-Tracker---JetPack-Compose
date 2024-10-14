@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.emirsansar.hesapptracker.model.Plan
-import com.emirsansar.hesapptracker.model.Service
 import com.emirsansar.hesapptracker.model.UserSubscription
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
@@ -213,5 +212,57 @@ class UserSubscriptionViewModel: ViewModel() {
                 onComplete(false)
             }
     }
+
+    // Updates the selected subscription on Firebase.
+    fun updateSubscription(updatedSubscription: UserSubscription, completion: (Boolean) -> Unit) {
+        val userEmail = auth.currentUser!!.email
+
+        val userRef = db.collection("Users").document(userEmail!!)
+
+        userRef.get().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val documentSnapshot = task.result
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    val subscriptions = documentSnapshot.get("Subscriptions") as? Map<String, Map<String, Any>> ?: run {
+                        Log.e("UpdateSubscription", "No subscriptions found or document does not exist.")
+                        completion(false)
+                        return@addOnCompleteListener
+                    }
+
+                    val serviceDetails = subscriptions[updatedSubscription.serviceName]?.toMutableMap()
+
+                    if (serviceDetails != null) {
+                        serviceDetails["PlanName"] = updatedSubscription.planName
+                        serviceDetails["Price"] = updatedSubscription.planPrice
+                        serviceDetails["PersonCount"] = updatedSubscription.personCount
+
+                        // Update the subscriptions map
+                        val updatedSubscriptions = subscriptions.toMutableMap()
+                        updatedSubscriptions[updatedSubscription.serviceName] = serviceDetails
+
+                        userRef.update("Subscriptions", updatedSubscriptions).addOnCompleteListener { updateTask ->
+                            if (updateTask.isSuccessful) {
+                                Log.e("UpdateSubscription", "Service has been updated successfully.")
+                                completion(true)
+                            } else {
+                                Log.e("UpdateSubscription", "Unknown error occurred.")
+                                completion(false)
+                            }
+                        }
+                    } else {
+                        Log.e("UpdateSubscription", "Service not found in user's subscriptions.")
+                        completion(false)
+                    }
+                } else {
+                    Log.e("UpdateSubscription", "No subscriptions found or document does not exist.")
+                    completion(false)
+                }
+            } else {
+                Log.e("UpdateSubscription", "Error when trying to update sub: ${task.exception?.localizedMessage}")
+                completion(false)
+            }
+        }
+    }
+
 
 }

@@ -1,6 +1,7 @@
 package com.emirsansar.hesapptracker.view.AppMain
 
 import android.content.Context
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -94,7 +95,9 @@ fun UserSubscriptionsScreen(
                 if (fetchedUserSubList.isNotEmpty()) {
                     SubscriptionList(
                         subscriptionList = displayedUserSubList,
-                        onEdit = { },
+                        onEdit = { subscription ->
+                            navigateToEditScreen(context, subscription)
+                        },
                         onRemove = { subscription ->
                             removeSubscription(context, userSubsVM, subscription, displayedUserSubList)
                         }
@@ -121,7 +124,7 @@ fun UserSubscriptionsScreen(
 
 // Composable function to display a list of subscriptions in a LazyColumn.
 @Composable
-fun SubscriptionList(subscriptionList: List<UserSubscription>, onEdit: () -> Unit, onRemove: (UserSubscription) -> Unit,) {
+fun SubscriptionList(subscriptionList: List<UserSubscription>, onEdit: (UserSubscription) -> Unit, onRemove: (UserSubscription) -> Unit,) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -130,7 +133,7 @@ fun SubscriptionList(subscriptionList: List<UserSubscription>, onEdit: () -> Uni
         items(subscriptionList) { sub ->
             SubscriptionCard(
                 sub = sub,
-                onEditClick = onEdit,
+                onEditClick = { onEdit(sub) },
                 onRemove = { onRemove(sub) }
             )
         }
@@ -290,4 +293,11 @@ private fun removeSubscription(context: Context, userSubsVM: UserSubscriptionVie
             Toast.makeText(context, "${sub.serviceName} could not be removed", Toast.LENGTH_SHORT).show()
         }
     }
+}
+
+private fun navigateToEditScreen(context: Context, sub: UserSubscription){
+    val intent = Intent(context, EditSubscriptionScreen::class.java).apply {
+        putExtra("subscription", sub)
+    }
+    context.startActivity(intent)
 }
