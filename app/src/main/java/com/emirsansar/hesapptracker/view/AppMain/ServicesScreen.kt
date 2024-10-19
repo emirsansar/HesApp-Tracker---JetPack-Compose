@@ -1,5 +1,7 @@
 package com.emirsansar.hesapptracker.view.AppMain
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -33,6 +36,8 @@ fun ServicesScreen(
 ){
     var serviceList by remember { mutableStateOf(emptyList<Service>()) }
 
+    val context = LocalContext.current
+
     LaunchedEffect(Unit) {
         serviceVM.fetchServicesFromFirestore { services, _ ->
             if (!services.isNullOrEmpty()) serviceList = services
@@ -46,13 +51,15 @@ fun ServicesScreen(
     ) {
         Text(text = "Services", fontSize = 30.sp)
 
+        AddCustomServiceButton(context)
+
         ServiceList(serviceList, navController)
     }
 
 }
 
 @Composable
-fun ServiceList(serviceList: List<Service>, navController: NavController) {
+private fun ServiceList(serviceList: List<Service>, navController: NavController) {
     LazyColumn( modifier = Modifier
         .fillMaxSize()
         .padding(all = 10.dp))
@@ -64,7 +71,7 @@ fun ServiceList(serviceList: List<Service>, navController: NavController) {
 }
 
 @Composable
-fun ServiceCard(service: Service, navController: NavController) {
+private fun ServiceCard(service: Service, navController: NavController) {
     Card(
         modifier = Modifier
             .padding(all = 10.dp)
@@ -82,6 +89,34 @@ fun ServiceCard(service: Service, navController: NavController) {
             horizontalAlignment = Alignment.Start
         ) {
             Text(text = service.serviceName, fontSize = 20.sp, modifier = Modifier.padding(start = 5.dp))
+        }
+    }
+}
+
+@Composable
+private fun AddCustomServiceButton(context: Context) {
+    Card(
+        modifier = Modifier
+            .padding(all = 20.dp)
+            .height(50.dp)
+            .fillMaxWidth()
+            .clickable {
+                val intent = Intent(context, CustomServiceScreen::class.java)
+                context.startActivity(intent)
+            }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(all = 2.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = "Add Custom Service",
+                fontSize = 20.sp,
+                modifier = Modifier.padding(start = 5.dp)
+            )
         }
     }
 }

@@ -41,7 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.emirsansar.hesapptracker.model.UserSubscription
-import com.emirsansar.hesapptracker.view.AppMain.ui.theme.HesAppTrackerTheme
+import com.emirsansar.hesapptracker.ui.theme.HesAppTrackerTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.rememberCoroutineScope
