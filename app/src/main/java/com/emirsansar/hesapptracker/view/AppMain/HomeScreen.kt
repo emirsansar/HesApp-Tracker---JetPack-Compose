@@ -25,6 +25,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,19 +37,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.emirsansar.hesapptracker.R
 import com.emirsansar.hesapptracker.viewModel.UserSubscriptionViewModel
+import com.emirsansar.hesapptracker.viewModel.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun HomeScreen(
     modifier: Modifier,
-    userSubVM: UserSubscriptionViewModel = UserSubscriptionViewModel()
+    userSubVM: UserSubscriptionViewModel = UserSubscriptionViewModel(),
+    userVM: UserViewModel = UserViewModel()
 ){
     val fetchingSummaryState by userSubVM.fetchingSummaryState.observeAsState(UserSubscriptionViewModel.FetchingSummaryState.IDLE)
     val fetchedSubsCount by userSubVM.totalSubscriptionCount.observeAsState(0)
     val fetchedMonthlySpend by userSubVM.totalMonthlySpending.observeAsState(0.0)
+    var userFullName by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
+        userVM.fetchUserFullName { fullName ->
+            userFullName = fullName ?: "Unknown"
+        }
+
         userSubVM.fetchSubscriptionsSummary()
     }
 
@@ -58,7 +68,7 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally)
             {
-                Text(text = "Home Screen", fontSize = 30.sp)
+                WelcomeMessage(userFullName)
 
                 SubscriptionSummaryCard(
                     fetchingSummaryState = fetchingSummaryState,
@@ -73,7 +83,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun SubscriptionSummaryCard(
+private fun SubscriptionSummaryCard(
     fetchingSummaryState: UserSubscriptionViewModel.FetchingSummaryState,
     subscriptionCount: Int,
     monthlySpend: Double,
@@ -111,17 +121,17 @@ fun SubscriptionSummaryCard(
 }
 
 @Composable
-fun SummaryRow(label: String, value: String, showProgress: Boolean) {
+private fun SummaryRow(label: String, value: String, showProgress: Boolean) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = label, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+        Text(text = label, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
         if (showProgress) {
             CircularProgressIndicator(modifier = Modifier.size(16.dp))
         } else {
-            Text(text = value, fontSize = 18.sp, fontWeight = FontWeight.Medium)
+            Text(text = value, fontSize = 19.sp, fontWeight = FontWeight.Medium)
         }
     }
 }
@@ -152,4 +162,34 @@ private fun AppBar() {
         backgroundColor = Color.LightGray,
         modifier = Modifier.fillMaxWidth()
     )
+}
+
+@Composable
+private fun WelcomeMessage(userFullName: String) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.padding(top = 30.dp,start = 16.dp, end = 16.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.icon_waving_hand),
+                contentDescription = "waving hand icon",
+                modifier = Modifier.size(28.dp)
+            )
+            Text(
+                text = " Welcome,",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Text(
+            text = userFullName,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
 }
