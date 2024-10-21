@@ -1,8 +1,11 @@
 package com.emirsansar.hesapptracker.view.AppMain
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,7 +25,14 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ExposedDropdownMenuBox
 import androidx.compose.material.OutlinedButton
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,8 +45,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.emirsansar.hesapptracker.R
 import com.emirsansar.hesapptracker.model.UserSubscription
 import com.emirsansar.hesapptracker.viewModel.UserSubscriptionViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -49,6 +62,7 @@ enum class SortType {
     Alphabetical
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun UserSubscriptionsScreen(
     modifier: Modifier, userSubsVM:
@@ -60,6 +74,7 @@ fun UserSubscriptionsScreen(
 
     var sortType by remember { mutableStateOf(SortType.Default) }
     val fetchingSubsState by userSubsVM.fetchingSubscriptionsState.observeAsState(UserSubscriptionViewModel.FetchingSubscriptionsState.IDLE)
+    var isSortPickerExpanded by remember { mutableStateOf(false) }
 
     val userEmail = FirebaseAuth.getInstance().currentUser!!.email
     val context = LocalContext.current
@@ -73,50 +88,70 @@ fun UserSubscriptionsScreen(
         displayedUserSubList.addAll(fetchedUserSubList)
     }
 
+    Scaffold(
+        topBar = {
+            TopBarUserSubscriptionScreen(
+                onSortButtonClicked = {
+                    isSortPickerExpanded = !isSortPickerExpanded
+                }
+            )
+        },
+        content = { paddingValues ->
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // This box is for SortPicker.
+                Box(
+                    modifier = Modifier
+                        .padding(top = 5.dp)
+                        .animateContentSize(animationSpec = tween(durationMillis = 400))
+                ) {
+                    if (isSortPickerExpanded) {
+                        SortPicker(
+                            sortType = sortType,
+                            onSortTypeChanged = { selectedSortType ->
+                                sortType = selectedSortType
+                                displayedUserSubList.clear()
+                                displayedUserSubList.addAll(sortSubscriptions(fetchedUserSubList, selectedSortType))
+                                isSortPickerExpanded = false
+                            }
+                        )
+                    }
+                }
 
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally)
-    {
-        Text(text = "My Subscriptions", fontSize = 30.sp)
-
-        SortPicker(
-            sortType = sortType,
-            onSortTypeChanged = { selectedSortType ->
-                sortType = selectedSortType
-                displayedUserSubList.clear()
-                displayedUserSubList.addAll(sortSubscriptions(fetchedUserSubList, selectedSortType))
-            }
-        )
-
-        when (fetchingSubsState) {
-            UserSubscriptionViewModel.FetchingSubscriptionsState.SUCCESS -> {
-                if (fetchedUserSubList.isNotEmpty()) {
-                    SubscriptionList(
-                        subscriptionList = displayedUserSubList,
-                        onEdit = { subscription ->
-                            navigateToEditScreen(context, subscription)
-                        },
-                        onRemove = { subscription ->
-                            removeSubscription(context, userSubsVM, subscription, displayedUserSubList)
+                when (fetchingSubsState) {
+                    UserSubscriptionViewModel.FetchingSubscriptionsState.SUCCESS -> {
+                        if (fetchedUserSubList.isNotEmpty()) {
+                            SubscriptionList(
+                                subscriptionList = displayedUserSubList,
+                                onEdit = { subscription ->
+                                    navigateToEditScreen(context, subscription)
+                                },
+                                onRemove = { subscription ->
+                                    removeSubscription(context, userSubsVM, subscription, displayedUserSubList)
+                                }
+                            )
+                        } else {
+                            CenteredText("You currently have no subscriptions.")
                         }
-                    )
-                } else {
-                    CenteredText("You currently have no subscriptions.")
+                    }
+
+                    UserSubscriptionViewModel.FetchingSubscriptionsState.FAILURE -> {
+                        CenteredText("An error occurred while fetching subscriptions.\nPlease try again.")
+                    }
+
+                    else -> {
+                        CenteredCircularProgress()
+                    }
                 }
             }
-
-            UserSubscriptionViewModel.FetchingSubscriptionsState.FAILURE -> {
-                CenteredText("An error occurred while fetching subscriptions.\nPlease try again.")
-            }
-
-            else -> {
-                CenteredCircularProgress()
-            }
         }
+    )
 
-    }
 }
 
 
@@ -253,6 +288,28 @@ fun SortPicker(
             }
         }
     }
+}
+
+@Composable
+private fun TopBarUserSubscriptionScreen(
+    onSortButtonClicked: () -> Unit
+) {
+    TopAppBar(
+        title = {
+            Text(text = "My Subscriptions", fontSize = 21.sp, fontWeight = FontWeight.SemiBold)
+        },
+        actions = {
+            IconButton(onClick = onSortButtonClicked) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_sorting),
+                    contentDescription = "Sort Subscription Button",
+                    tint = Color.DarkGray
+                )
+            }
+        },
+        backgroundColor = Color.LightGray,
+        modifier = Modifier.fillMaxWidth()
+    )
 }
 
 // Function to sort subscriptions based on selected sort type.
