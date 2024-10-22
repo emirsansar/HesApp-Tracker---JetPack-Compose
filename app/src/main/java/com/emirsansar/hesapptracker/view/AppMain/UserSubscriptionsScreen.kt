@@ -26,11 +26,9 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ExposedDropdownMenuBox
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -88,69 +86,75 @@ fun UserSubscriptionsScreen(
         displayedUserSubList.addAll(fetchedUserSubList)
     }
 
-    Scaffold(
-        topBar = {
-            TopBarUserSubscriptionScreen(
-                onSortButtonClicked = {
-                    isSortPickerExpanded = !isSortPickerExpanded
-                }
-            )
-        },
-        content = { paddingValues ->
-            Column(
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // This box is for SortPicker.
-                Box(
-                    modifier = Modifier
-                        .padding(top = 5.dp)
-                        .animateContentSize(animationSpec = tween(durationMillis = 400))
-                ) {
-                    if (isSortPickerExpanded) {
-                        SortPicker(
-                            sortType = sortType,
-                            onSortTypeChanged = { selectedSortType ->
-                                sortType = selectedSortType
-                                displayedUserSubList.clear()
-                                displayedUserSubList.addAll(sortSubscriptions(fetchedUserSubList, selectedSortType))
-                                isSortPickerExpanded = false
-                            }
-                        )
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = Color(0xFFe3e5e6)
+    ) {
+        Scaffold(
+            topBar = {
+                TopBarUserSubscriptionScreen(
+                    onSortButtonClicked = {
+                        isSortPickerExpanded = !isSortPickerExpanded
                     }
-                }
-
-                when (fetchingSubsState) {
-                    UserSubscriptionViewModel.FetchingSubscriptionsState.SUCCESS -> {
-                        if (fetchedUserSubList.isNotEmpty()) {
-                            SubscriptionList(
-                                subscriptionList = displayedUserSubList,
-                                onEdit = { subscription ->
-                                    navigateToEditScreen(context, subscription)
-                                },
-                                onRemove = { subscription ->
-                                    removeSubscription(context, userSubsVM, subscription, displayedUserSubList)
+                )
+            },
+            backgroundColor = Color.Transparent,
+            content = { paddingValues ->
+                Column(
+                    modifier = modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // This box is for SortPicker.
+                    Box(
+                        modifier = Modifier
+                            .padding(top = 5.dp)
+                            .animateContentSize(animationSpec = tween(durationMillis = 400))
+                    ) {
+                        if (isSortPickerExpanded) {
+                            SortPicker(
+                                sortType = sortType,
+                                onSortTypeChanged = { selectedSortType ->
+                                    sortType = selectedSortType
+                                    displayedUserSubList.clear()
+                                    displayedUserSubList.addAll(sortSubscriptions(fetchedUserSubList, selectedSortType))
+                                    isSortPickerExpanded = false
                                 }
                             )
-                        } else {
-                            CenteredText("You currently have no subscriptions.")
                         }
                     }
 
-                    UserSubscriptionViewModel.FetchingSubscriptionsState.FAILURE -> {
-                        CenteredText("An error occurred while fetching subscriptions.\nPlease try again.")
-                    }
+                    when (fetchingSubsState) {
+                        UserSubscriptionViewModel.FetchingSubscriptionsState.SUCCESS -> {
+                            if (fetchedUserSubList.isNotEmpty()) {
+                                SubscriptionList(
+                                    subscriptionList = displayedUserSubList,
+                                    onEdit = { subscription ->
+                                        navigateToEditScreen(context, subscription)
+                                    },
+                                    onRemove = { subscription ->
+                                        removeSubscription(context, userSubsVM, subscription, displayedUserSubList)
+                                    }
+                                )
+                            } else {
+                                CenteredText("You currently have no subscriptions.")
+                            }
+                        }
 
-                    else -> {
-                        CenteredCircularProgress()
+                        UserSubscriptionViewModel.FetchingSubscriptionsState.FAILURE -> {
+                            CenteredText("An error occurred while fetching subscriptions.\nPlease try again.")
+                        }
+
+                        else -> {
+                            CenteredCircularProgress()
+                        }
                     }
                 }
             }
-        }
-    )
+        )
+    }
 
 }
 
@@ -159,7 +163,7 @@ fun UserSubscriptionsScreen(
 
 // Composable function to display a list of subscriptions in a LazyColumn.
 @Composable
-fun SubscriptionList(subscriptionList: List<UserSubscription>, onEdit: (UserSubscription) -> Unit, onRemove: (UserSubscription) -> Unit,) {
+private fun SubscriptionList(subscriptionList: List<UserSubscription>, onEdit: (UserSubscription) -> Unit, onRemove: (UserSubscription) -> Unit,) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -177,7 +181,7 @@ fun SubscriptionList(subscriptionList: List<UserSubscription>, onEdit: (UserSubs
 
 // Composable function to display a card with subscription details.
 @Composable
-fun SubscriptionCard(sub: UserSubscription, onEditClick: () -> Unit, onRemove: () -> Unit) {
+private fun SubscriptionCard(sub: UserSubscription, onEditClick: () -> Unit, onRemove: () -> Unit) {
     var expandedMenu by remember { mutableStateOf(false) }
 
     Card(
@@ -214,7 +218,7 @@ fun SubscriptionCard(sub: UserSubscription, onEditClick: () -> Unit, onRemove: (
 }
 
 @Composable
-fun SubscriptionMenu(
+private fun SubscriptionMenu(
     expanded: Boolean,
     onDismiss: () -> Unit,
     onEdit: () -> Unit,
@@ -242,7 +246,7 @@ fun SubscriptionMenu(
 // Composable function for SortPicker.
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun SortPicker(
+private fun SortPicker(
     sortType: SortType,
     onSortTypeChanged: (SortType) -> Unit
 ) {
@@ -313,7 +317,7 @@ private fun TopBarUserSubscriptionScreen(
 }
 
 // Function to sort subscriptions based on selected sort type.
-fun sortSubscriptions(userSubList: List<UserSubscription>, sortType: SortType): List<UserSubscription> {
+private fun sortSubscriptions(userSubList: List<UserSubscription>, sortType: SortType): List<UserSubscription> {
     return when (sortType) {
         SortType.Default -> userSubList
         SortType.PriceAscending -> userSubList.sortedBy { it.planPrice }
@@ -323,14 +327,14 @@ fun sortSubscriptions(userSubList: List<UserSubscription>, sortType: SortType): 
 }
 
 @Composable
-fun CenteredText(text: String) {
+private fun CenteredText(text: String) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text(text = text, fontSize = 20.sp, color = Color.Gray)
     }
 }
 
 @Composable
-fun CenteredCircularProgress() {
+private fun CenteredCircularProgress() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         CircularProgressIndicator(
             modifier = Modifier.size(30.dp),

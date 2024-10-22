@@ -59,7 +59,7 @@ class CustomServiceScreen : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = Color(0xFFe3e5e6)
                 ) {
                     CustomServiceScreenView(onBackPressed = { finish() })
                 }
@@ -98,6 +98,7 @@ fun CustomServiceScreenView(
         topBar = {
             AppBar(onBackPressed)
         },
+        backgroundColor = Color.Transparent,
         sheetContent = {
             BottomSheetContent(
                 bottomSheetMessage,

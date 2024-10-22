@@ -20,15 +20,14 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
+import androidx.compose.material.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import com.emirsansar.hesapptracker.model.UserSubscription
 import com.emirsansar.hesapptracker.ui.theme.HesAppTrackerTheme
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
@@ -95,67 +95,74 @@ fun EditSubscriptionScreen(
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val context = LocalContext.current
 
-    Scaffold(
-        topBar = { AppBar(onBackPressed) },
-        content = { innerPadding ->
-            ModalBottomSheetLayout(
-                sheetState = bottomSheetState,
-                sheetContent = {
-                    BottomSheetContent(
-                        onConfirm = {
-                            editSubscriptionByViewModel(
-                                userSubsVM, subscription.serviceName, planName, planPrice, personCount, context
-                            )
-                            coroutineScope.launch { bottomSheetState.hide() }
-                        },
-                        onCancel = {
-                            coroutineScope.launch { bottomSheetState.hide() }
-                        }
-                    )
-                },
-                content = {
-                    BodyContent(
-                        subscription = subscription,
-                        planName = planName,
-                        planPrice = planPrice,
-                        personCount = personCount,
-                        planNameError = planNameError,
-                        planPriceError = planPriceError,
-                        personCountError = personCountError,
-                        onPlanNameChange = { value ->
-                            planName = value
-                            planNameError = value.isEmpty()
-                        },
-                        onPlanPriceChange = { value ->
-                            planPrice = value
-                            planPriceError = value.isEmpty()
-                        },
-                        onPersonCountChange = { value ->
-                            personCount = value
-                            personCountError = value.isEmpty()
-                        },
-                        modifier = modifier,
-                        innerPadding = innerPadding,
-                        coroutineScope = coroutineScope,
-                        bottomSheetState = bottomSheetState
-                    )
-                }
-            )
-        }
-    )
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = Color(0xFFe3e5e6)
+    ) {
+        Scaffold(
+            topBar = { TopBarEditSubscriptionScreen(onBackPressed) },
+            backgroundColor = Color.Transparent,
+            content = { innerPadding ->
+                ModalBottomSheetLayout(
+                    sheetState = bottomSheetState,
+                    sheetContent = {
+                        BottomSheetContent(
+                            onConfirm = {
+                                editSubscriptionByViewModel(
+                                    userSubsVM, subscription.serviceName, planName, planPrice, personCount, context
+                                )
+                                coroutineScope.launch { bottomSheetState.hide() }
+                            },
+                            onCancel = {
+                                coroutineScope.launch { bottomSheetState.hide() }
+                            }
+                        )
+                    },
+                    content = {
+                        BodyContent(
+                            subscription = subscription,
+                            planName = planName,
+                            planPrice = planPrice,
+                            personCount = personCount,
+                            planNameError = planNameError,
+                            planPriceError = planPriceError,
+                            personCountError = personCountError,
+                            onPlanNameChange = { value ->
+                                planName = value
+                                planNameError = value.isEmpty()
+                            },
+                            onPlanPriceChange = { value ->
+                                planPrice = value
+                                planPriceError = value.isEmpty()
+                            },
+                            onPersonCountChange = { value ->
+                                personCount = value
+                                personCountError = value.isEmpty()
+                            },
+                            modifier = modifier,
+                            innerPadding = innerPadding,
+                            coroutineScope = coroutineScope,
+                            bottomSheetState = bottomSheetState
+                        )
+                    }
+                )
+            }
+        )
+    }
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AppBar(onBackPressed: () -> Unit) {
+private fun TopBarEditSubscriptionScreen(onBackPressed: () -> Unit) {
     TopAppBar(
         title = { Text("My Subscriptions", fontSize = 20.sp) },
         navigationIcon = {
             IconButton(onClick = { onBackPressed() }) {
-                Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = Color.Gray)
+                Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = Color.DarkGray)
             }
-        }
+        },
+        backgroundColor = Color.LightGray,
+        modifier = Modifier.fillMaxWidth()
     )
 }
 
