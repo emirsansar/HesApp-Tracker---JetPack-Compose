@@ -1,6 +1,8 @@
 package com.emirsansar.hesapptracker.view.AppMain
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,20 +16,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,7 +54,6 @@ import com.emirsansar.hesapptracker.model.Plan
 import com.emirsansar.hesapptracker.viewModel.PlanViewModel
 import com.emirsansar.hesapptracker.viewModel.UserSubscriptionViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun PlansScreen(
@@ -69,47 +73,54 @@ fun PlansScreen(
         plansVM.fetchPlansOfServiceFromFirestore(serviceName)
     }
 
-    Scaffold(
-        topBar = { AppBar(navController) },
-        content = { paddingValues ->
-            Column(
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                HeaderText(serviceName)
-                PlansText()
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = Color(0xFFe3e5e6)
+    ) {
+        Scaffold(
+            topBar = { TopBarPlansScreen(serviceName, navController, context) },
+            backgroundColor = Color.Transparent,
+            content = { paddingValues ->
+                Column(
+                    modifier = modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    HeaderText(serviceName)
+                    PlansText()
 
-                PlanList(
-                    fetchedPlanList,
-                    setSelectedPlan = { plan -> selectedPlan = plan },
-                    setShowDialog = { visible -> showDialog = visible }
-                )
+                    PlanList(
+                        fetchedPlanList,
+                        setSelectedPlan = { plan -> selectedPlan = plan },
+                        setShowDialog = { visible -> showDialog = visible }
+                    )
 
-                if (showDialog) {
-                    selectedPlan?.let {
-                        AddPlanDialog(
-                            plan = it,
-                            onConfirm = { personCount ->
-                                userSubsVM.addPlanToUserOnFirestore(serviceName, it, personCount) { success ->
-                                    if (success)
-                                        Toast.makeText(context, "Plan başarıyla eklendi.", Toast.LENGTH_SHORT).show()
-                                }
-                                showDialog = false
-                            },
-                            onDismiss = { showDialog = false }
-                        )
+                    if (showDialog) {
+                        selectedPlan?.let {
+                            AddPlanDialog(
+                                plan = it,
+                                onConfirm = { personCount ->
+                                    userSubsVM.addPlanToUserOnFirestore(serviceName, it, personCount) { success ->
+                                        if (success)
+                                            Toast.makeText(context, "Plan has been added successfully.", Toast.LENGTH_SHORT).show()
+                                    }
+                                    showDialog = false
+                                },
+                                onDismiss = { showDialog = false }
+                            )
+                        }
                     }
                 }
             }
-        }
-    )
+        )
+    }
+
 }
 
 @Composable
-fun PlanList(
+private fun PlanList(
     planList: List<Plan>,
     setSelectedPlan: (Plan) -> Unit,
     setShowDialog: (Boolean) -> Unit)
@@ -133,39 +144,52 @@ fun PlanList(
 }
 
 @Composable
-fun PlanCard(planName: String, planPrice: Number?, onClick: () -> Unit) {
-    Row(
+private fun PlanCard(planName: String, planPrice: Number?, onClick: () -> Unit) {
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp, horizontal = 16.dp)
             .clickable { onClick() },
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        elevation = 4.dp,
+        backgroundColor = Color.White,
+        shape = RoundedCornerShape(12.dp)
     ) {
-        Text(
-            text = planName,
-            fontSize = 18.sp,
-            modifier = Modifier.weight(1f),
-            textAlign = TextAlign.Start
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = planName,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.Black,
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Start
+            )
 
-        Text(
-            text = "${planPrice ?: 0} ₺",
-            fontSize = 18.sp,
-            modifier = Modifier.weight(1f),
-            textAlign = TextAlign.End
-        )
+            Text(
+                text = "${planPrice ?: 0} ₺",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF4CAF50),
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.End
+            )
+        }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-private fun AppBar(navController: NavController) {
+private fun TopBarPlansScreen(serviceName: String, navController: NavController, context: Context) {
     TopAppBar(
         title = {
             Text(
                 text = "Services",
-                fontSize = 20.sp
+                fontSize = 20.sp, fontWeight = FontWeight.Medium
             )
         },
         navigationIcon = {
@@ -177,13 +201,26 @@ private fun AppBar(navController: NavController) {
             }
         },
         actions = {
+            IconButton(onClick = {
+                val intent = Intent(context, CustomPlanScreen::class.java).apply {
+                    putExtra("serviceName", serviceName)
+                }
+                context.startActivity(intent)
+            }) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add Custom Plan Button",
+                    tint = Color.DarkGray
+                )
+            }
         },
+        backgroundColor = Color.LightGray,
         modifier = Modifier.fillMaxWidth()
     )
 }
 
 @Composable
-fun AddPlanDialog(
+private fun AddPlanDialog(
     plan: Plan,
     onConfirm: (Int) -> Unit,
     onDismiss: () -> Unit
@@ -267,18 +304,21 @@ fun AddPlanDialog(
 }
 
 @Composable
-fun HeaderText(serviceName: String) {
+private fun HeaderText(serviceName: String) {
     Text(
         text = serviceName,
-        fontSize = 30.sp,
-        modifier = Modifier.padding(top = 5.dp)
+        fontSize = 25.sp,
+        fontWeight = FontWeight.Medium,
+        modifier = Modifier.padding(top = 16.dp)
     )
 }
 
 @Composable
-fun PlansText(){
-    Text(text = "Plans:", fontSize = 20.sp, modifier = Modifier
-        .fillMaxWidth()
-        .padding(start = 20.dp, top = 8.dp)
+private fun PlansText(){
+    Text(
+        text = "Plans:",
+        fontSize = 22.sp,
+        modifier = Modifier
+            .fillMaxWidth().padding(start = 24.dp, top = 8.dp)
     )
 }
