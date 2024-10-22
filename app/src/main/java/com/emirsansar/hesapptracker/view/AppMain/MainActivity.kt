@@ -15,14 +15,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -47,11 +50,17 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+sealed class BottomNavItem(val route: String, val icon: ImageVector, val title: String) {
+    object Home : BottomNavItem("home_screen", Icons.Default.Home, "Home")
+    object Services : BottomNavItem("services_screen", Icons.Default.List, "Services")
+    object UserSubscriptions : BottomNavItem("usersubscriptions_screen", Icons.Default.Person, "Subscriptions")
+}
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainActivityScreen(modifier: Modifier = Modifier) {
-    val items = listOf("Home", "Services", "UserSubscriptions")
+    val items = listOf(BottomNavItem.Home, BottomNavItem.Services, BottomNavItem.UserSubscriptions)
     val selectedBar = remember { mutableStateOf(0)}
     val navController = rememberNavController()
 
@@ -81,32 +90,41 @@ fun MainActivityScreen(modifier: Modifier = Modifier) {
             }
         },
         bottomBar = {
-            NavigationBar {
-                items.forEachIndexed { index, item ->
-                    NavigationBarItem(
-                        selected = selectedBar.value == index,
-                        onClick = {
-                            selectedBar.value = index;
-                            navigateAndClearBackStack(
-                                navController = navController,
-                                destination = "${item.lowercase()}_screen"
-                            ) },
-                        label = {
-                            if (item == "UserSubscriptions" ) Text(text = "Subscriptions")
-                            else Text(item) },
-                        icon = {
-                            when (item) {
-                                "Home" -> Icon(Icons.Default.Home, contentDescription = "Home Icon")
-                                "Services" -> Icon(Icons.Default.List, contentDescription = "Services Icon")
-                                "UserSubscriptions" -> Icon(Icons.Default.Person, contentDescription = "User Subscriptions Icon")
-                            }
-                        }
-                    )
-                }
-            }
+            ApplicationNavigationBar(items, selectedBar, navController)
         }
     )
 }
+
+@Composable
+private fun ApplicationNavigationBar(
+    items: List<BottomNavItem>,
+    selectedBar: MutableState<Int>,
+    navController: NavController
+) {
+    NavigationBar(containerColor = Color.LightGray) {
+        items.forEachIndexed { index, item ->
+            NavigationBarItem(
+                selected = selectedBar.value == index,
+                onClick = {
+                    if (selectedBar.value != index) {
+                        selectedBar.value = index
+                        navigateAndClearBackStack(navController, item.route)
+                    }
+                },
+                label = { Text(item.title) },
+                icon = { Icon(item.icon, contentDescription = item.title) },
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = Color(0xFFc3c3c3),
+                    selectedTextColor = Color.Black,
+                    unselectedTextColor = Color.DarkGray,
+                    selectedIconColor = Color.Black,
+                    unselectedIconColor = Color.DarkGray,
+                )
+            )
+        }
+    }
+}
+
 
 // Navigate to a new destination while clearing all previous screens from the back stack.
 private fun navigateAndClearBackStack(

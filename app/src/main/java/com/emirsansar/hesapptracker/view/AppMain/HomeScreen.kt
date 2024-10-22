@@ -14,11 +14,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -39,7 +39,6 @@ import com.emirsansar.hesapptracker.R
 import com.emirsansar.hesapptracker.viewModel.UserSubscriptionViewModel
 import com.emirsansar.hesapptracker.viewModel.UserViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun HomeScreen(
@@ -60,25 +59,33 @@ fun HomeScreen(
         userSubVM.fetchSubscriptionsSummary()
     }
 
-    Scaffold(
-        topBar = { AppBar() },
-        content = { paddingValues ->
-            Column(
-                modifier = modifier.fillMaxSize().padding(paddingValues),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally)
-            {
-                WelcomeMessage(userFullName)
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = Color(0xFFe3e5e6)
+    ) {
+        Scaffold(
+            topBar = { TopBarHomeScreen() },
+            backgroundColor = Color.Transparent,
+            content = { paddingValues ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    WelcomeMessage(userFullName)
 
-                SubscriptionSummaryCard(
-                    fetchingSummaryState = fetchingSummaryState,
-                    subscriptionCount = fetchedSubsCount,
-                    monthlySpend = fetchedMonthlySpend,
-                    annualSpend = fetchedMonthlySpend * 12
-                )
+                    SubscriptionSummaryCard(
+                        fetchingSummaryState = fetchingSummaryState,
+                        subscriptionCount = fetchedSubsCount,
+                        monthlySpend = fetchedMonthlySpend,
+                        annualSpend = fetchedMonthlySpend * 12
+                    )
+                }
             }
-        }
-    )
+        )
+    }
 
 }
 
@@ -91,7 +98,7 @@ private fun SubscriptionSummaryCard(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxWidth(0.8f)
+            .fillMaxWidth(0.85f)
             .padding(top = 32.dp)
             .background(
                 color = Color.LightGray,
@@ -101,33 +108,46 @@ private fun SubscriptionSummaryCard(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         SummaryRow(
-            label = "Abonelik Sayısı",
+            label = "Subscriptions Count:",
             value = subscriptionCount.toString(),
+            icon = R.drawable.icon_numbers,
             showProgress = fetchingSummaryState == UserSubscriptionViewModel.FetchingSummaryState.IDLE
         )
 
         SummaryRow(
-            label = "Aylık Harcama",
+            label = "Monthly Spending:",
             value = String.format("%.2f ₺", monthlySpend),
+            icon = R.drawable.icon_calendar,
             showProgress = fetchingSummaryState == UserSubscriptionViewModel.FetchingSummaryState.IDLE
         )
 
         SummaryRow(
-            label = "Yıllık Harcama",
+            label = "Annual Spending:",
             value = String.format("%.2f ₺", annualSpend),
+            icon = R.drawable.icon_calendar,
             showProgress = fetchingSummaryState == UserSubscriptionViewModel.FetchingSummaryState.IDLE
         )
     }
 }
 
 @Composable
-private fun SummaryRow(label: String, value: String, showProgress: Boolean) {
+private fun SummaryRow(label: String, value: String, icon: Int, showProgress: Boolean) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = label, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = icon),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp).padding(end = 8.dp)
+            )
+            Text(text = label, fontSize = 19.sp, fontWeight = FontWeight.Medium)
+        }
+
         if (showProgress) {
             CircularProgressIndicator(modifier = Modifier.size(16.dp))
         } else {
@@ -137,7 +157,7 @@ private fun SummaryRow(label: String, value: String, showProgress: Boolean) {
 }
 
 @Composable
-private fun AppBar() {
+private fun TopBarHomeScreen() {
     TopAppBar(
         title = {
             Row(
@@ -182,14 +202,14 @@ private fun WelcomeMessage(userFullName: String) {
             Text(
                 text = " Welcome,",
                 fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.SemiBold
             )
         }
 
         Text(
             text = userFullName,
             fontSize = 24.sp,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.Medium
         )
     }
 }
