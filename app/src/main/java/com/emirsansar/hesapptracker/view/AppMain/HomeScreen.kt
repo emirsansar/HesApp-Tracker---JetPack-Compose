@@ -1,43 +1,67 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.emirsansar.hesapptracker.view.AppMain
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Divider
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
+import androidx.compose.material.Switch
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.emirsansar.hesapptracker.R
+import com.emirsansar.hesapptracker.view.Authentication.AuthenticationActivity
 import com.emirsansar.hesapptracker.viewModel.UserSubscriptionViewModel
 import com.emirsansar.hesapptracker.viewModel.UserViewModel
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -51,6 +75,12 @@ fun HomeScreen(
     val fetchedMonthlySpend by userSubVM.totalMonthlySpending.observeAsState(0.0)
     var userFullName by remember { mutableStateOf("") }
 
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         userVM.fetchUserFullName { fullName ->
             userFullName = fullName ?: "Unknown"
@@ -59,35 +89,70 @@ fun HomeScreen(
         userSubVM.fetchSubscriptionsSummary()
     }
 
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        color = Color(0xFFe3e5e6)
-    ) {
-        Scaffold(
-            topBar = { TopBarHomeScreen() },
-            backgroundColor = Color.Transparent,
-            content = { paddingValues ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    WelcomeMessage(userFullName)
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            DrawerContent(
+                drawerState,
+                scope,
+                { showLogoutDialog = it }
+            )
+        },
+        content = {
+            Scaffold(
+                topBar = { TopBarHomeScreen(scope, drawerState) },
+                backgroundColor = Color(0xFFe3e5e6),
+                content = { paddingValues ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        WelcomeMessage(userFullName)
 
-                    SubscriptionSummaryCard(
-                        fetchingSummaryState = fetchingSummaryState,
-                        subscriptionCount = fetchedSubsCount,
-                        monthlySpend = fetchedMonthlySpend,
-                        annualSpend = fetchedMonthlySpend * 12
-                    )
+                        SubscriptionSummaryCard(
+                            fetchingSummaryState = fetchingSummaryState,
+                            subscriptionCount = fetchedSubsCount,
+                            monthlySpend = fetchedMonthlySpend,
+                            annualSpend = fetchedMonthlySpend * 12
+                        )
+                    }
                 }
-            }
+            )
+        }
+    )
+
+    // Logout Confirmation Dialog
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text(text = "Log Out", fontSize = 18.sp, fontWeight = FontWeight.Medium) },
+            text = { Text("Are you sure you want to log out?", fontSize = 16.sp) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+                        logOut(context, scope)
+                    }
+                ) {
+                    Text("Log Out", color = Color.Green)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text("Cancel", color = Color.Red)
+                }
+            },
+            modifier = Modifier.background(Color.LightGray),
+            shape = RoundedCornerShape(16.dp)
         )
     }
 
 }
+
+// Composable:
 
 @Composable
 private fun SubscriptionSummaryCard(
@@ -143,7 +208,9 @@ private fun SummaryRow(label: String, value: String, icon: Int, showProgress: Bo
             Icon(
                 painter = painterResource(id = icon),
                 contentDescription = null,
-                modifier = Modifier.size(24.dp).padding(end = 8.dp)
+                modifier = Modifier
+                    .size(24.dp)
+                    .padding(end = 8.dp)
             )
             Text(text = label, fontSize = 19.sp, fontWeight = FontWeight.Medium)
         }
@@ -157,7 +224,10 @@ private fun SummaryRow(label: String, value: String, icon: Int, showProgress: Bo
 }
 
 @Composable
-private fun TopBarHomeScreen() {
+private fun TopBarHomeScreen(
+    scope: CoroutineScope,
+    drawerState: DrawerState
+) {
     TopAppBar(
         title = {
             Row(
@@ -174,7 +244,7 @@ private fun TopBarHomeScreen() {
         },
         actions = {
             IconButton(onClick = {
-                // Side Menu will open.
+                scope.launch { drawerState.open() }
             }) {
                 Icon( imageVector = Icons.Default.Settings, contentDescription = "Settings", tint = Color.DarkGray )
             }
@@ -211,5 +281,79 @@ private fun WelcomeMessage(userFullName: String) {
             fontSize = 24.sp,
             fontWeight = FontWeight.Medium
         )
+    }
+}
+
+@Composable
+private fun DrawerContent(
+    drawerState: DrawerState,
+    scope: CoroutineScope,
+    setShowLogoutDialog: (Boolean) -> Unit
+) {
+    ModalDrawerSheet {
+        Column(
+            modifier = Modifier
+                .width(250.dp)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = "Settings",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            Divider(color = Color.Black, thickness = 1.dp)
+
+            // Light/Dark Theme Switch
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "Dark Mode", fontSize = 18.sp)
+                Spacer(modifier = Modifier.weight(1f))
+                Switch(checked = false, onCheckedChange = null)
+            }
+
+            // Language Selection
+            Text(
+                text = "Language Selection",
+                fontSize = 18.sp,
+                modifier = Modifier.clickable { /* TODO: Language selection action */ }
+            )
+
+            // Logout Button
+            TextButton(
+                onClick = {
+                    scope.launch {
+                        drawerState.close()
+                    }
+                    setShowLogoutDialog(true)
+                },
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                Text(text = "Log Out", fontSize = 16.sp, color = Color.Red)
+            }
+        }
+    }
+
+}
+
+
+// Functions:
+
+private fun logOut(context: Context, scope: CoroutineScope) {
+    scope.launch {
+        try {
+            FirebaseAuth.getInstance().signOut()
+
+            delay(1000L)
+
+            (context as Activity).finish()
+            context.startActivity(Intent(context, AuthenticationActivity::class.java))
+        } catch (e: Exception) {
+            Toast.makeText(context, "Logout failed, please try again.", Toast.LENGTH_SHORT).show()
+        }
     }
 }
