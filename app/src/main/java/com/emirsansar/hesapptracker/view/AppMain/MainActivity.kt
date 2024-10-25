@@ -1,9 +1,11 @@
 package com.emirsansar.hesapptracker.view.AppMain
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -36,6 +38,9 @@ import com.emirsansar.hesapptracker.ui.theme.HesAppTrackerTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        applySavedTheme(this)
+
         setContent {
             HesAppTrackerTheme {
                 // A surface container using the 'background' color from the theme
@@ -135,6 +140,20 @@ private fun navigateAndClearBackStack(
         popUpTo(navController.graph.startDestinationId) { inclusive = false }
     }
 }
+
+// Applies the saved theme mode (dark or light) based on user preference.
+private fun applySavedTheme(context: Context) {
+    val sharedPref = context.getSharedPreferences("theme_pref", Context.MODE_PRIVATE)
+    val isDarkMode = sharedPref.getBoolean("isDarkMode", false)
+
+    val mode = if (isDarkMode) {
+        AppCompatDelegate.MODE_NIGHT_YES
+    } else {
+        AppCompatDelegate.MODE_NIGHT_NO
+    }
+    AppCompatDelegate.setDefaultNightMode(mode)
+}
+
 
 @Preview(showBackground = true)
 @Composable

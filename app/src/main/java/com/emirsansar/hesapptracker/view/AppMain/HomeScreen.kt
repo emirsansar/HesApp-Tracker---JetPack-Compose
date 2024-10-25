@@ -7,6 +7,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -81,6 +82,15 @@ fun HomeScreen(
 
     var showLogoutDialog by remember { mutableStateOf(false) }
 
+    val sharedPref = context.getSharedPreferences("theme_pref", Context.MODE_PRIVATE)
+    var isDarkMode by remember { mutableStateOf(sharedPref.getBoolean("isDarkMode", false)) }
+
+    val currentTheme = if (isDarkMode) {
+        "Dark Mode is ON"
+    } else {
+        "Dark Mode is OFF"
+    }
+
     LaunchedEffect(Unit) {
         userVM.fetchUserFullName { fullName ->
             userFullName = fullName ?: "Unknown"
@@ -95,7 +105,10 @@ fun HomeScreen(
             DrawerContent(
                 drawerState,
                 scope,
-                { showLogoutDialog = it }
+                context,
+                { showLogoutDialog = it },
+                isDarkMode,
+                { isDark -> isDarkMode = isDark }
             )
         },
         content = {
@@ -288,7 +301,10 @@ private fun WelcomeMessage(userFullName: String) {
 private fun DrawerContent(
     drawerState: DrawerState,
     scope: CoroutineScope,
-    setShowLogoutDialog: (Boolean) -> Unit
+    context: Context,
+    setShowLogoutDialog: (Boolean) -> Unit,
+    isDarkMode: Boolean,
+    onDarkModeToggle: (Boolean) -> Unit
 ) {
     ModalDrawerSheet {
         Column(
@@ -313,7 +329,13 @@ private fun DrawerContent(
             ) {
                 Text(text = "Dark Mode", fontSize = 18.sp)
                 Spacer(modifier = Modifier.weight(1f))
-                Switch(checked = false, onCheckedChange = null)
+                Switch(
+                    checked = isDarkMode,
+                    onCheckedChange = { isChecked ->
+                        onDarkModeToggle(isChecked)
+                        updateTheme(context, isChecked)
+                    }
+                )
             }
 
             // Language Selection
@@ -343,6 +365,7 @@ private fun DrawerContent(
 
 // Functions:
 
+// Logs out the user, finishes the current activity, and restarts the AuthenticationActivity.
 private fun logOut(context: Context, scope: CoroutineScope) {
     scope.launch {
         try {
@@ -356,4 +379,19 @@ private fun logOut(context: Context, scope: CoroutineScope) {
             Toast.makeText(context, "Logout failed, please try again.", Toast.LENGTH_SHORT).show()
         }
     }
+}
+
+// Updates and applies the theme mode (dark or light) based on user selection.
+private fun updateTheme(context: Context, isDarkMode: Boolean) {
+    val sharedPref = context.getSharedPreferences("theme_pref", Context.MODE_PRIVATE)
+    val editor = sharedPref.edit()
+    editor.putBoolean("isDarkMode", isDarkMode)
+    editor.apply()
+
+    val mode = if (isDarkMode) {
+        AppCompatDelegate.MODE_NIGHT_YES
+    } else {
+        AppCompatDelegate.MODE_NIGHT_NO
+    }
+    AppCompatDelegate.setDefaultNightMode(mode)
 }
