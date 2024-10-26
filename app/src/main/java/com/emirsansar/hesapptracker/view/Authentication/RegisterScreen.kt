@@ -3,15 +3,17 @@ package com.emirsansar.hesapptracker.view.Authentication
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Surface
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -28,17 +30,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.emirsansar.hesapptracker.R
+import com.emirsansar.hesapptracker.manager.AppManager
+import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
+import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
 import com.emirsansar.hesapptracker.viewModel.AuthenticationViewModel
 
 @Composable
-fun RegisterScreen(navController: NavController, authVM: AuthenticationViewModel = AuthenticationViewModel() ){
-
+fun RegisterScreen(
+    navController: NavController,
+    authVM: AuthenticationViewModel = AuthenticationViewModel()
+){
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    val appManager = AppManager.getInstance(context)
 
     val nameState = remember { mutableStateOf("") }
     val surnameState = remember { mutableStateOf("") }
@@ -71,24 +81,35 @@ fun RegisterScreen(navController: NavController, authVM: AuthenticationViewModel
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFe3e5e6)
+        color = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor
+                else LightThemeColors.BackgroundColor
     ) {
         Column (
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally)
         {
-            Image(
-                painter = painterResource(id = R.drawable.hesapp),
-                contentDescription = "Uygulama Logosu",
-                modifier = Modifier
-                    .padding(bottom = 40.dp, top = 30.dp)
-                    .width(230.dp)
-            )
+            Box (modifier = Modifier
+                .fillMaxWidth()
+                .height(130.dp)
+                .padding(bottom = 30.dp)
+                .background( if (appManager.isDarkMode.value) DarkThemeColors.BarColor
+                else LightThemeColors.BarColor ),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.hesapp),
+                    contentDescription = "Application Logo",
+                    modifier = Modifier
+                        .width(220.dp)
+                )
+            }
 
             Text(
                 text = "Register",
-                style = MaterialTheme.typography.titleLarge,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = if (appManager.isDarkMode.value) Color.White else Color.Black,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
@@ -101,80 +122,79 @@ fun RegisterScreen(navController: NavController, authVM: AuthenticationViewModel
                     verticalAlignment = Alignment.CenterVertically
                 )
                 {
-                    OutlinedTextField( // Name TextField
+                    // Name TextField
+                    CustomOutlinedTextFieldForAuthScreens(
                         value = nameState.value,
                         onValueChange = { nameState.value = it },
-                        label = { androidx.compose.material.Text("Name") },
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .padding(bottom = 10.dp)
+                        label = "Name",
+                        isDarkMode = appManager.isDarkMode.value,
+                        modifier = Modifier.weight(1f).fillMaxWidth().padding(bottom = 10.dp)
                     )
 
-                    OutlinedTextField( // Surname TextField
+                    // Surname TextField
+                    CustomOutlinedTextFieldForAuthScreens(
                         value = surnameState.value,
                         onValueChange = { surnameState.value = it },
-                        label = { androidx.compose.material.Text("Surname") },
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .padding(bottom = 10.dp)
+                        label = "Surname",
+                        isDarkMode = appManager.isDarkMode.value,
+                        modifier = Modifier.weight(1f).fillMaxWidth().padding(bottom = 10.dp)
                     )
                 }
 
                 // Email TextField
-                OutlinedTextField(
+                CustomOutlinedTextFieldForAuthScreens(
                     value = emailState.value,
                     onValueChange = { emailState.value = it },
-                    label = { androidx.compose.material.Text("Email") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 10.dp)
+                    label = "Email",
+                    isDarkMode = appManager.isDarkMode.value,
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp)
                 )
 
                 // Password TextField
-                OutlinedTextField(
+                CustomOutlinedTextFieldForAuthScreens(
                     value = passwordState.value,
                     onValueChange = { passwordState.value = it },
-                    label = { androidx.compose.material.Text("Password") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 10.dp)
+                    label = "Password",
+                    isDarkMode = appManager.isDarkMode.value,
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                    visualTransformation = PasswordVisualTransformation()
                 )
 
                 // Re-password TextField
-                OutlinedTextField(
+                CustomOutlinedTextFieldForAuthScreens(
                     value = rePasswordState.value,
                     onValueChange = { rePasswordState.value = it },
-                    label = { androidx.compose.material.Text("Re-Password") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
+                    label = "Re-Password",
+                    isDarkMode = appManager.isDarkMode.value,
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    visualTransformation = PasswordVisualTransformation()
                 )
             }
 
             Button(
+                modifier = Modifier.fillMaxWidth(0.8f),
                 onClick = {
                     keyboardController?.hide()
                     authVM.registerUserToFirebaseAuth(emailState.value, passwordState.value, nameState.value, surnameState.value) })
             {
-                Text(text = "Register")
+                Text(text = "Register", fontSize = 16.sp,
+                     color = Color.White)
             }
 
             Text(
                 text = "Do you have an account? Sign In",
                 style = MaterialTheme.typography.bodyMedium,
+                color = if (appManager.isDarkMode.value) Color.White
+                        else MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .padding(top = 16.dp)
-                    .clickable { navigateToLoginScreen(navController) },
-                color = MaterialTheme.colorScheme.primary
+                    .clickable { navigateToLoginScreen(navController) }
             )
         }
     }
 
 }
+
 
 fun navigateToLoginScreen(navController: NavController) {
     navController.navigate("login_screen") {
