@@ -2,10 +2,10 @@ package com.emirsansar.hesapptracker.view.AppMain
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.ContextWrapper
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -33,13 +33,14 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.emirsansar.hesapptracker.manager.AppManager
+import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
 import com.emirsansar.hesapptracker.ui.theme.HesAppTrackerTheme
+import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        applySavedTheme(this)
 
         setContent {
             HesAppTrackerTheme {
@@ -48,7 +49,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainActivityScreen()
+                    MainActivityScreen(this)
                 }
             }
         }
@@ -64,10 +65,11 @@ sealed class BottomNavItem(val route: String, val icon: ImageVector, val title: 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainActivityScreen(modifier: Modifier = Modifier) {
+fun MainActivityScreen(context: Context) {
     val items = listOf(BottomNavItem.Home, BottomNavItem.Services, BottomNavItem.UserSubscriptions)
     val selectedBar = remember { mutableStateOf(0)}
     val navController = rememberNavController()
+    val appManager = AppManager.getInstance(context)
 
     Scaffold(
         content = { paddingValues ->
@@ -95,7 +97,7 @@ fun MainActivityScreen(modifier: Modifier = Modifier) {
             }
         },
         bottomBar = {
-            ApplicationNavigationBar(items, selectedBar, navController)
+            ApplicationNavigationBar(items, selectedBar, navController, appManager)
         }
     )
 }
@@ -104,9 +106,12 @@ fun MainActivityScreen(modifier: Modifier = Modifier) {
 private fun ApplicationNavigationBar(
     items: List<BottomNavItem>,
     selectedBar: MutableState<Int>,
-    navController: NavController
+    navController: NavController,
+    appManager: AppManager
 ) {
-    NavigationBar(containerColor = Color.LightGray) {
+    NavigationBar(
+        containerColor = if (appManager.isDarkMode.value) DarkThemeColors.BarColor else LightThemeColors.BarColor
+    ) {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
                 selected = selectedBar.value == index,
@@ -119,11 +124,11 @@ private fun ApplicationNavigationBar(
                 label = { Text(item.title) },
                 icon = { Icon(item.icon, contentDescription = item.title) },
                 colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = Color(0xFFc3c3c3),
-                    selectedTextColor = Color.Black,
-                    unselectedTextColor = Color.DarkGray,
-                    selectedIconColor = Color.Black,
-                    unselectedIconColor = Color.DarkGray,
+                    indicatorColor = if (appManager.isDarkMode.value) Color.DarkGray else Color(0xFF84a4c4),
+                    selectedTextColor = if (appManager.isDarkMode.value) Color.White else Color.Black,
+                    unselectedTextColor = if (appManager.isDarkMode.value) Color.Gray else Color.DarkGray,
+                    selectedIconColor = if (appManager.isDarkMode.value) Color.White else Color.Black,
+                    unselectedIconColor = if (appManager.isDarkMode.value) Color.Gray else Color.DarkGray,
                 )
             )
         }
@@ -141,24 +146,11 @@ private fun navigateAndClearBackStack(
     }
 }
 
-// Applies the saved theme mode (dark or light) based on user preference.
-private fun applySavedTheme(context: Context) {
-    val sharedPref = context.getSharedPreferences("theme_pref", Context.MODE_PRIVATE)
-    val isDarkMode = sharedPref.getBoolean("isDarkMode", false)
-
-    val mode = if (isDarkMode) {
-        AppCompatDelegate.MODE_NIGHT_YES
-    } else {
-        AppCompatDelegate.MODE_NIGHT_NO
-    }
-    AppCompatDelegate.setDefaultNightMode(mode)
-}
-
 
 @Preview(showBackground = true)
 @Composable
 fun AppMainActivityPreview() {
     HesAppTrackerTheme {
-        MainActivityScreen()
+        MainActivityScreen(ContextWrapper(null))
     }
 }

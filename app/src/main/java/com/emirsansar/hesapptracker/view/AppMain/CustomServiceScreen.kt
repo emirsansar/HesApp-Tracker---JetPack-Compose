@@ -1,8 +1,10 @@
 package com.emirsansar.hesapptracker.view.AppMain
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -11,8 +13,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.AlertDialog
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.BottomSheetScaffoldState
 import androidx.compose.material.TextButton
@@ -28,7 +31,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,14 +41,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.model.Plan
+import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
 import com.emirsansar.hesapptracker.ui.theme.HesAppTrackerTheme
+import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
 import com.emirsansar.hesapptracker.viewModel.UserSubscriptionViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -68,7 +75,6 @@ class CustomServiceScreen : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomServiceScreenView(
     userSubVM: UserSubscriptionViewModel = UserSubscriptionViewModel(),
@@ -77,6 +83,8 @@ fun CustomServiceScreenView(
 {
     val coroutineScope = rememberCoroutineScope()
     val scaffoldState = rememberBottomSheetScaffoldState()
+    val context = LocalContext.current
+    val appManager = AppManager.getInstance(context)
 
     var serviceName by remember { mutableStateOf("") }
     var serviceNameError by remember { mutableStateOf(false) }
@@ -96,15 +104,16 @@ fun CustomServiceScreenView(
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         topBar = {
-            AppBar(onBackPressed)
+            TopBarCustomServiceScreen(onBackPressed, appManager.isDarkMode.value)
         },
-        backgroundColor = Color.Transparent,
+        backgroundColor = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor else LightThemeColors.BackgroundColor,
         sheetContent = {
             BottomSheetContent(
                 bottomSheetMessage,
                 bottomSheetSuccess,
                 coroutineScope,
-                scaffoldState
+                scaffoldState,
+                appManager.isDarkMode.value
             )
         },
         sheetPeekHeight = 0.dp,
@@ -151,20 +160,21 @@ fun CustomServiceScreenView(
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AppBar(onBackPressed: () -> Unit) {
+private fun TopBarCustomServiceScreen(onBackPressed: () -> Unit, isDarkMode: Boolean) {
     TopAppBar(
-        title = { Text("Services", fontSize = 20.sp) },
+        title = { Text("Services", fontSize = 20.sp,
+            color = if (isDarkMode) Color.White else Color.Black) },
         navigationIcon = {
             IconButton(onClick = { onBackPressed() }) {
-                Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = Color.Gray)
+                Icon(Icons.Filled.ArrowBack, contentDescription = "Back",
+                    tint = if (isDarkMode) Color.White else Color.Black )
             }
-        }
+        },
+        backgroundColor = if (isDarkMode) DarkThemeColors.BarColor else LightThemeColors.BarColor,
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BodyContent(
     userSubVM: UserSubscriptionViewModel,
@@ -188,11 +198,11 @@ private fun BodyContent(
     scaffoldState: BottomSheetScaffoldState
 ) {
     val focusManager = LocalFocusManager.current
-
     var showDialog by remember { mutableStateOf(false) }
     var alertMessage by remember { mutableStateOf("") }
-
     var showAlertError by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val appManager = AppManager.getInstance(context)
 
     Column(
         modifier = modifier
@@ -206,6 +216,7 @@ private fun BodyContent(
         Text(
             text = "Custom Service: ",
             fontSize = 24.sp,
+            color = if (appManager.isDarkMode.value) Color.White else Color.Black,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
@@ -213,14 +224,16 @@ private fun BodyContent(
             value = serviceName,
             label = "Service Name",
             error = serviceNameError,
-            onValueChange = onServiceNameChange
+            onValueChange = onServiceNameChange,
+            appManager.isDarkMode.value
         )
 
         CustomOutlinedTextField(
             value = planName,
             label = "Plan Name",
             error = planNameError,
-            onValueChange = onPlanNameChange
+            onValueChange = onPlanNameChange,
+            appManager.isDarkMode.value
         )
 
         CustomOutlinedTextField(
@@ -228,6 +241,7 @@ private fun BodyContent(
             label = "Plan Price",
             error = planPriceError,
             onValueChange = onPlanPriceChange,
+            appManager.isDarkMode.value,
             keyboardType = KeyboardType.Decimal
         )
 
@@ -236,7 +250,8 @@ private fun BodyContent(
             label = "Person Count",
             error = personCountError,
             onValueChange = onPersonCountChange,
-            keyboardType = KeyboardType.Number
+            appManager.isDarkMode.value,
+            keyboardType = KeyboardType.Number,
         )
 
         Button(
@@ -279,12 +294,8 @@ private fun BodyContent(
                     )
                 },
                 onDismiss = { showDialog = false },
-//                alertMessage = "Do you want to add this service?" +
-//                        "\n-Service: $serviceName" +
-//                        "\n-Plan: $planName" +
-//                        "\n-Price: $planPrice" +
-//                        "\n-Person: $personCount"
-                alertMessage = "Do you want to add this service?\n$alertMessage"
+                alertMessage = "Do you want to add this service?\n$alertMessage",
+                isDarkMode = appManager.isDarkMode.value
             )
         }
 
@@ -313,7 +324,8 @@ fun CustomOutlinedTextField(
     label: String,
     error: Boolean,
     onValueChange: (String) -> Unit,
-    keyboardType: KeyboardType = KeyboardType.Text
+    isDarkMode: Boolean,
+    keyboardType: KeyboardType = KeyboardType.Text,
 ) {
     OutlinedTextField(
         value = value,
@@ -321,8 +333,14 @@ fun CustomOutlinedTextField(
         label = { Text(label) },
         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
         colors = TextFieldDefaults.outlinedTextFieldColors(
+            textColor = if (isDarkMode) Color.White else Color.Black,
             focusedBorderColor = if (error) Color.Red else MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = if (error) Color.Red else Color.Gray
+            unfocusedBorderColor = if (error) Color.Red
+                else if (isDarkMode) Color.Gray else Color.DarkGray,
+            focusedLabelColor = if (error) Color.Red
+                else if (isDarkMode) Color.LightGray else Color.DarkGray,
+            unfocusedLabelColor = if (error) Color.Red
+                else if (isDarkMode) Color.LightGray else Color.DarkGray,
         ),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
     )
@@ -333,11 +351,14 @@ private fun BottomSheetContent(
     bottomSheetMessage: String,
     isSuccess: Boolean,
     coroutineScope: CoroutineScope,
-    scaffoldState: BottomSheetScaffoldState
+    scaffoldState: BottomSheetScaffoldState,
+    isDarkMode: Boolean
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(color = if (isDarkMode) DarkThemeColors.DrawerContentColor
+                                else LightThemeColors.DrawerContentColor )
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -368,7 +389,8 @@ private fun ConfirmationDialog(
     onDismissRequest: () -> Unit,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
-    alertMessage: String
+    alertMessage: String,
+    isDarkMode: Boolean
 ) {
     AlertDialog(
         onDismissRequest = { onDismissRequest() },
@@ -399,7 +421,10 @@ private fun ConfirmationDialog(
                 fontWeight = FontWeight.Medium
             ) 
         },
-        text = { Text(alertMessage) }
+        text = { Text(alertMessage) },
+        shape = RoundedCornerShape(16.dp),
+        containerColor = if (isDarkMode) DarkThemeColors.DrawerContentColor
+                         else LightThemeColors.DrawerContentColor
     )
     
 }

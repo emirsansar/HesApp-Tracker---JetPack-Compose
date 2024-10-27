@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,7 +48,11 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import com.emirsansar.hesapptracker.manager.AppManager
+import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
+import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
 import com.emirsansar.hesapptracker.viewModel.UserSubscriptionViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -80,8 +85,8 @@ fun EditSubscriptionScreen(
     subscription: UserSubscription,
     userSubsVM: UserSubscriptionViewModel = UserSubscriptionViewModel(),
     onBackPressed: () -> Unit,
-    modifier: Modifier = Modifier) {
-
+    modifier: Modifier = Modifier
+) {
     var planName by remember { mutableStateOf(subscription.planName) }
     var planNameError by remember { mutableStateOf(false) }
 
@@ -94,74 +99,76 @@ fun EditSubscriptionScreen(
     val coroutineScope = rememberCoroutineScope()
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val context = LocalContext.current
+    val appManager = AppManager.getInstance(context)
 
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        color = Color(0xFFe3e5e6)
-    ) {
-        Scaffold(
-            topBar = { TopBarEditSubscriptionScreen(onBackPressed) },
-            backgroundColor = Color.Transparent,
-            content = { innerPadding ->
-                ModalBottomSheetLayout(
-                    sheetState = bottomSheetState,
-                    sheetContent = {
-                        BottomSheetContent(
-                            onConfirm = {
-                                editSubscriptionByViewModel(
-                                    userSubsVM, subscription.serviceName, planName, planPrice, personCount, context
-                                )
-                                coroutineScope.launch { bottomSheetState.hide() }
-                            },
-                            onCancel = {
-                                coroutineScope.launch { bottomSheetState.hide() }
-                            }
-                        )
-                    },
-                    content = {
-                        BodyContent(
-                            subscription = subscription,
-                            planName = planName,
-                            planPrice = planPrice,
-                            personCount = personCount,
-                            planNameError = planNameError,
-                            planPriceError = planPriceError,
-                            personCountError = personCountError,
-                            onPlanNameChange = { value ->
-                                planName = value
-                                planNameError = value.isEmpty()
-                            },
-                            onPlanPriceChange = { value ->
-                                planPrice = value
-                                planPriceError = value.isEmpty()
-                            },
-                            onPersonCountChange = { value ->
-                                personCount = value
-                                personCountError = value.isEmpty()
-                            },
-                            modifier = modifier,
-                            innerPadding = innerPadding,
-                            coroutineScope = coroutineScope,
-                            bottomSheetState = bottomSheetState
-                        )
-                    }
-                )
-            }
-        )
-    }
-
+    Scaffold(
+        topBar = { TopBarEditSubscriptionScreen(onBackPressed, appManager.isDarkMode.value) },
+        backgroundColor = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor else LightThemeColors.BackgroundColor,
+        content = { innerPadding ->
+            ModalBottomSheetLayout(
+                sheetState = bottomSheetState,
+                sheetContent = {
+                    BottomSheetContent(
+                        onConfirm = {
+                            editSubscriptionByViewModel(
+                                userSubsVM, subscription.serviceName, planName, planPrice, personCount, context
+                            )
+                            coroutineScope.launch { bottomSheetState.hide() }
+                        },
+                        onCancel = {
+                            coroutineScope.launch { bottomSheetState.hide() }
+                        },
+                        appManager.isDarkMode.value
+                    )
+                },
+                content = {
+                    BodyContent(
+                        subscription = subscription,
+                        planName = planName,
+                        planPrice = planPrice,
+                        personCount = personCount,
+                        planNameError = planNameError,
+                        planPriceError = planPriceError,
+                        personCountError = personCountError,
+                        onPlanNameChange = { value ->
+                            planName = value
+                            planNameError = value.isEmpty()
+                        },
+                        onPlanPriceChange = { value ->
+                            planPrice = value
+                            planPriceError = value.isEmpty()
+                        },
+                        onPersonCountChange = { value ->
+                            personCount = value
+                            personCountError = value.isEmpty()
+                        },
+                        modifier = modifier,
+                        innerPadding = innerPadding,
+                        coroutineScope = coroutineScope,
+                        bottomSheetState = bottomSheetState,
+                        isDarkMode = appManager.isDarkMode.value
+                    )
+                }
+            )
+        }
+    )
 }
 
 @Composable
-private fun TopBarEditSubscriptionScreen(onBackPressed: () -> Unit) {
+private fun TopBarEditSubscriptionScreen(
+    onBackPressed: () -> Unit,
+    isDarkMode: Boolean
+) {
     TopAppBar(
-        title = { Text("My Subscriptions", fontSize = 20.sp) },
+        title = { Text("My Subscriptions", fontSize = 20.sp,
+            color = if (isDarkMode) Color.White else Color.Black ) },
         navigationIcon = {
             IconButton(onClick = { onBackPressed() }) {
-                Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = Color.DarkGray)
+                Icon(Icons.Filled.ArrowBack, contentDescription = "Back",
+                    tint =  if (isDarkMode) Color.White else Color.Black)
             }
         },
-        backgroundColor = Color.LightGray,
+        backgroundColor = if (isDarkMode) DarkThemeColors.BarColor else LightThemeColors.BarColor,
         modifier = Modifier.fillMaxWidth()
     )
 }
@@ -182,7 +189,8 @@ private fun BodyContent(
     modifier: Modifier,
     innerPadding: PaddingValues,
     coroutineScope: CoroutineScope,
-    bottomSheetState: ModalBottomSheetState
+    bottomSheetState: ModalBottomSheetState,
+    isDarkMode: Boolean
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -198,56 +206,40 @@ private fun BodyContent(
         Text(
             text = "Editing: ${subscription.serviceName}",
             fontSize = 24.sp,
+            color = if (isDarkMode) Color.White else Color.Black,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        OutlinedTextField(
+        CustomOutlinedTextField(
             value = planName,
-            onValueChange = onPlanNameChange,
-            label = { Text("Plan Name") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = if (planNameError) Color.Red else MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = if (planNameError) Color.Red else Color.Gray
-            )
+            label = "Plan Name",
+            error = planNameError,
+            onValueChange =  onPlanNameChange,
+            isDarkMode = isDarkMode
         )
 
-        OutlinedTextField(
+        CustomOutlinedTextField(
             value = planPrice,
-            onValueChange = { newValue ->
+            label = "Plan Price",
+            error = planPriceError,
+            onValueChange =  { newValue ->
                 if (newValue.all { it.isDigit() || it == '.' || it == ',' }) {
                     onPlanPriceChange(newValue)
                 }
             },
-            label = { Text("Plan Price") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = if (planPriceError) Color.Red else MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = if (planPriceError) Color.Red else Color.Gray
-            ),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+            isDarkMode = isDarkMode
         )
 
-        OutlinedTextField(
+        CustomOutlinedTextField(
             value = personCount,
-            onValueChange = { newValue ->
+            label = "Person Count",
+            error = personCountError,
+            onValueChange =  { newValue ->
                 if (newValue.all { it.isDigit() }) {
                     onPersonCountChange(newValue)
                 }
             },
-            label = { Text("Person Count") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = if (personCountError) Color.Red else MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = if (personCountError) Color.Red else Color.Gray
-            ),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            isDarkMode = isDarkMode
         )
 
         Button(
@@ -267,7 +259,7 @@ private fun BodyContent(
             Text(
                 text = "Please fill in all fields.",
                 color = Color.Red,
-                fontSize = 12.sp,
+                fontSize = 15.sp,
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
@@ -277,18 +269,23 @@ private fun BodyContent(
 @Composable
 private fun BottomSheetContent(
     onConfirm: () -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    isDarkMode: Boolean
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(
+                color = if (isDarkMode) DarkThemeColors.DrawerContentColor
+                else LightThemeColors.DrawerContentColor
+            )
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
         Text(
             text = "Are you sure you want to change your subscription information?",
-            fontSize = 18.sp,
+            fontSize = 16.sp,
             modifier = Modifier.padding(horizontal = 20.dp)
         )
 
@@ -301,6 +298,7 @@ private fun BottomSheetContent(
             Text(
                 text = "Cancel",
                 color = Color.Red,
+                fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
                     .clickable(onClick = onCancel)
                     .padding(16.dp)
@@ -309,6 +307,7 @@ private fun BottomSheetContent(
             Text(
                 text = "Confirm",
                 color = Color.Green,
+                fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
                     .clickable(onClick = onConfirm)
                     .padding(16.dp)

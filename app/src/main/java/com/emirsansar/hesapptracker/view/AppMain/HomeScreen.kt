@@ -15,13 +15,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material3.DrawerValue
@@ -56,6 +57,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.emirsansar.hesapptracker.R
+import com.emirsansar.hesapptracker.manager.AppManager
+import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
+import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
 import com.emirsansar.hesapptracker.view.Authentication.AuthenticationActivity
 import com.emirsansar.hesapptracker.viewModel.UserSubscriptionViewModel
 import com.emirsansar.hesapptracker.viewModel.UserViewModel
@@ -75,21 +79,13 @@ fun HomeScreen(
     val fetchedSubsCount by userSubVM.totalSubscriptionCount.observeAsState(0)
     val fetchedMonthlySpend by userSubVM.totalMonthlySpending.observeAsState(0.0)
     var userFullName by remember { mutableStateOf("") }
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val appManager = AppManager.getInstance(context)
 
-    var showLogoutDialog by remember { mutableStateOf(false) }
-
-    val sharedPref = context.getSharedPreferences("theme_pref", Context.MODE_PRIVATE)
-    var isDarkMode by remember { mutableStateOf(sharedPref.getBoolean("isDarkMode", false)) }
-
-    val currentTheme = if (isDarkMode) {
-        "Dark Mode is ON"
-    } else {
-        "Dark Mode is OFF"
-    }
 
     LaunchedEffect(Unit) {
         userVM.fetchUserFullName { fullName ->
@@ -107,14 +103,20 @@ fun HomeScreen(
                 scope,
                 context,
                 { showLogoutDialog = it },
-                isDarkMode,
-                { isDark -> isDarkMode = isDark }
+                appManager
             )
         },
         content = {
             Scaffold(
-                topBar = { TopBarHomeScreen(scope, drawerState) },
-                backgroundColor = Color(0xFFe3e5e6),
+                topBar = {
+                    TopBarHomeScreen(
+                        scope,
+                        drawerState,
+                        appManager.isDarkMode.value
+                    )
+                },
+                backgroundColor = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor
+                                  else LightThemeColors.BackgroundColor,
                 content = { paddingValues ->
                     Column(
                         modifier = Modifier
@@ -123,13 +125,14 @@ fun HomeScreen(
                         verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        WelcomeMessage(userFullName)
+                        WelcomeMessage(userFullName, appManager.isDarkMode.value)
 
                         SubscriptionSummaryCard(
                             fetchingSummaryState = fetchingSummaryState,
                             subscriptionCount = fetchedSubsCount,
                             monthlySpend = fetchedMonthlySpend,
-                            annualSpend = fetchedMonthlySpend * 12
+                            annualSpend = fetchedMonthlySpend * 12,
+                            appManager.isDarkMode.value
                         )
                     }
                 }
@@ -158,8 +161,9 @@ fun HomeScreen(
                     Text("Cancel", color = Color.Red)
                 }
             },
-            modifier = Modifier.background(Color.LightGray),
-            shape = RoundedCornerShape(16.dp)
+            shape = RoundedCornerShape(16.dp),
+            containerColor = if (appManager.isDarkMode.value) DarkThemeColors.DrawerContentColor
+                             else LightThemeColors.DrawerContentColor
         )
     }
 
@@ -172,14 +176,15 @@ private fun SubscriptionSummaryCard(
     fetchingSummaryState: UserSubscriptionViewModel.FetchingSummaryState,
     subscriptionCount: Int,
     monthlySpend: Double,
-    annualSpend: Double
+    annualSpend: Double,
+    isDarkMode: Boolean
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth(0.85f)
             .padding(top = 32.dp)
             .background(
-                color = Color.LightGray,
+                color = if (isDarkMode) DarkThemeColors.CardColorHomeScreen else LightThemeColors.CardColorHomeScreen,
                 shape = RoundedCornerShape(16.dp)
             )
             .padding(16.dp),
@@ -189,27 +194,36 @@ private fun SubscriptionSummaryCard(
             label = "Subscriptions Count:",
             value = subscriptionCount.toString(),
             icon = R.drawable.icon_numbers,
-            showProgress = fetchingSummaryState == UserSubscriptionViewModel.FetchingSummaryState.IDLE
+            showProgress = fetchingSummaryState == UserSubscriptionViewModel.FetchingSummaryState.IDLE,
+            isDarkMode
         )
 
         SummaryRow(
             label = "Monthly Spending:",
             value = String.format("%.2f ₺", monthlySpend),
             icon = R.drawable.icon_calendar,
-            showProgress = fetchingSummaryState == UserSubscriptionViewModel.FetchingSummaryState.IDLE
+            showProgress = fetchingSummaryState == UserSubscriptionViewModel.FetchingSummaryState.IDLE,
+            isDarkMode
         )
 
         SummaryRow(
             label = "Annual Spending:",
             value = String.format("%.2f ₺", annualSpend),
             icon = R.drawable.icon_calendar,
-            showProgress = fetchingSummaryState == UserSubscriptionViewModel.FetchingSummaryState.IDLE
+            showProgress = fetchingSummaryState == UserSubscriptionViewModel.FetchingSummaryState.IDLE,
+            isDarkMode
         )
     }
 }
 
 @Composable
-private fun SummaryRow(label: String, value: String, icon: Int, showProgress: Boolean) {
+private fun SummaryRow(
+    label: String,
+    value: String,
+    icon: Int,
+    showProgress: Boolean,
+    isDarkMode: Boolean
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -225,13 +239,15 @@ private fun SummaryRow(label: String, value: String, icon: Int, showProgress: Bo
                     .size(24.dp)
                     .padding(end = 8.dp)
             )
-            Text(text = label, fontSize = 19.sp, fontWeight = FontWeight.Medium)
+            Text(text = label, fontSize = 18.sp, fontWeight = FontWeight.Medium,
+                color = if (isDarkMode) Color.White else Color.Black)
         }
 
         if (showProgress) {
             CircularProgressIndicator(modifier = Modifier.size(16.dp))
         } else {
-            Text(text = value, fontSize = 19.sp, fontWeight = FontWeight.Medium)
+            Text(text = value, fontSize = 18.sp, fontWeight = FontWeight.Medium,
+                color = if (isDarkMode) Color.White else Color.Black)
         }
     }
 }
@@ -239,7 +255,8 @@ private fun SummaryRow(label: String, value: String, icon: Int, showProgress: Bo
 @Composable
 private fun TopBarHomeScreen(
     scope: CoroutineScope,
-    drawerState: DrawerState
+    drawerState: DrawerState,
+    isDarkMode: Boolean
 ) {
     TopAppBar(
         title = {
@@ -259,16 +276,17 @@ private fun TopBarHomeScreen(
             IconButton(onClick = {
                 scope.launch { drawerState.open() }
             }) {
-                Icon( imageVector = Icons.Default.Settings, contentDescription = "Settings", tint = Color.DarkGray )
+                Icon( imageVector = Icons.Default.Settings, contentDescription = "Settings",
+                    tint = if (isDarkMode) Color.White else Color.Black )
             }
         },
-        backgroundColor = Color.LightGray,
+        backgroundColor = if (isDarkMode) DarkThemeColors.BarColor else LightThemeColors.BarColor,
         modifier = Modifier.fillMaxWidth()
     )
 }
 
 @Composable
-private fun WelcomeMessage(userFullName: String) {
+private fun WelcomeMessage(userFullName: String, isDarkMode: Boolean) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -280,19 +298,22 @@ private fun WelcomeMessage(userFullName: String) {
             Icon(
                 painter = painterResource(id = R.drawable.icon_waving_hand),
                 contentDescription = "waving hand icon",
+                tint = if (isDarkMode) Color.White else Color.Black,
                 modifier = Modifier.size(28.dp)
             )
             Text(
                 text = " Welcome,",
                 fontSize = 28.sp,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                color = if (isDarkMode) Color.White else Color.Black
             )
         }
 
         Text(
             text = userFullName,
             fontSize = 24.sp,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
+            color = if (isDarkMode) Color.White else Color.Black
         )
     }
 }
@@ -303,13 +324,17 @@ private fun DrawerContent(
     scope: CoroutineScope,
     context: Context,
     setShowLogoutDialog: (Boolean) -> Unit,
-    isDarkMode: Boolean,
-    onDarkModeToggle: (Boolean) -> Unit
+    appManager: AppManager
 ) {
-    ModalDrawerSheet {
+    ModalDrawerSheet (
+        modifier = Modifier
+    ) {
         Column(
             modifier = Modifier
                 .width(250.dp)
+                .fillMaxHeight()
+                .background( if (appManager.isDarkMode.value) DarkThemeColors.DrawerContentColor
+                             else LightThemeColors.DrawerContentColor )
                 .padding(16.dp),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -317,51 +342,67 @@ private fun DrawerContent(
             Text(
                 text = "Settings",
                 fontSize = 24.sp,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                color = if (appManager.isDarkMode.value) Color.White else Color.Black
             )
 
-            Divider(color = Color.Black, thickness = 1.dp)
+            Divider(thickness = 1.dp, color = if (appManager.isDarkMode.value) Color.White else Color.Black)
 
             // Light/Dark Theme Switch
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "Dark Mode", fontSize = 18.sp)
-                Spacer(modifier = Modifier.weight(1f))
-                Switch(
-                    checked = isDarkMode,
-                    onCheckedChange = { isChecked ->
-                        onDarkModeToggle(isChecked)
-                        updateTheme(context, isChecked)
-                    }
-                )
-            }
+            ThemeSwitch(context, appManager)
 
             // Language Selection
             Text(
                 text = "Language Selection",
                 fontSize = 18.sp,
+                color = if (appManager.isDarkMode.value) Color.White else Color.Black,
                 modifier = Modifier.clickable { /* TODO: Language selection action */ }
             )
 
-            // Logout Button
-            TextButton(
-                onClick = {
-                    scope.launch {
-                        drawerState.close()
-                    }
-                    setShowLogoutDialog(true)
-                },
-                modifier = Modifier.padding(top = 8.dp)
-            ) {
-                Text(text = "Log Out", fontSize = 16.sp, color = Color.Red)
-            }
+            // Logout Button)
+            LogOutButton(scope, drawerState) { setShowLogoutDialog(true) }
         }
     }
 
 }
 
+@Composable
+private fun ThemeSwitch(context: Context, appManager: AppManager) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = "Dark Mode", fontSize = 18.sp,
+             color = if (appManager.isDarkMode.value) Color.White else Color.Black)
+        Spacer(modifier = Modifier.weight(1f))
+        Switch(
+            checked = appManager.isDarkMode.value,
+            onCheckedChange = { isChecked ->
+                appManager.toggleTheme()
+                updateTheme(context, isChecked)
+            }
+        )
+    }
+}
+
+@Composable
+private fun LogOutButton(
+    scope: CoroutineScope,
+    drawerState: DrawerState,
+    onLogOutClick: () -> Unit
+){
+    TextButton(
+        onClick = {
+            scope.launch {
+                drawerState.close()
+            }
+            onLogOutClick()
+        },
+        modifier = Modifier.padding(top = 8.dp)
+    ) {
+        Text(text = "Log Out", fontSize = 16.sp, color = Color.Red)
+    }
+}
 
 // Functions:
 

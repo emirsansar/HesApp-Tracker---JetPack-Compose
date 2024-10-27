@@ -48,7 +48,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.emirsansar.hesapptracker.R
+import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.model.UserSubscription
+import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
+import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
 import com.emirsansar.hesapptracker.viewModel.UserSubscriptionViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -77,6 +80,8 @@ fun UserSubscriptionsScreen(
     val userEmail = FirebaseAuth.getInstance().currentUser!!.email
     val context = LocalContext.current
 
+    val appManager = AppManager.getInstance(context)
+
     LaunchedEffect(userEmail) {
         userSubsVM.fetchUserSubscriptionsFromFirestore(userEmail!!)
     }
@@ -86,84 +91,84 @@ fun UserSubscriptionsScreen(
         displayedUserSubList.addAll(fetchedUserSubList)
     }
 
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        color = Color(0xFFe3e5e6)
-    ) {
-        Scaffold(
-            topBar = {
-                TopBarUserSubscriptionScreen(
-                    onSortButtonClicked = {
-                        isSortPickerExpanded = !isSortPickerExpanded
-                    }
-                )
-            },
-            backgroundColor = Color.Transparent,
-            content = { paddingValues ->
-                Column(
-                    modifier = modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally
+    Scaffold(
+        topBar = {
+            TopBarUserSubscriptionScreen(
+                onSortButtonClicked = {
+                    isSortPickerExpanded = !isSortPickerExpanded
+                },
+                appManager.isDarkMode.value
+            )
+        },
+        backgroundColor = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor else LightThemeColors.BackgroundColor,
+        content = { paddingValues ->
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // This box is for SortPicker.
+                Box(
+                    modifier = Modifier
+                        .padding(top = 5.dp)
+                        .animateContentSize(animationSpec = tween(durationMillis = 400))
                 ) {
-                    // This box is for SortPicker.
-                    Box(
-                        modifier = Modifier
-                            .padding(top = 5.dp)
-                            .animateContentSize(animationSpec = tween(durationMillis = 400))
-                    ) {
-                        if (isSortPickerExpanded) {
-                            SortPicker(
-                                sortType = sortType,
-                                onSortTypeChanged = { selectedSortType ->
-                                    sortType = selectedSortType
-                                    displayedUserSubList.clear()
-                                    displayedUserSubList.addAll(sortSubscriptions(fetchedUserSubList, selectedSortType))
-                                    isSortPickerExpanded = false
-                                }
+                    if (isSortPickerExpanded) {
+                        SortPicker(
+                            sortType = sortType,
+                            onSortTypeChanged = { selectedSortType ->
+                                sortType = selectedSortType
+                                displayedUserSubList.clear()
+                                displayedUserSubList.addAll(sortSubscriptions(fetchedUserSubList, selectedSortType))
+                                isSortPickerExpanded = false
+                            }
+                        )
+                    }
+                }
+
+                when (fetchingSubsState) {
+                    UserSubscriptionViewModel.FetchingSubscriptionsState.SUCCESS -> {
+                        if (fetchedUserSubList.isNotEmpty()) {
+                            SubscriptionList(
+                                subscriptionList = displayedUserSubList,
+                                onEdit = { subscription ->
+                                    navigateToEditScreen(context, subscription)
+                                },
+                                onRemove = { subscription ->
+                                    removeSubscription(context, userSubsVM, subscription, displayedUserSubList)
+                                },
+                                appManager.isDarkMode.value
                             )
+                        } else {
+                            CenteredText("You currently have no subscriptions.")
                         }
                     }
 
-                    when (fetchingSubsState) {
-                        UserSubscriptionViewModel.FetchingSubscriptionsState.SUCCESS -> {
-                            if (fetchedUserSubList.isNotEmpty()) {
-                                SubscriptionList(
-                                    subscriptionList = displayedUserSubList,
-                                    onEdit = { subscription ->
-                                        navigateToEditScreen(context, subscription)
-                                    },
-                                    onRemove = { subscription ->
-                                        removeSubscription(context, userSubsVM, subscription, displayedUserSubList)
-                                    }
-                                )
-                            } else {
-                                CenteredText("You currently have no subscriptions.")
-                            }
-                        }
+                    UserSubscriptionViewModel.FetchingSubscriptionsState.FAILURE -> {
+                        CenteredText("An error occurred while fetching subscriptions.\nPlease try again.")
+                    }
 
-                        UserSubscriptionViewModel.FetchingSubscriptionsState.FAILURE -> {
-                            CenteredText("An error occurred while fetching subscriptions.\nPlease try again.")
-                        }
-
-                        else -> {
-                            CenteredCircularProgress()
-                        }
+                    else -> {
+                        CenteredCircularProgress()
                     }
                 }
             }
-        )
-    }
-
+        }
+    )
 }
-
 
 // Composable:
 
 // Composable function to display a list of subscriptions in a LazyColumn.
 @Composable
-private fun SubscriptionList(subscriptionList: List<UserSubscription>, onEdit: (UserSubscription) -> Unit, onRemove: (UserSubscription) -> Unit,) {
+private fun SubscriptionList(
+    subscriptionList: List<UserSubscription>,
+    onEdit: (UserSubscription) -> Unit,
+    onRemove: (UserSubscription) -> Unit,
+    isDarkMode: Boolean
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -173,7 +178,8 @@ private fun SubscriptionList(subscriptionList: List<UserSubscription>, onEdit: (
             SubscriptionCard(
                 sub = sub,
                 onEditClick = { onEdit(sub) },
-                onRemove = { onRemove(sub) }
+                onRemove = { onRemove(sub) },
+                isDarkMode = isDarkMode
             )
         }
     }
@@ -181,14 +187,20 @@ private fun SubscriptionList(subscriptionList: List<UserSubscription>, onEdit: (
 
 // Composable function to display a card with subscription details.
 @Composable
-private fun SubscriptionCard(sub: UserSubscription, onEditClick: () -> Unit, onRemove: () -> Unit) {
+private fun SubscriptionCard(
+    sub: UserSubscription,
+    onEditClick: () -> Unit,
+    onRemove: () -> Unit,
+    isDarkMode: Boolean
+) {
     var expandedMenu by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
             .padding(all = 10.dp)
             .fillMaxWidth()
-            .clickable { expandedMenu = true }
+            .clickable { expandedMenu = true },
+        backgroundColor = if (isDarkMode) Color.LightGray else Color.White
     ) {
         Row(
             modifier = Modifier
@@ -296,22 +308,24 @@ private fun SortPicker(
 
 @Composable
 private fun TopBarUserSubscriptionScreen(
-    onSortButtonClicked: () -> Unit
+    onSortButtonClicked: () -> Unit,
+    isDarkMode: Boolean
 ) {
     TopAppBar(
         title = {
-            Text(text = "My Subscriptions", fontSize = 21.sp, fontWeight = FontWeight.SemiBold)
+            Text(text = "My Subscriptions", fontSize = 21.sp, fontWeight = FontWeight.SemiBold,
+                color =  if (isDarkMode) Color.White else Color.Black)
         },
         actions = {
             IconButton(onClick = onSortButtonClicked) {
                 Icon(
                     painter = painterResource(id = R.drawable.icon_sorting),
                     contentDescription = "Sort Subscription Button",
-                    tint = Color.DarkGray
+                    tint =  if (isDarkMode) Color.White else Color.Black
                 )
             }
         },
-        backgroundColor = Color.LightGray,
+        backgroundColor = if (isDarkMode) DarkThemeColors.BarColor else LightThemeColors.BarColor,
         modifier = Modifier.fillMaxWidth()
     )
 }
