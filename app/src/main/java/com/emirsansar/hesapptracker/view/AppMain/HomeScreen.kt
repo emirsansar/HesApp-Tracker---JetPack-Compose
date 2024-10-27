@@ -352,12 +352,27 @@ private fun DrawerContent(
             ThemeSwitch(context, appManager)
 
             // Language Selection
-            Text(
-                text = "Language Selection",
-                fontSize = 18.sp,
-                color = if (appManager.isDarkMode.value) Color.White else Color.Black,
-                modifier = Modifier.clickable { /* TODO: Language selection action */ }
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { /* TODO: Language selection action */ },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_language),
+                    contentDescription = "Language Icon",
+                    tint = if (appManager.isDarkMode.value) Color.White else Color.Black,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Language Selection",
+                    fontSize = 18.sp,
+                    color = if (appManager.isDarkMode.value) Color.White else Color.Black
+                )
+            }
+
+            Divider(thickness = 0.5.dp, color = if (appManager.isDarkMode.value) Color.White else Color.Black)
 
             // Logout Button)
             LogOutButton(scope, drawerState) { setShowLogoutDialog(true) }
@@ -372,8 +387,18 @@ private fun ThemeSwitch(context: Context, appManager: AppManager) {
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "Dark Mode", fontSize = 18.sp,
-             color = if (appManager.isDarkMode.value) Color.White else Color.Black)
+        Icon(
+            painter = painterResource(id = R.drawable.icon_dark_mode),
+            contentDescription = "Dark Mode Icon",
+            tint = if (appManager.isDarkMode.value) Color.White else Color.Black,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = "Dark Mode",
+            fontSize = 18.sp,
+            color = if (appManager.isDarkMode.value) Color.White else Color.Black
+        )
         Spacer(modifier = Modifier.weight(1f))
         Switch(
             checked = appManager.isDarkMode.value,
@@ -385,22 +410,37 @@ private fun ThemeSwitch(context: Context, appManager: AppManager) {
     }
 }
 
+
 @Composable
 private fun LogOutButton(
     scope: CoroutineScope,
     drawerState: DrawerState,
     onLogOutClick: () -> Unit
-){
+) {
     TextButton(
         onClick = {
             scope.launch {
                 drawerState.close()
             }
             onLogOutClick()
-        },
-        modifier = Modifier.padding(top = 8.dp)
+        }
     ) {
-        Text(text = "Log Out", fontSize = 16.sp, color = Color.Red)
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.icon_logout),
+                contentDescription = "Logout Icon",
+                tint = Color.Red,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Log Out",
+                fontSize = 16.sp,
+                color = Color.Red
+            )
+        }
     }
 }
 
