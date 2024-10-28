@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HesApp Tracker</string>
+    <string name="title_activity_authentication">AuthenticationActivity</string>
+    <string name="title_activity_startup">StartupActivity</string>
+    <string name="title_activity_edit_subscription_screen">EditSubscriptionScreen</string>
+    <string name="title_activity_custom_service_screen">CustomServiceScreen</string>
+    <string name="title_activity_custom_plan_screen">CustomPlanScreen</string>
+
+    <string name="button_confirm">Onayla</string>
+    <string name="button_cancel">İptal</string>
+    <string name="button_ok">Tamam</string>
+
+    <string name="label_error">Hata</string>
+    <string name="label_success">Başarılı</string>
+
+    <string name="tab_log_in">Giriş</string>
+    <string name="tab_register">Kayıt</string>
+    <string name="tab_subscriptions">Abonelikler</string>
+    <string name="tab_home">Ana Sayfa</string>
+    <string name="tab_services">Servisler</string>
+
+    <string name="text_login_successful">Giriş Başarılı!\nUygulamaya yönlendiriliyorsunuz.</string>
+    <string name="label_email">Email</string>
+    <string name="label_password">Şifre</string>
+    <string name="button_login">Giriş</string>
+    <string name="label_login">Giriş</string>
+
+    <string name="text_registration_successful">Kayıt Başarılı!</string>
+    <string name="button_register">Kayıt Ol</string>
+    <string name="label_name">Ad</string>
+    <string name="label_surname">Soyad</string>
+    <string name="label_confirm_password">Şifre (Tekrar)</string>
+    <string name="error_password_does_not_match">Şifreler eşleşmiyor!</string>
+    <string name="label_create_account">Hesap Oluştur</string>
+
+    <string name="welcome">Hoşgeldiniz,</string>
+    <string name="home">Ana Sayfa</string>
+    <string name="text_error_log_out">Çıkış yapılırken bir hata oluştu.</string>
+    <string name="label_log_out">Çıkış Yap</string>
+    <string name="text_log_out_confirmation">Hesabınızdan çıkış yapmak istediğinize emin misiniz?</string>
+    <string name="text_logging_out">Çıkış yapılıyor..</string>
+    <string name="label_total_sub_count">Abonelik Sayısı:</string>
+    <string name="label_monthly_spend">Aylık Tutar:</string>
+    <string name="label_annual_spend">Yıllık Tutar:</string>
+
+    <string name="services">Servisler</string>
+    <string name="filter_services_by_type">Türüne Göre Filtrele</string>
+    <string name="add_new_service">Yeni Servis Ekle</string>
+    <string name="label_custom_service">Yeni Servis</string>
+    <string name="available_services">Mevcut Servisler</string>
+    <string name="search_service">Servis Ara</string>
+    <string name="service_name_field">Servis İsmi…</string>
+
+    <string name="all">Tümü</string>
+    <string name="shopping">Alışveriş</string>
+    <string name="seriesMovies">Dizi - Film</string>
+    <string name="selfDevelopment">Kişisel Gelişim</string>
+    <string name="music">Müzik</string>
+    <string name="game">Oyun</string>
+    <string name="sport">Spor</string>
+    <string name="storage">Depolama</string>
+
+    <string name="your_subscriptions">Aboneliklerim</string>
+    <string name="sort_option">Sıralama Seçenekleri</string>
+    <string name="text_subscription_removed_successfully">Abonelik başarıyla kaldırıldı.</string>
+    <string name="text_subscription_remove_failed">Abonelik kaldırılırken bir sorun oluştu. Lütfen tekrar deneyiniz.</string>
+    <string name="text_subscription_updated_successfully">Abonelik başarıyla güncellendi.</string>
+    <string name="text_subscription_update_failed">Abonelik güncellenirken bir sorun oluştu. Lütfen tekrar deneyiniz.</string>
+    <string name="text_no_subscriptions">Bir aboneliğiniz bulunmamaktadır.</string>
+    <string name="error_fetching_subscription">Abonelikler çekilirken bir hata oluştu.</string>
+
+    <string name="priceAscending">Fiyat ↑</string>
+    <string name="priceDescending">Fiyat ↓</string>
+    <string name="alphabetically">Alfabetik</string>
+
+    <string name="label_delete">Sil</string>
+    <string name="label_edit">Düzenle</string>
+
+    <string name="label_settings">Ayarlar</string>
+    <string name="label_dark_mode">Karanlık Mod</string>
+    <string name="label_light_mode">Aydınlık Mod</string>
+    <string name="label_change_language">Dil Değiştir</string>
+
+    <string name="label_available_plans">Mevcut Planlar</string>
+    <string name="label_custom_plan">Özel Plan</string>
+    <string name="label_add_custom_plan">Özel Plan Ekle</string>
+    <string name="label_plans_for_service">%1$s Planları</string>
+    <string name="text_selected_plan_added">Seçilen plan başarıyla eklendi:\n %1$s - %2$s ₺</string>
+    <string name="text_error_selected_plan_added">Plan eklenmeye çalışırken bir hata oldu.</string>
+
+    <string name="label_service_name">Servis İsmi</string>
+    <string name="label_enter_service_name">Servis İsmini Giriniz</string>
+    <string name="label_plan_name">Plan İsmi</string>
+    <string name="label_enter_plan_name">Plan İsmini Giriniz</string>
+    <string name="label_plan_price">Plan Fiyatı</string>
+    <string name="label_enter_plan_price">Plan Fiyatını Giriniz</string>
+    <string name="label_user_count">Kullanıcı sayısı</string>
+    <string name="label_enter_user_count">Kaç kullanıcı kullanıyor?</string>
+    <string name="button_add_service">Ekle</string>
+    <string name="text_invalid_price_format">Geçersiz fiyat formatı.</string>
+
+    <string name="label_edit_subscription">Aboneliği Düzenle</string>
+    <string name="label_new_plan_name">Yeni Plan İsmi</string>
+    <string name="label_new_plan_price">Yeni Plan Fiyatı</string>
+    <string name="label_new_user_count">Yeni Kişi Sayısı</string>
+
+    <string name="label_how_many_users">Kaç kişi kullanıyor?</string>
+
+    <string name="label_your_custom_plan">Özel Plan</string>
+    <string name="label_plan_price_with_format">00.00</string>
+    <string name="label_error_invalid_format">Lütfen fiyatı geçerli formatta giriniz.</string>
+
+    <string name="button_change">Değiştir</string>
+    <string name="text_changing_language">Dil değiştiriliyor.\nLütfen bekleyiniz.</string>
+
+</resources>

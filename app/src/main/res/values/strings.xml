@@ -5,4 +5,112 @@
     <string name="title_activity_edit_subscription_screen">EditSubscriptionScreen</string>
     <string name="title_activity_custom_service_screen">CustomServiceScreen</string>
     <string name="title_activity_custom_plan_screen">CustomPlanScreen</string>
+
+    <string name="button_confirm" translatable="false">Confirm</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_ok">OK</string>
+
+    <string name="label_error">Error</string>
+    <string name="label_success">Success</string>
+
+    <string name="tab_log_in">Log In</string>
+    <string name="tab_register">Sign Up</string>
+    <string name="tab_subscriptions">Subscriptions</string>
+    <string name="tab_home">Home</string>
+    <string name="tab_services">Services</string>
+
+    <string name="text_login_successful">Login successful!\nYou are being redirected to the app.</string>
+    <string name="label_email">Email</string>
+    <string name="label_password">Password</string>
+    <string name="button_login">Log In</string>
+    <string name="label_login">Log In</string>
+
+    <string name="text_registration_successful">Registration successful.</string>
+    <string name="button_register">Sign Up</string>
+    <string name="label_name">First Name</string>
+    <string name="label_surname">Last Name</string>
+    <string name="label_confirm_password">Confirm Password</string>
+    <string name="error_password_does_not_match">Passwords don\'t match.</string>
+    <string name="label_create_account">Create Account</string>
+
+    <string name="welcome"> Welcome,</string>
+    <string name="home">Home</string>
+    <string name="text_error_log_out">An error occurred while logging out.\nPlease try again.</string>
+    <string name="label_log_out">Log Out</string>
+    <string name="text_log_out_confirmation">Are you sure you want to log out?</string>
+    <string name="text_logging_out">Logging out…</string>
+    <string name="label_total_sub_count">Subscription Count:</string>
+    <string name="label_monthly_spend">Monthly spend:</string>
+    <string name="label_annual_spend">Annual spend:</string>
+
+    <string name="services">Services</string>
+    <string name="filter_services_by_type">Filter by Type</string>
+    <string name="add_new_service">Add a New Service</string>
+    <string name="label_custom_service">Custom Service</string>
+    <string name="available_services">Available Services</string>
+    <string name="search_service">Search Services</string>
+    <string name="service_name_field">Service Name…</string>
+
+    <string name="all">All</string>
+    <string name="shopping">Shopping</string>
+    <string name="seriesMovies">Series and Movies</string>
+    <string name="selfDevelopment">Self-Development</string>
+    <string name="music">Music</string>
+    <string name="game">Games</string>
+    <string name="sport">Sport</string>
+    <string name="storage">Storage</string>
+
+    <string name="your_subscriptions">My Subscriptions</string>
+    <string name="sort_option">Sort Options</string>
+    <string name="text_subscription_removed_successfully">The subscription has been removed successfully.</string>
+    <string name="text_subscription_remove_failed">Failed to remove the subscription. Please try again.</string>
+    <string name="text_subscription_updated_successfully">The subscription edited successfully.</string>
+    <string name="text_subscription_update_failed">Failed to update the subscription. Please try again.</string>
+    <string name="text_no_subscriptions">You have no subscriptions.</string>
+    <string name="error_fetching_subscription">An error occurred while fetching subscriptions.</string>
+
+    <string name="priceAscending">Price ↑</string>
+    <string name="priceDescending">Price ↓</string>
+    <string name="alphabetically">Alphabetically</string>
+
+    <string name="label_delete">Delete</string>
+    <string name="label_edit">Edit</string>
+
+    <string name="label_settings">Settings</string>
+    <string name="label_dark_mode">Dark Mode</string>
+    <string name="label_light_mode">Light Mode</string>
+    <string name="label_change_language">Change Language</string>
+
+    <string name="label_available_plans">Available Plans</string>
+    <string name="label_custom_plan">Custom Plan</string>
+    <string name="label_add_custom_plan">Add a Custom Plan</string>
+    <string name="label_plans_for_service">\'s Plans</string>
+    <string name="text_selected_plan_added">Selected plan added successfully:\n %1$s - %2$s ₺</string>
+    <string name="text_error_selected_plan_added">An error occurred while adding plan.</string>
+
+    <string name="label_service_name">Service Name:</string>
+    <string name="label_enter_service_name">Enter Service Name</string>
+    <string name="label_plan_name">Plan Name:</string>
+    <string name="label_enter_plan_name">Enter Plan Name</string>
+    <string name="label_plan_price">Plan Price:</string>
+    <string name="label_enter_plan_price">Enter Plan Price</string>
+    <string name="label_user_count">User Count:</string>
+    <string name="label_enter_user_count">How many users are using it?</string>
+    <string name="button_add_service">Add</string>
+    <string name="text_invalid_price_format">Invalid price format. Please enter a valid price.</string>
+
+    <string name="label_edit_subscription">Edit Subscription</string>
+    <string name="label_new_plan_name">New Plan Name</string>
+    <string name="label_new_plan_price">New Plan Price</string>
+    <string name="label_new_user_count">New User Count</string>
+
+    <string name="label_how_many_users">How many users?</string>
+
+    <string name="label_your_custom_plan">Your Custom Plan</string>
+    <string name="label_plan_price_with_format">00.00</string>
+    <string name="label_error_invalid_format">Error: Please enter a valid price.</string>
+
+    <string name="button_change">Change</string>
+    <string name="text_changing_language">Changing language.\nPlease wait.</string>
+
 </resources>
