@@ -123,17 +123,21 @@ fun CustomPlanScreenView(
                 planNameError = planNameError,
                 planPriceError = planPriceError,
                 personCountError = personCountError,
-                onPlanNameChange = { value ->
-                    planName = value
-                    planNameError = value.isEmpty()
+                onPlanNameChange = { newValue ->
+                    planName = newValue
+                    planNameError = newValue.isEmpty()
                 },
-                onPlanPriceChange = { value ->
-                    planPrice = value
-                    planPriceError = value.isEmpty()
+                onPlanPriceChange = { newValue ->
+                    if (isValidPriceInput(newValue)){
+                        planPrice = newValue
+                    }
+                    planPriceError = newValue.isEmpty()
                 },
-                onPersonCountChange = { value ->
-                    personCount = value
-                    personCountError = value.isEmpty()
+                onPersonCountChange = { newValue ->
+                    if (newValue.all { it.isDigit() }) {
+                        personCount = newValue
+                    }
+                    personCountError = newValue.isEmpty()
                 },
                 onBottomSheetMessageChange = { value ->
                     bottomSheetMessage = value
@@ -153,6 +157,8 @@ fun CustomPlanScreenView(
     )
 
 }
+
+// Composable:
 
 @Composable
 private fun TopBarCustomPlanScreen(onBackPressed: () -> Unit, isDarkMode: Boolean) {
@@ -216,7 +222,7 @@ private fun BodyContent(
             modifier = Modifier.padding(top = 10.dp ,bottom = 16.dp))
         {
             Text(
-                text = "$serviceName",
+                text = serviceName,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = if (isDarkMode) Color.White else Color.Black
@@ -259,14 +265,14 @@ private fun BodyContent(
             onClick = {
                 focusManager.clearFocus()
 
-                val price = planPrice.toDoubleOrNull()
+                val price = planPrice.replace(',', '.').toDoubleOrNull()
                 val count = personCount.toIntOrNull()
 
                 if (price != null && count != null) {
                     alertMessage = context.getString(R.string.text_plan_details_with_person_count, planName, price.toString(), count.toString())
                     showDialog = true
                 } else {
-                    alertMessage = R.string.label_error_invalid_format.toString()
+                    alertMessage = context.getString(R.string.label_error_invalid_format)
                     showAlertError = true
                 }
             },
@@ -296,15 +302,6 @@ private fun BodyContent(
                 },
                 onDismiss = { showDialog = false },
                 alertMessage = "$alertMessage",
-                isDarkMode = isDarkMode
-            )
-        }
-
-        // Error Alert Dialog
-        if (showAlertError) {
-            ErrorDialog(
-                onDismissRequest = { showAlertError = false },
-                alertMessage = alertMessage,
                 isDarkMode = isDarkMode
             )
         }
@@ -347,7 +344,8 @@ private fun BottomSheetContent(
         Text(
             text = if (isSuccess) stringResource(id = R.string.text_selected_plan_added) else stringResource(id = R.string.text_error_selected_plan_added),
             fontSize = 16.sp,
-            modifier = Modifier.padding(bottom = 16.dp)
+            color = if (isDarkMode) Color.White else Color.Black,
+            modifier = Modifier.padding(bottom = 10.dp)
         )
         TextButton(onClick = {
             coroutineScope.launch {
@@ -409,37 +407,7 @@ private fun ConfirmationDialog(
 
 }
 
-@Composable
-private fun ErrorDialog(
-    onDismissRequest: () -> Unit,
-    alertMessage: String,
-    isDarkMode: Boolean
-) {
-    AlertDialog(
-        onDismissRequest = { onDismissRequest() },
-        confirmButton = {
-            TextButton(onClick = { onDismissRequest() }) {
-                Text(
-                    text = stringResource(id = R.string.button_ok),
-                    fontWeight = FontWeight.SemiBold,
-                    color = if (isDarkMode) Color.White else Color.Black
-                )
-            }
-        },
-        title = {
-            Text(
-                text = stringResource(id = R.string.label_error_invalid_format),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium,
-                color = if (isDarkMode) Color.White else Color.Black
-            )
-        },
-        text = {
-            Text(text = alertMessage,
-                color = if (isDarkMode) Color.White else Color.Black)
-        }
-    )
-}
+// Functions:
 
 private fun handleAddPlan(
     planName: String,

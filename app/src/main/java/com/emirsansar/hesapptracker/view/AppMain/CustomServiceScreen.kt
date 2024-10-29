@@ -1,6 +1,5 @@
 package com.emirsansar.hesapptracker.view.AppMain
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -139,11 +138,15 @@ fun CustomServiceScreenView(
                     planNameError = value.isEmpty()
                 },
                 onPlanPriceChange = { value ->
-                    planPrice = value
+                    if (isValidPriceInput(value)){
+                        planPrice = value
+                    }
                     planPriceError = value.isEmpty()
                 },
                 onPersonCountChange = { value ->
-                    personCount = value
+                    if (value.all { it.isDigit() }){
+                        personCount = value
+                    }
                     personCountError = value.isEmpty()
                 },
                 onBottomSheetMessageChange = { value ->
@@ -161,6 +164,8 @@ fun CustomServiceScreenView(
     )
 
 }
+
+// Composable:
 
 @Composable
 private fun TopBarCustomServiceScreen(onBackPressed: () -> Unit, isDarkMode: Boolean) {
@@ -263,14 +268,14 @@ private fun BodyContent(
             onClick = {
                 focusManager.clearFocus()
 
-                val price = planPrice.toDoubleOrNull()
+                val price = planPrice.replace(',', '.').toDoubleOrNull()
                 val count = personCount.toIntOrNull()
 
                 if (price != null && count != null) {
                     alertMessage = context.getString(R.string.text_service_details, serviceName, planName, planPrice, personCount)
                     showDialog = true
                 } else {
-                    alertMessage = context.getString(R.string.label_error_invalid_format)
+                    alertMessage = context.getString(R.string.text_invalid_price_format)
                     showAlertError = true
                 }
             },
@@ -300,15 +305,6 @@ private fun BodyContent(
                 },
                 onDismiss = { showDialog = false },
                 alertMessage = context.getString(R.string.text_question_adding_service) + "\n$alertMessage",
-                isDarkMode = appManager.isDarkMode.value
-            )
-        }
-
-        // Error Alert Dialog
-        if (showAlertError) {
-            ErrorDialog(
-                onDismissRequest = { showAlertError = false },
-                alertMessage = alertMessage,
                 isDarkMode = appManager.isDarkMode.value
             )
         }
@@ -382,14 +378,16 @@ private fun BottomSheetContent(
         Text(
             text = bottomSheetMessage,
             fontSize = 16.sp,
-            modifier = Modifier.padding(bottom = 16.dp)
+            color = if (isDarkMode) Color.White else Color.Black,
+            modifier = Modifier.padding(bottom = 10.dp)
         )
         TextButton(onClick = {
             coroutineScope.launch {
                 scaffoldState.bottomSheetState.collapse()
             }
         }) {
-            Text(text = stringResource(id = R.string.button_ok), fontSize = 16.sp, fontWeight = FontWeight.Medium)
+            Text(text = stringResource(id = R.string.button_ok), fontSize = 16.sp, fontWeight = FontWeight.Medium,
+                 color = if (isDarkMode) Color.White else Color.Black,)
         }
     }
 }
@@ -442,40 +440,7 @@ private fun ConfirmationDialog(
     
 }
 
-@Composable
-private fun ErrorDialog(
-    onDismissRequest: () -> Unit,
-    alertMessage: String,
-    isDarkMode: Boolean
-) {
-    AlertDialog(
-        onDismissRequest = { onDismissRequest() },
-        confirmButton = {
-            TextButton(onClick = { onDismissRequest() }) {
-                Text(
-                    text = stringResource(id = R.string.button_ok),
-                    fontWeight = FontWeight.SemiBold,
-                    color = if(isDarkMode) Color.White else Color.Black
-                )
-            }
-        },
-        title = {
-            Text(
-                text = stringResource(id = R.string.text_invalid_price_format),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium,
-                color = if(isDarkMode) Color.White else Color.Black
-            )
-        },
-        text = {
-            Text(text = alertMessage, color =  if(isDarkMode) Color.White else Color.Black)
-        },
-        shape = RoundedCornerShape(16.dp),
-        containerColor = if (isDarkMode) DarkThemeColors.DrawerContentColor
-                         else LightThemeColors.DrawerContentColor
-    )
-}
-
+// Functions:
 
 private fun handleAddService(
     planName: String,

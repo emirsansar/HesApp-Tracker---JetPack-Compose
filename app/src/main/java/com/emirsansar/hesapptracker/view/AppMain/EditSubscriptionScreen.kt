@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
@@ -24,7 +23,6 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,8 +41,6 @@ import androidx.compose.ui.unit.sp
 import com.emirsansar.hesapptracker.model.UserSubscription
 import com.emirsansar.hesapptracker.ui.theme.HesAppTrackerTheme
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -81,7 +77,6 @@ class EditSubscriptionScreen : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditSubscriptionScreen(
     subscription: UserSubscription,
@@ -132,17 +127,21 @@ fun EditSubscriptionScreen(
                         planNameError = planNameError,
                         planPriceError = planPriceError,
                         personCountError = personCountError,
-                        onPlanNameChange = { value ->
-                            planName = value
-                            planNameError = value.isEmpty()
+                        onPlanNameChange = { newValue ->
+                            planName = newValue
+                            planNameError = newValue.isEmpty()
                         },
-                        onPlanPriceChange = { value ->
-                            planPrice = value
-                            planPriceError = value.isEmpty()
+                        onPlanPriceChange = { newValue ->
+                            if (isValidPriceInput(newValue)){
+                                planPrice = newValue
+                            }
+                            planPriceError = newValue.isEmpty()
                         },
-                        onPersonCountChange = { value ->
-                            personCount = value
-                            personCountError = value.isEmpty()
+                        onPersonCountChange = { newValue ->
+                            if (newValue.all { it.isDigit() }){
+                                personCount = newValue
+                            }
+                            personCountError = newValue.isEmpty()
                         },
                         modifier = modifier,
                         innerPadding = innerPadding,
@@ -155,6 +154,8 @@ fun EditSubscriptionScreen(
         }
     )
 }
+
+// Composable:
 
 @Composable
 private fun TopBarEditSubscriptionScreen(
@@ -223,12 +224,13 @@ private fun BodyContent(
             value = planPrice,
             label = stringResource(id = R.string.label_new_plan_price),
             error = planPriceError,
-            onValueChange =  { newValue ->
-                if (newValue.all { it.isDigit() || it == '.' || it == ',' }) {
+            onValueChange = { newValue ->
+                if (isValidPriceInput(newValue)) {
                     onPlanPriceChange(newValue)
                 }
             },
-            isDarkMode = isDarkMode
+            isDarkMode = isDarkMode,
+            keyboardType = KeyboardType.Decimal
         )
 
         CustomOutlinedTextField(
@@ -240,7 +242,8 @@ private fun BodyContent(
                     onPersonCountChange(newValue)
                 }
             },
-            isDarkMode = isDarkMode
+            isDarkMode = isDarkMode,
+            keyboardType = KeyboardType.Number
         )
 
         Button(
@@ -318,24 +321,51 @@ private fun BottomSheetContent(
     }
 }
 
+// Functions:
+
 private fun editSubscriptionByViewModel(
     userSubsVM: UserSubscriptionViewModel,
     serviceName: String,
     planName: String,
     planPrice: String,
     userCount: String,
-    context: Context)
-{
-    val userSub = UserSubscription(serviceName, planName, planPrice.toDouble(), userCount.toInt())
+    context: Context
+) {
+    val priceControl = planPrice.replace(',', '.').toDouble()
+
+    val userSub = UserSubscription(serviceName, planName, priceControl, userCount.toInt())
 
     userSubsVM.updateSubscription(userSub) { success ->
-        println(success)
         if (success) {
             Toast.makeText(context, R.string.text_subscription_updated_successfully, Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(context, R.string.text_subscription_update_failed, Toast.LENGTH_SHORT).show()
         }
     }
+}
+
+// Validates a price input string to ensure it contains only digits, a single dot or comma,
+//and allows at most two digits after the last separator.
+fun isValidPriceInput(input: String): Boolean {
+    if (input.all { it.isDigit() || it == '.' || it == ',' }) {
+        val dotCount = input.count { it == '.' }
+        val commaCount = input.count { it == ',' }
+
+        if (dotCount > 1 || commaCount > 1 || (dotCount == 1 && commaCount == 1)) return false
+
+        val afterSeparator = if (dotCount == 1) {
+            input.substringAfterLast('.')
+        } else if (commaCount == 1) {
+            input.substringAfterLast(',')
+        } else {
+            ""
+        }
+
+        if (afterSeparator.length > 2) return false
+
+        return true
+    }
+    return false
 }
 
 @Preview(showBackground = true)
