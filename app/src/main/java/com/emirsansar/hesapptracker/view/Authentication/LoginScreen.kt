@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -68,11 +69,11 @@ fun LoginScreen(
     LaunchedEffect(loginState) {
         when (loginState) {
             AuthenticationViewModel.LoginState.SUCCESS -> {
-                Toast.makeText(context, "Login successful!\nYou are being redirected to app", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.text_login_successful, Toast.LENGTH_SHORT).show()
                 navigateToAppMainScreen(context)
             }
             AuthenticationViewModel.LoginState.FAILURE -> {
-                Toast.makeText(context, "Login failed: ${loggingError.toString()}", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.text_login_failed, loggingError), Toast.LENGTH_LONG).show()
                 authVM.setRegisterStateIdle()
             }
             else -> {}
@@ -93,8 +94,10 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .height(130.dp)
                 .padding(bottom = 30.dp)
-                .background( if (appManager.isDarkMode.value) DarkThemeColors.BarColor
-                             else LightThemeColors.BarColor ),
+                .background(
+                    if (appManager.isDarkMode.value) DarkThemeColors.BarColor
+                    else LightThemeColors.BarColor
+                ),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -106,7 +109,7 @@ fun LoginScreen(
             }
 
             Text(
-                text = "Log In",
+                text = stringResource(id = R.string.label_login),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = if (appManager.isDarkMode.value) Color.White else Color.Black,
@@ -121,18 +124,22 @@ fun LoginScreen(
                 CustomOutlinedTextFieldForAuthScreens(
                     value = emailState.value,
                     onValueChange = { emailState.value = it },
-                    label = "Email",
+                    label = stringResource(id = R.string.label_email),
                     isDarkMode = appManager.isDarkMode.value,
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp)
                 )
 
                 // Password TextField
                 CustomOutlinedTextFieldForAuthScreens(
                     value = passwordState.value,
                     onValueChange = { passwordState.value = it },
-                    label = "Password",
+                    label = stringResource(id = R.string.label_password),
                     isDarkMode = appManager.isDarkMode.value,
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
                     visualTransformation = PasswordVisualTransformation()
                 )
             }
@@ -144,12 +151,12 @@ fun LoginScreen(
                 authVM.loginUser(emailState.value, passwordState.value) },
                 enabled = loginState != AuthenticationViewModel.LoginState.SUCCESS)
             {
-                Text(text = "Sign In", fontSize = 16.sp, color = Color.White)
+                Text(text = stringResource(id = R.string.button_login), fontSize = 16.sp, color = Color.White)
             }
 
             if (loginState != AuthenticationViewModel.LoginState.SUCCESS) {
                 Text(
-                    text = "Don't have an account? Register",
+                    text = stringResource(id = R.string.label_navigate_to_register),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         textDecoration = TextDecoration.Underline
                     ),

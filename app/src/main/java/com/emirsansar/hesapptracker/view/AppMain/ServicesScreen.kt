@@ -33,10 +33,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.emirsansar.hesapptracker.R
 import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.model.Service
 import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
@@ -100,7 +102,7 @@ private fun ServiceCard(service: Service, navController: NavController, isDarkMo
             .clickable {
                 navController.navigate("service_plans_screen/${service.serviceName}")
             },
-        backgroundColor = if (isDarkMode) Color.LightGray else Color.White
+        backgroundColor = Color.White
     ) {
         Row(
             modifier = Modifier
@@ -129,7 +131,7 @@ private fun ServiceCard(service: Service, navController: NavController, isDarkMo
 private fun TopBarServiceScreen(context: Context, isDarkMode: Boolean) {
     TopAppBar(
         title = {
-            Text(text = "Services", fontSize = 21.sp, fontWeight = FontWeight.SemiBold,
+            Text(text = stringResource(id = R.string.services), fontSize = 21.sp, fontWeight = FontWeight.SemiBold,
                 color =  if (isDarkMode) Color.White else Color.Black)
         },
         actions = {

@@ -48,8 +48,10 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import com.emirsansar.hesapptracker.R
 import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
 import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
@@ -160,7 +162,7 @@ private fun TopBarEditSubscriptionScreen(
     isDarkMode: Boolean
 ) {
     TopAppBar(
-        title = { Text("My Subscriptions", fontSize = 20.sp,
+        title = { Text(text = stringResource(id = R.string.your_subscriptions), fontSize = 20.sp,
             color = if (isDarkMode) Color.White else Color.Black ) },
         navigationIcon = {
             IconButton(onClick = { onBackPressed() }) {
@@ -173,7 +175,6 @@ private fun TopBarEditSubscriptionScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BodyContent(
     subscription: UserSubscription,
@@ -204,7 +205,7 @@ private fun BodyContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Editing: ${subscription.serviceName}",
+            text = stringResource(id = R.string.label_edit_subscription) + subscription.serviceName,
             fontSize = 24.sp,
             color = if (isDarkMode) Color.White else Color.Black,
             modifier = Modifier.padding(bottom = 16.dp)
@@ -212,7 +213,7 @@ private fun BodyContent(
 
         CustomOutlinedTextField(
             value = planName,
-            label = "Plan Name",
+            label = stringResource(id = R.string.label_new_plan_name),
             error = planNameError,
             onValueChange =  onPlanNameChange,
             isDarkMode = isDarkMode
@@ -220,7 +221,7 @@ private fun BodyContent(
 
         CustomOutlinedTextField(
             value = planPrice,
-            label = "Plan Price",
+            label = stringResource(id = R.string.label_new_plan_price),
             error = planPriceError,
             onValueChange =  { newValue ->
                 if (newValue.all { it.isDigit() || it == '.' || it == ',' }) {
@@ -232,7 +233,7 @@ private fun BodyContent(
 
         CustomOutlinedTextField(
             value = personCount,
-            label = "Person Count",
+            label = stringResource(id = R.string.label_new_user_count),
             error = personCountError,
             onValueChange =  { newValue ->
                 if (newValue.all { it.isDigit() }) {
@@ -252,12 +253,12 @@ private fun BodyContent(
             enabled = !planNameError && !planPriceError && !personCountError,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Save Changes")
+            Text(text = stringResource(id = R.string.button_save_changes))
         }
 
         if (planNameError || planPriceError || personCountError) {
             Text(
-                text = "Please fill in all fields.",
+                text = stringResource(id = R.string.error_fill_all_fields),
                 color = Color.Red,
                 fontSize = 15.sp,
                 modifier = Modifier.padding(top = 8.dp)
@@ -284,9 +285,10 @@ private fun BottomSheetContent(
         verticalArrangement = Arrangement.Top
     ) {
         Text(
-            text = "Are you sure you want to change your subscription information?",
+            text = stringResource(id = R.string.text_question_changing_service),
             fontSize = 16.sp,
-            modifier = Modifier.padding(horizontal = 20.dp)
+            modifier = Modifier.padding(horizontal = 20.dp),
+            color = if (isDarkMode) Color.White else Color.Black
         )
 
         Row(
@@ -296,7 +298,7 @@ private fun BottomSheetContent(
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             Text(
-                text = "Cancel",
+                text = stringResource(id = R.string.button_cancel),
                 color = Color.Red,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
@@ -305,7 +307,7 @@ private fun BottomSheetContent(
             )
 
             Text(
-                text = "Confirm",
+                text = stringResource(id = R.string.button_confirm),
                 color = Color.Green,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
@@ -329,9 +331,9 @@ private fun editSubscriptionByViewModel(
     userSubsVM.updateSubscription(userSub) { success ->
         println(success)
         if (success) {
-            Toast.makeText(context, "The subscription has been updated successfully.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.text_subscription_updated_successfully, Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(context, "The subscription could not be updated.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.text_subscription_update_failed, Toast.LENGTH_SHORT).show()
         }
     }
 }

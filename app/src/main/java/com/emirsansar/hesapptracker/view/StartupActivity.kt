@@ -3,26 +3,24 @@ package com.emirsansar.hesapptracker.view
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.view.AppMain.MainActivity
 import com.emirsansar.hesapptracker.view.Authentication.AuthenticationActivity
-import com.emirsansar.hesapptracker.ui.theme.HesAppTrackerTheme
 import com.google.firebase.auth.FirebaseAuth
 
 class StartupActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val appManager = AppManager.getInstance(this)
+
+        // Set the app language based on the saved preference.
+        appManager.setLanguage(this, appManager.getLanguage())
+
         val auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
 
+        // Redirect to MainActivity if the user is authenticated, else go to AuthenticationActivity.
         if (currentUser != null) {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)

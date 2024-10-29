@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -142,12 +143,17 @@ fun UserSubscriptionsScreen(
                                 appManager.isDarkMode.value
                             )
                         } else {
-                            CenteredText("You currently have no subscriptions.")
+                            CenteredText(
+                                text = stringResource(id = R.string.text_no_subscriptions),
+                                isDarkMode = appManager.isDarkMode.value
+                            )
                         }
                     }
 
                     UserSubscriptionViewModel.FetchingSubscriptionsState.FAILURE -> {
-                        CenteredText("An error occurred while fetching subscriptions.\nPlease try again.")
+                        CenteredText(stringResource(id = R.string.error_fetching_subscription),
+                            isDarkMode = appManager.isDarkMode.value
+                        )
                     }
 
                     else -> {
@@ -244,13 +250,13 @@ private fun SubscriptionMenu(
             onDismiss()
             onEdit()
         }) {
-            Text("Edit")
+            Text(stringResource(id = R.string.button_edit))
         }
         DropdownMenuItem(onClick = {
             onDismiss()
             onRemove()
         }) {
-            Text("Remove")
+            Text(stringResource(id = R.string.button_remove))
         }
     }
 }
@@ -273,10 +279,10 @@ private fun SortPicker(
             modifier = Modifier.width(250.dp)
         ) {
             when (sortType) {
-                SortType.Default -> Text(text = "Sort: ...")
-                SortType.PriceAscending -> Text(text = "Sort: Price Ascending")
-                SortType.PriceDescending -> Text(text = "Sort: Price Descending")
-                SortType.Alphabetical -> Text(text = "Sort: Alphabetical")
+                SortType.Default -> Text(text = stringResource(id = R.string.sort_option))
+                SortType.PriceAscending -> Text(text = stringResource(id = R.string.priceAscending))
+                SortType.PriceDescending -> Text(text = stringResource(id = R.string.priceDescending))
+                SortType.Alphabetical -> Text(text = stringResource(id = R.string.alphabetically))
             }
         }
 
@@ -288,19 +294,19 @@ private fun SortPicker(
                 onSortTypeChanged(SortType.PriceAscending)
                 expanded = false
             }) {
-                Text("Price Ascending")
+                Text(stringResource(id = R.string.priceAscending))
             }
             DropdownMenuItem(onClick = {
                 onSortTypeChanged(SortType.PriceDescending)
                 expanded = false
             }) {
-                Text("Price Descending")
+                Text(stringResource(id = R.string.priceDescending))
             }
             DropdownMenuItem(onClick = {
                 onSortTypeChanged(SortType.Alphabetical)
                 expanded = false
             }) {
-                Text("Alphabetical")
+                Text(stringResource(id = R.string.alphabetically))
             }
         }
     }
@@ -313,7 +319,7 @@ private fun TopBarUserSubscriptionScreen(
 ) {
     TopAppBar(
         title = {
-            Text(text = "My Subscriptions", fontSize = 21.sp, fontWeight = FontWeight.SemiBold,
+            Text(text = stringResource(id = R.string.your_subscriptions), fontSize = 21.sp, fontWeight = FontWeight.SemiBold,
                 color =  if (isDarkMode) Color.White else Color.Black)
         },
         actions = {
@@ -341,9 +347,10 @@ private fun sortSubscriptions(userSubList: List<UserSubscription>, sortType: Sor
 }
 
 @Composable
-private fun CenteredText(text: String) {
+private fun CenteredText(text: String, isDarkMode: Boolean) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = text, fontSize = 20.sp, color = Color.Gray)
+        Text(text = text, fontSize = 20.sp,
+            color = if (isDarkMode) Color.LightGray else Color.DarkGray)
     }
 }
 
@@ -362,10 +369,10 @@ private fun CenteredCircularProgress() {
 private fun removeSubscription(context: Context, userSubsVM: UserSubscriptionViewModel, sub: UserSubscription, displayedUserSubList: MutableList<UserSubscription>) {
     userSubsVM.removeSubscriptionFromUser(sub) { success ->
         if (success) {
-            Toast.makeText(context, "${sub.serviceName} removed successfully.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.text_subscription_removed_successfully, Toast.LENGTH_SHORT).show()
             displayedUserSubList.remove(sub)
         } else {
-            Toast.makeText(context, "${sub.serviceName} could not be removed", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.text_subscription_remove_failed, Toast.LENGTH_SHORT).show()
         }
     }
 }

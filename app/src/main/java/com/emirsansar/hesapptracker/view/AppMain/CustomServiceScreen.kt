@@ -43,11 +43,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.emirsansar.hesapptracker.R
 import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.model.Plan
 import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
@@ -163,7 +165,7 @@ fun CustomServiceScreenView(
 @Composable
 private fun TopBarCustomServiceScreen(onBackPressed: () -> Unit, isDarkMode: Boolean) {
     TopAppBar(
-        title = { Text("Services", fontSize = 20.sp,
+        title = { Text(stringResource(id = R.string.services), fontSize = 20.sp,
             color = if (isDarkMode) Color.White else Color.Black) },
         navigationIcon = {
             IconButton(onClick = { onBackPressed() }) {
@@ -209,12 +211,15 @@ private fun BodyContent(
             .fillMaxSize()
             .padding(innerPadding)
             .padding(16.dp)
-            .clickable ( onClick = { focusManager.clearFocus() }, indication = null, interactionSource = remember { MutableInteractionSource() }),
+            .clickable(
+                onClick = { focusManager.clearFocus() },
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Custom Service: ",
+            text = stringResource(id = R.string.label_custom_service),
             fontSize = 24.sp,
             color = if (appManager.isDarkMode.value) Color.White else Color.Black,
             modifier = Modifier.padding(bottom = 16.dp)
@@ -222,7 +227,7 @@ private fun BodyContent(
 
         CustomOutlinedTextField(
             value = serviceName,
-            label = "Service Name",
+            label = stringResource(id = R.string.label_service_name),
             error = serviceNameError,
             onValueChange = onServiceNameChange,
             appManager.isDarkMode.value
@@ -230,7 +235,7 @@ private fun BodyContent(
 
         CustomOutlinedTextField(
             value = planName,
-            label = "Plan Name",
+            label = stringResource(id = R.string.label_plan_name),
             error = planNameError,
             onValueChange = onPlanNameChange,
             appManager.isDarkMode.value
@@ -238,7 +243,7 @@ private fun BodyContent(
 
         CustomOutlinedTextField(
             value = planPrice,
-            label = "Plan Price",
+            label = stringResource(id = R.string.label_plan_price),
             error = planPriceError,
             onValueChange = onPlanPriceChange,
             appManager.isDarkMode.value,
@@ -247,7 +252,7 @@ private fun BodyContent(
 
         CustomOutlinedTextField(
             value = personCount,
-            label = "Person Count",
+            label = stringResource(id = R.string.label_user_count),
             error = personCountError,
             onValueChange = onPersonCountChange,
             appManager.isDarkMode.value,
@@ -262,17 +267,17 @@ private fun BodyContent(
                 val count = personCount.toIntOrNull()
 
                 if (price != null && count != null) {
-                    alertMessage = "-Service: $serviceName\n-Plan: $planName\n-Price: $planPrice\n-Persons: $personCount"
+                    alertMessage = context.getString(R.string.text_service_details, serviceName, planName, planPrice, personCount)
                     showDialog = true
                 } else {
-                    alertMessage = "Please check the entered values. Plan price must be a valid number and person count must be an integer."
+                    alertMessage = context.getString(R.string.label_error_invalid_format)
                     showAlertError = true
                 }
             },
             enabled = !serviceNameError && !planNameError && !planPriceError && !personCountError,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Add Service")
+            Text(text = stringResource(id = R.string.button_add_service))
         }
 
         // Confirmation Dialog
@@ -294,7 +299,7 @@ private fun BodyContent(
                     )
                 },
                 onDismiss = { showDialog = false },
-                alertMessage = "Do you want to add this service?\n$alertMessage",
+                alertMessage = context.getString(R.string.text_question_adding_service) + "\n$alertMessage",
                 isDarkMode = appManager.isDarkMode.value
             )
         }
@@ -303,13 +308,14 @@ private fun BodyContent(
         if (showAlertError) {
             ErrorDialog(
                 onDismissRequest = { showAlertError = false },
-                alertMessage = alertMessage
+                alertMessage = alertMessage,
+                isDarkMode = appManager.isDarkMode.value
             )
         }
 
         if (serviceNameError || planNameError || planPriceError || personCountError) {
             Text(
-                text = "Please fill in all fields.",
+                text = stringResource(id = R.string.error_fill_all_fields),
                 color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp)
             )
         }
@@ -331,7 +337,9 @@ fun CustomOutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
-        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp),
         colors = TextFieldDefaults.outlinedTextFieldColors(
             textColor = if (isDarkMode) Color.White else Color.Black,
             focusedBorderColor = if (error) Color.Red else MaterialTheme.colorScheme.primary,
@@ -357,13 +365,15 @@ private fun BottomSheetContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = if (isDarkMode) DarkThemeColors.DrawerContentColor
-                                else LightThemeColors.DrawerContentColor )
+            .background(
+                color = if (isDarkMode) DarkThemeColors.DrawerContentColor
+                else LightThemeColors.DrawerContentColor
+            )
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = if (isSuccess) "Success" else "Error",
+            text = if (isSuccess) stringResource(id = R.string.label_success) else stringResource(id = R.string.label_error),
             fontSize = 22.sp,
             color = if (isSuccess) Color.Green else Color.Red,
             fontWeight = FontWeight.SemiBold,
@@ -379,7 +389,7 @@ private fun BottomSheetContent(
                 scaffoldState.bottomSheetState.collapse()
             }
         }) {
-            Text(text = "OK", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+            Text(text = stringResource(id = R.string.button_ok), fontSize = 16.sp, fontWeight = FontWeight.Medium)
         }
     }
 }
@@ -399,7 +409,7 @@ private fun ConfirmationDialog(
                 onConfirm()
             }) {
                 Text(
-                    text = "Confirm",
+                    text = stringResource(id = R.string.button_confirm),
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Green
                 )
@@ -408,7 +418,7 @@ private fun ConfirmationDialog(
         dismissButton = {
             TextButton(onClick = { onDismiss() }) {
                 Text(
-                    text = "Cancel",
+                    text = stringResource(id = R.string.button_cancel),
                     fontWeight = FontWeight.Medium,
                     color = Color.Red
                 )
@@ -416,12 +426,15 @@ private fun ConfirmationDialog(
         },
         title = {
             Text(
-                text = "Confirm Add Service",
+                text = stringResource(id = R.string.label_adding_service),
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                color = if (isDarkMode) Color.White else Color.Black
             ) 
         },
-        text = { Text(alertMessage) },
+        text = { Text(text = alertMessage,
+                      color = if(isDarkMode) Color.White else Color.Black)
+        },
         shape = RoundedCornerShape(16.dp),
         containerColor = if (isDarkMode) DarkThemeColors.DrawerContentColor
                          else LightThemeColors.DrawerContentColor
@@ -432,28 +445,34 @@ private fun ConfirmationDialog(
 @Composable
 private fun ErrorDialog(
     onDismissRequest: () -> Unit,
-    alertMessage: String
+    alertMessage: String,
+    isDarkMode: Boolean
 ) {
     AlertDialog(
         onDismissRequest = { onDismissRequest() },
         confirmButton = {
             TextButton(onClick = { onDismissRequest() }) {
                 Text(
-                    text = "OK",
-                    fontWeight = FontWeight.SemiBold
+                    text = stringResource(id = R.string.button_ok),
+                    fontWeight = FontWeight.SemiBold,
+                    color = if(isDarkMode) Color.White else Color.Black
                 )
             }
         },
         title = {
             Text(
-                text = "Invalid Input",
+                text = stringResource(id = R.string.text_invalid_price_format),
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                color = if(isDarkMode) Color.White else Color.Black
             )
         },
         text = {
-            Text(alertMessage)
-        }
+            Text(text = alertMessage, color =  if(isDarkMode) Color.White else Color.Black)
+        },
+        shape = RoundedCornerShape(16.dp),
+        containerColor = if (isDarkMode) DarkThemeColors.DrawerContentColor
+                         else LightThemeColors.DrawerContentColor
     )
 }
 
@@ -474,10 +493,10 @@ private fun handleAddService(
     userSubVM.addPlanToUserOnFirestore(serviceName, plan, personCount.toInt()) { success ->
         coroutineScope.launch {
             if (success) {
-                onBottomSheetMessageChange("Subscription successfully added.")
+                onBottomSheetMessageChange(R.string.text_selected_plan_added.toString())
                 onBottomSheetSuccessChange(true)
             } else {
-                onBottomSheetMessageChange("An error occurred while adding the subscription.")
+                onBottomSheetMessageChange(R.string.text_error_selected_plan_added.toString())
                 onBottomSheetSuccessChange(false)
             }
             scaffoldState.bottomSheetState.expand()

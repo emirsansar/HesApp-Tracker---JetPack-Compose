@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -62,11 +63,11 @@ fun RegisterScreen(
     LaunchedEffect(registerState) {
         when (registerState) {
             AuthenticationViewModel.RegisterState.SUCCESS -> {
-                Toast.makeText(context, "Registration successful.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.text_registration_successful, Toast.LENGTH_SHORT).show()
                 navController.navigate("login_screen")
             }
             AuthenticationViewModel.RegisterState.FAILURE -> {
-                Toast.makeText(context, "Registration failed: ${registerError.toString()}", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.text_registration_failed, registerError), Toast.LENGTH_LONG).show()
                 authVM.setRegisterStateIdle()
             }
             else -> {}
@@ -93,8 +94,10 @@ fun RegisterScreen(
                 .fillMaxWidth()
                 .height(130.dp)
                 .padding(bottom = 30.dp)
-                .background( if (appManager.isDarkMode.value) DarkThemeColors.BarColor
-                else LightThemeColors.BarColor ),
+                .background(
+                    if (appManager.isDarkMode.value) DarkThemeColors.BarColor
+                    else LightThemeColors.BarColor
+                ),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -106,7 +109,7 @@ fun RegisterScreen(
             }
 
             Text(
-                text = "Register",
+                text = stringResource(id = R.string.label_create_account),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = if (appManager.isDarkMode.value) Color.White else Color.Black,
@@ -126,18 +129,24 @@ fun RegisterScreen(
                     CustomOutlinedTextFieldForAuthScreens(
                         value = nameState.value,
                         onValueChange = { nameState.value = it },
-                        label = "Name",
+                        label = stringResource(id = R.string.label_name),
                         isDarkMode = appManager.isDarkMode.value,
-                        modifier = Modifier.weight(1f).fillMaxWidth().padding(bottom = 10.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(bottom = 10.dp)
                     )
 
                     // Surname TextField
                     CustomOutlinedTextFieldForAuthScreens(
                         value = surnameState.value,
                         onValueChange = { surnameState.value = it },
-                        label = "Surname",
+                        label = stringResource(id = R.string.label_surname),
                         isDarkMode = appManager.isDarkMode.value,
-                        modifier = Modifier.weight(1f).fillMaxWidth().padding(bottom = 10.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(bottom = 10.dp)
                     )
                 }
 
@@ -145,18 +154,22 @@ fun RegisterScreen(
                 CustomOutlinedTextFieldForAuthScreens(
                     value = emailState.value,
                     onValueChange = { emailState.value = it },
-                    label = "Email",
+                    label = stringResource(id = R.string.label_email),
                     isDarkMode = appManager.isDarkMode.value,
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp)
                 )
 
                 // Password TextField
                 CustomOutlinedTextFieldForAuthScreens(
                     value = passwordState.value,
                     onValueChange = { passwordState.value = it },
-                    label = "Password",
+                    label = stringResource(id = R.string.label_password),
                     isDarkMode = appManager.isDarkMode.value,
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp),
                     visualTransformation = PasswordVisualTransformation()
                 )
 
@@ -164,9 +177,11 @@ fun RegisterScreen(
                 CustomOutlinedTextFieldForAuthScreens(
                     value = rePasswordState.value,
                     onValueChange = { rePasswordState.value = it },
-                    label = "Re-Password",
+                    label = stringResource(id = R.string.label_confirm_password),
                     isDarkMode = appManager.isDarkMode.value,
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
                     visualTransformation = PasswordVisualTransformation()
                 )
             }
@@ -177,12 +192,12 @@ fun RegisterScreen(
                     keyboardController?.hide()
                     authVM.registerUserToFirebaseAuth(emailState.value, passwordState.value, nameState.value, surnameState.value) })
             {
-                Text(text = "Register", fontSize = 16.sp,
+                Text(text = stringResource(id = R.string.button_register), fontSize = 16.sp,
                      color = Color.White)
             }
 
             Text(
-                text = "Do you have an account? Sign In",
+                text = stringResource(id = R.string.label_navigate_to_login),
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (appManager.isDarkMode.value) Color.White
                         else MaterialTheme.colorScheme.primary,

@@ -42,12 +42,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.emirsansar.hesapptracker.R
 import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.model.Plan
 import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
@@ -108,7 +110,7 @@ fun PlansScreen(
                             onConfirm = { personCount ->
                                 userSubsVM.addPlanToUserOnFirestore(serviceName, it, personCount) { success ->
                                     if (success)
-                                        Toast.makeText(context, "Plan has been added successfully.", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, R.string.text_selected_plan_added, Toast.LENGTH_SHORT).show()
                                 }
                                 showDialog = false
                             },
@@ -200,7 +202,7 @@ private fun TopBarPlansScreen(
     TopAppBar(
         title = {
             Text(
-                text = "Services",
+                text = stringResource(id = R.string.services),
                 fontSize = 20.sp, fontWeight = FontWeight.Medium, color = if (isDarkMode) Color.White else Color.Black,
             )
         },
@@ -245,7 +247,7 @@ private fun AddPlanDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Add Plan",
+                text = stringResource(id = R.string.label_adding_plan),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (isDarkMode) Color.White else Color.Black
@@ -254,9 +256,7 @@ private fun AddPlanDialog(
         text = {
             Column {
                 Text(
-                    text = "Plan Details:\n" +
-                            "- Name: '${plan.planName}'\n" +
-                            "- Price: '${plan.planPrice}'",
+                    text = stringResource(id = R.string.text_plan_details, plan.planName, plan.planPrice),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Normal,
                     color = if (isDarkMode) Color.White else Color.Black
@@ -265,7 +265,7 @@ private fun AddPlanDialog(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = "How many users?",
+                    text = stringResource(id = R.string.label_how_many_users),
                     fontSize = 16.sp,
                     color = if (isDarkMode) Color.White else Color.Black
                 )
@@ -302,14 +302,14 @@ private fun AddPlanDialog(
                     onDismiss()
                 }
             ) {
-                Text("Confirm", fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = Color.Green)
+                Text(stringResource(id = R.string.button_confirm), fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = Color.Green)
             }
         },
         dismissButton = {
             TextButton(
                 onClick = onDismiss
             ) {
-                Text("Cancel", fontSize = 17.sp, fontWeight = FontWeight.Medium, color = Color.Red)
+                Text(stringResource(id = R.string.button_cancel), fontSize = 17.sp, fontWeight = FontWeight.Medium, color = Color.Red)
             }
         },
         containerColor = if (isDarkMode) DarkThemeColors.DrawerContentColor
@@ -331,10 +331,11 @@ private fun HeaderText(serviceName: String, isDarkMode: Boolean) {
 @Composable
 private fun PlansText(isDarkMode: Boolean){
     Text(
-        text = "Plans:",
+        text = stringResource(id = R.string.label_plan),
         fontSize = 22.sp,
         color = if (isDarkMode) Color.White else Color.Black,
         modifier = Modifier
-            .fillMaxWidth().padding(start = 24.dp, top = 8.dp)
+            .fillMaxWidth()
+            .padding(start = 24.dp, top = 8.dp)
     )
 }

@@ -10,6 +10,9 @@
     <string name="button_confirm">Onayla</string>
     <string name="button_cancel">İptal</string>
     <string name="button_ok">Tamam</string>
+    <string name="button_save_changes">Değişikleri Kaydet</string>
+    <string name="button_edit">Düzenle</string>
+    <string name="button_remove">Kaldır</string>
 
     <string name="label_error">Hata</string>
     <string name="label_success">Başarılı</string>
@@ -21,18 +24,22 @@
     <string name="tab_services">Servisler</string>
 
     <string name="text_login_successful">Giriş Başarılı!\nUygulamaya yönlendiriliyorsunuz.</string>
+    <string name="text_login_failed">Giriş başarısız!\n%1$s.</string>
     <string name="label_email">Email</string>
     <string name="label_password">Şifre</string>
     <string name="button_login">Giriş</string>
     <string name="label_login">Giriş</string>
+    <string name="label_navigate_to_register">Hesabınız yok mu? Kayıt olun.</string>
 
     <string name="text_registration_successful">Kayıt Başarılı!</string>
+    <string name="text_registration_failed">Kayıt başarısız!\n%1$s.</string>
     <string name="button_register">Kayıt Ol</string>
     <string name="label_name">Ad</string>
     <string name="label_surname">Soyad</string>
     <string name="label_confirm_password">Şifre (Tekrar)</string>
     <string name="error_password_does_not_match">Şifreler eşleşmiyor!</string>
     <string name="label_create_account">Hesap Oluştur</string>
+    <string name="label_navigate_to_login">Hesabınız var mı? Giriş yapın.</string>
 
     <string name="welcome">Hoşgeldiniz,</string>
     <string name="home">Ana Sayfa</string>
@@ -62,7 +69,7 @@
     <string name="storage">Depolama</string>
 
     <string name="your_subscriptions">Aboneliklerim</string>
-    <string name="sort_option">Sıralama Seçenekleri</string>
+    <string name="sort_option">Sıralama Seçenekleri…</string>
     <string name="text_subscription_removed_successfully">Abonelik başarıyla kaldırıldı.</string>
     <string name="text_subscription_remove_failed">Abonelik kaldırılırken bir sorun oluştu. Lütfen tekrar deneyiniz.</string>
     <string name="text_subscription_updated_successfully">Abonelik başarıyla güncellendi.</string>
@@ -70,8 +77,8 @@
     <string name="text_no_subscriptions">Bir aboneliğiniz bulunmamaktadır.</string>
     <string name="error_fetching_subscription">Abonelikler çekilirken bir hata oluştu.</string>
 
-    <string name="priceAscending">Fiyat ↑</string>
-    <string name="priceDescending">Fiyat ↓</string>
+    <string name="priceAscending">Fiyat Artan</string>
+    <string name="priceDescending">Fiyat Azalan</string>
     <string name="alphabetically">Alfabetik</string>
 
     <string name="label_delete">Sil</string>
@@ -85,22 +92,32 @@
     <string name="label_available_plans">Mevcut Planlar</string>
     <string name="label_custom_plan">Özel Plan</string>
     <string name="label_add_custom_plan">Özel Plan Ekle</string>
-    <string name="label_plans_for_service">%1$s Planları</string>
-    <string name="text_selected_plan_added">Seçilen plan başarıyla eklendi:\n %1$s - %2$s ₺</string>
+    <string name="label_plans_for_service">%1$s\'ın Planları</string>
+    <string name="text_selected_plan_added">Plan başarıyla eklendi.</string>
     <string name="text_error_selected_plan_added">Plan eklenmeye çalışırken bir hata oldu.</string>
+    <string name="text_question_adding_plan">Bu planı eklemek istiyor musunuz?</string>
+    <string name="text_question_adding_service">Bu servisi eklemek istiyor musunuz?</string>
 
-    <string name="label_service_name">Servis İsmi</string>
+    <string name="label_service_name">Servis Adı</string>
     <string name="label_enter_service_name">Servis İsmini Giriniz</string>
-    <string name="label_plan_name">Plan İsmi</string>
+    <string name="label_plan_name">Plan Adı</string>
     <string name="label_enter_plan_name">Plan İsmini Giriniz</string>
     <string name="label_plan_price">Plan Fiyatı</string>
     <string name="label_enter_plan_price">Plan Fiyatını Giriniz</string>
-    <string name="label_user_count">Kullanıcı sayısı</string>
+    <string name="label_user_count">Kullanıcı Sayısı</string>
     <string name="label_enter_user_count">Kaç kullanıcı kullanıyor?</string>
     <string name="button_add_service">Ekle</string>
     <string name="text_invalid_price_format">Geçersiz fiyat formatı.</string>
+    <string name="label_adding_plan">Plan Ekle</string>
+    <string name="label_adding_service">Service Ekle</string>
+    <string name="label_plan">Plan:</string>
+    <string name="label_plans">Planlar:</string>
+    <string name="button_add">Ekle</string>
+    <string name="text_plan_details">Plan Detayları:\n - Ad: %1$s\n - Fiyat: %2$s:</string>
+    <string name="text_plan_details_with_person_count">Plan Detayları:\n - Ad: %1$s\n - Fiyat: %2$s\n - Kullancı Sayısı: %3$s</string>
+    <string name="text_service_details">Servis Detayları:\n - Servis Adı: %1$s\n - Plan Adı: %2$s\n  - Fiyat: %3$s:\n - Kullancı Sayısı: %4$s</string>
 
-    <string name="label_edit_subscription">Aboneliği Düzenle</string>
+    <string name="label_edit_subscription">Aboneliği Düzenle:\n</string>
     <string name="label_new_plan_name">Yeni Plan İsmi</string>
     <string name="label_new_plan_price">Yeni Plan Fiyatı</string>
     <string name="label_new_user_count">Yeni Kişi Sayısı</string>
@@ -113,5 +130,9 @@
 
     <string name="button_change">Değiştir</string>
     <string name="text_changing_language">Dil değiştiriliyor.\nLütfen bekleyiniz.</string>
+
+    <string name="error_fill_all_fields">Lütfen, tüm alanları doldurunuz.</string>
+
+    <string name="text_question_changing_service">Servis detaylarını değiştirmek istediğine emin misiniz?</string>
 
 </resources>

@@ -6,9 +6,12 @@
     <string name="title_activity_custom_service_screen">CustomServiceScreen</string>
     <string name="title_activity_custom_plan_screen">CustomPlanScreen</string>
 
-    <string name="button_confirm" translatable="false">Confirm</string>
+    <string name="button_confirm">Confirm</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_ok">OK</string>
+    <string name="button_save_changes">Save Changes</string>
+    <string name="button_edit">Edit</string>
+    <string name="button_remove">Remove</string>
 
     <string name="label_error">Error</string>
     <string name="label_success">Success</string>
@@ -20,18 +23,22 @@
     <string name="tab_services">Services</string>
 
     <string name="text_login_successful">Login successful!\nYou are being redirected to the app.</string>
+    <string name="text_login_failed">Login failed!\n%1$s.</string>
     <string name="label_email">Email</string>
     <string name="label_password">Password</string>
     <string name="button_login">Log In</string>
     <string name="label_login">Log In</string>
+    <string name="label_navigate_to_register">Don\'t have an account? Register.</string>
 
     <string name="text_registration_successful">Registration successful.</string>
+    <string name="text_registration_failed">Registration failed!\n%1$s.</string>
     <string name="button_register">Sign Up</string>
     <string name="label_name">First Name</string>
     <string name="label_surname">Last Name</string>
     <string name="label_confirm_password">Confirm Password</string>
     <string name="error_password_does_not_match">Passwords don\'t match.</string>
     <string name="label_create_account">Create Account</string>
+    <string name="label_navigate_to_login">Do you have an account? Sign In</string>
 
     <string name="welcome"> Welcome,</string>
     <string name="home">Home</string>
@@ -61,7 +68,7 @@
     <string name="storage">Storage</string>
 
     <string name="your_subscriptions">My Subscriptions</string>
-    <string name="sort_option">Sort Options</string>
+    <string name="sort_option">Sort Options…</string>
     <string name="text_subscription_removed_successfully">The subscription has been removed successfully.</string>
     <string name="text_subscription_remove_failed">Failed to remove the subscription. Please try again.</string>
     <string name="text_subscription_updated_successfully">The subscription edited successfully.</string>
@@ -69,8 +76,8 @@
     <string name="text_no_subscriptions">You have no subscriptions.</string>
     <string name="error_fetching_subscription">An error occurred while fetching subscriptions.</string>
 
-    <string name="priceAscending">Price ↑</string>
-    <string name="priceDescending">Price ↓</string>
+    <string name="priceAscending">Price Ascending</string>
+    <string name="priceDescending">Price Descending</string>
     <string name="alphabetically">Alphabetically</string>
 
     <string name="label_delete">Delete</string>
@@ -85,8 +92,10 @@
     <string name="label_custom_plan">Custom Plan</string>
     <string name="label_add_custom_plan">Add a Custom Plan</string>
     <string name="label_plans_for_service">\'s Plans</string>
-    <string name="text_selected_plan_added">Selected plan added successfully:\n %1$s - %2$s ₺</string>
+    <string name="text_selected_plan_added">The plan has been added successfully.</string>
     <string name="text_error_selected_plan_added">An error occurred while adding plan.</string>
+    <string name="text_question_adding_plan">Do you want to add this plan?</string>
+    <string name="text_question_adding_service">Do you want to add this service?</string>
 
     <string name="label_service_name">Service Name:</string>
     <string name="label_enter_service_name">Enter Service Name</string>
@@ -98,8 +107,16 @@
     <string name="label_enter_user_count">How many users are using it?</string>
     <string name="button_add_service">Add</string>
     <string name="text_invalid_price_format">Invalid price format. Please enter a valid price.</string>
+    <string name="label_adding_plan">Adding Plan</string>
+    <string name="label_adding_service">Adding Service</string>
+    <string name="label_plan">Plan:</string>
+    <string name="label_plans">Plans:</string>
+    <string name="button_add">Add</string>
+    <string name="text_plan_details">Plan Details:\n - Name: %1$s\n - Price: %2$s:</string>
+    <string name="text_plan_details_with_person_count">Plan Details:\n - Name: %1$s\n - Price: %2$s\n - User Count %3$s</string>
+    <string name="text_service_details">Service Details:\n - Service: %1$s\n - Plan: %2$s\n  - Price: %3$s:\n - User Count: %4$s</string>
 
-    <string name="label_edit_subscription">Edit Subscription</string>
+    <string name="label_edit_subscription">Edit Subscription:\n</string>
     <string name="label_new_plan_name">New Plan Name</string>
     <string name="label_new_plan_price">New Plan Price</string>
     <string name="label_new_user_count">New User Count</string>
@@ -112,5 +129,9 @@
 
     <string name="button_change">Change</string>
     <string name="text_changing_language">Changing language.\nPlease wait.</string>
+
+    <string name="error_fill_all_fields">Please fill in all fields.</string>
+
+    <string name="text_question_changing_service">Are you sure you want to change your subscription information?</string>
 
 </resources>
