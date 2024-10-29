@@ -80,7 +80,6 @@ fun UserSubscriptionsScreen(
 
     val userEmail = FirebaseAuth.getInstance().currentUser!!.email
     val context = LocalContext.current
-
     val appManager = AppManager.getInstance(context)
 
     LaunchedEffect(userEmail) {
@@ -223,7 +222,10 @@ private fun SubscriptionCard(
                 Text(text = sub.planName)
             }
 
-            Text(text = sub.planPrice.toString(), fontSize = 20.sp)
+            Text(
+                text = String.format("%.2f", sub.planPrice / sub.personCount.toDouble()),
+                fontSize = 20.sp
+            )
         }
 
         SubscriptionMenu(
@@ -340,8 +342,8 @@ private fun TopBarUserSubscriptionScreen(
 private fun sortSubscriptions(userSubList: List<UserSubscription>, sortType: SortType): List<UserSubscription> {
     return when (sortType) {
         SortType.Default -> userSubList
-        SortType.PriceAscending -> userSubList.sortedBy { it.planPrice }
-        SortType.PriceDescending -> userSubList.sortedByDescending { it.planPrice }
+        SortType.PriceAscending -> userSubList.sortedBy { it.planPrice / it.personCount.toDouble() }
+        SortType.PriceDescending -> userSubList.sortedByDescending { it.planPrice / it.personCount.toDouble() }
         SortType.Alphabetical -> userSubList.sortedBy { it.serviceName }
     }
 }

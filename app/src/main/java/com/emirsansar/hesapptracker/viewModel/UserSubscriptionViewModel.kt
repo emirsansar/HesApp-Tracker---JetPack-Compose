@@ -74,7 +74,9 @@ class UserSubscriptionViewModel: ViewModel() {
                         }
                     }
 
-                    _userSubscriptionList.value = fetchedSubscriptions
+                    val sortedSubscriptions = fetchedSubscriptions.sortedBy { it.planPrice / it.personCount.toDouble() }
+
+                    _userSubscriptionList.value = sortedSubscriptions
                     _fetchingSubscriptionsState.value  = FetchingSubscriptionsState.SUCCESS
 
                     Log.i("UserSubscriptionsVM", "User's subscriptions list has been fetched successfully.")
