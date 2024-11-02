@@ -24,10 +24,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,6 +41,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,6 +52,7 @@ import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
 import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
 import com.emirsansar.hesapptracker.view.AppMain.MainActivity
 import com.emirsansar.hesapptracker.viewModel.AuthenticationViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun LoginScreen(
@@ -59,26 +63,12 @@ fun LoginScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val appManager = AppManager.getInstance(context)
 
-    val emailState = remember { mutableStateOf("") }
-    val passwordState = remember { mutableStateOf("") }
+    var emailState by remember { mutableStateOf("") }
+    var passwordState by remember { mutableStateOf("") }
 
     val loginState by authVM.loginState.observeAsState(AuthenticationViewModel.LoginState.IDLE)
     val loggingError by authVM.loggingError.observeAsState()
 
-
-    LaunchedEffect(loginState) {
-        when (loginState) {
-            AuthenticationViewModel.LoginState.SUCCESS -> {
-                Toast.makeText(context, R.string.text_login_successful, Toast.LENGTH_SHORT).show()
-                navigateToAppMainScreen(context)
-            }
-            AuthenticationViewModel.LoginState.FAILURE -> {
-                Toast.makeText(context, context.getString(R.string.text_login_failed, loggingError), Toast.LENGTH_LONG).show()
-                authVM.setRegisterStateIdle()
-            }
-            else -> {}
-        }
-    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -122,8 +112,8 @@ fun LoginScreen(
             ) {
                 // Email TextField
                 CustomOutlinedTextFieldForAuthScreens(
-                    value = emailState.value,
-                    onValueChange = { emailState.value = it },
+                    value = emailState,
+                    onValueChange = { emailState = it },
                     label = stringResource(id = R.string.label_email),
                     isDarkMode = appManager.isDarkMode.value,
                     modifier = Modifier
@@ -133,8 +123,8 @@ fun LoginScreen(
 
                 // Password TextField
                 CustomOutlinedTextFieldForAuthScreens(
-                    value = passwordState.value,
-                    onValueChange = { passwordState.value = it },
+                    value = passwordState,
+                    onValueChange = { passwordState = it },
                     label = stringResource(id = R.string.label_password),
                     isDarkMode = appManager.isDarkMode.value,
                     modifier = Modifier
@@ -147,8 +137,10 @@ fun LoginScreen(
             Button(
                 modifier = Modifier.fillMaxWidth(0.8f),
                 onClick = {
-                keyboardController?.hide()
-                authVM.loginUser(emailState.value, passwordState.value) },
+                    keyboardController?.hide()
+                    authVM.setLoginStateIdle()
+                    authVM.loginUser(emailState, passwordState)
+                },
                 enabled = loginState != AuthenticationViewModel.LoginState.SUCCESS)
             {
                 Text(text = stringResource(id = R.string.button_login), fontSize = 16.sp, color = Color.White)
@@ -161,12 +153,53 @@ fun LoginScreen(
                         textDecoration = TextDecoration.Underline
                     ),
                     color = if (appManager.isDarkMode.value) Color.White
-                            else MaterialTheme.colorScheme.primary,
+                            else Color.Black,
                     modifier = Modifier
                         .padding(top = 16.dp)
                         .clickable { navigateToRegisterScreen(navController) },
                 )
             }
+
+            Box (modifier = Modifier.padding(top = 12.dp).fillMaxWidth(0.75f))
+            {
+                when (loginState) {
+                    AuthenticationViewModel.LoginState.SUCCESS -> {
+                        Text(
+                            text = stringResource(id = R.string.text_login_successful),
+                            color = Color.Green,
+                            fontSize = 15.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+
+                        LaunchedEffect(Unit) {
+                            delay(1500)
+                            navigateToAppMainScreen(context)
+                        }
+                    }
+
+                    AuthenticationViewModel.LoginState.FAILURE -> {
+                        Text(
+                            text = stringResource(
+                                id = R.string.text_login_failed,
+                                loggingError!!
+                            ),
+                            color = Color.Red,
+                            fontSize = 15.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+
+                        LaunchedEffect(Unit) {
+                            delay(4500)
+                            authVM.setLoginStateIdle()
+                        }
+                    }
+
+                    else -> {}
+                }
+            }
+
         }
     }
 
@@ -182,7 +215,8 @@ fun CustomOutlinedTextFieldForAuthScreens(
     label: String,
     isDarkMode: Boolean,
     modifier: Modifier = Modifier,
-    visualTransformation: PasswordVisualTransformation? = null
+    visualTransformation: PasswordVisualTransformation? = null,
+    isError: Boolean? = null
 ) {
     OutlinedTextField(
         value = value,
@@ -193,7 +227,8 @@ fun CustomOutlinedTextFieldForAuthScreens(
         colors = outlinedTextFieldColors(
             textColor = if (isDarkMode) Color.White else Color.Black,
             focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = if (isDarkMode) Color.Gray else Color.DarkGray,
+            unfocusedBorderColor = if (isError != null && isError) Color.Red
+                                   else if (isDarkMode) Color.Gray else Color.DarkGray,
             focusedLabelColor = if (isDarkMode) Color.LightGray else Color.DarkGray,
             unfocusedLabelColor = if (isDarkMode) Color.LightGray else Color.DarkGray,
             cursorColor = if (isDarkMode) Color.LightGray else Color.DarkGray

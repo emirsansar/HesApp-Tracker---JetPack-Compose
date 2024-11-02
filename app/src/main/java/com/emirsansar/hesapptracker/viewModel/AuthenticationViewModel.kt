@@ -92,4 +92,8 @@ class AuthenticationViewModel: ViewModel() {
         _registerState.value = RegisterState.IDLE
     }
 
+    fun setLoginStateIdle() {
+        _loginState.value = LoginState.IDLE
+    }
+
 }
