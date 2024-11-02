@@ -26,7 +26,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ExposedDropdownMenuBox
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.Icon
@@ -54,7 +53,7 @@ import com.emirsansar.hesapptracker.model.UserSubscription
 import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
 import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
 import com.emirsansar.hesapptracker.viewModel.UserSubscriptionViewModel
-import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.delay
 
 // Enum class to define sorting options
 enum class SortType {
@@ -90,13 +89,22 @@ fun UserSubscriptionsScreen(
         displayedUserSubList.addAll(fetchedUserSubList)
     }
 
+    LaunchedEffect(appManager.isAnySubscriptionEdited.value) {
+        if (appManager.isAnySubscriptionEdited.value) {
+            userSubsVM.fetchUserSubscriptionsFromFirestore()
+
+            delay(700)
+            appManager.setIsAnySubscriptionEdited(false)
+        }
+    }
+
     Scaffold(
         topBar = {
             TopBarUserSubscriptionScreen(
                 onSortButtonClicked = {
                     isSortPickerExpanded = !isSortPickerExpanded
                 },
-                appManager.isDarkMode.value
+                isDarkMode = appManager.isDarkMode.value
             )
         },
         backgroundColor = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor else LightThemeColors.BackgroundColor,

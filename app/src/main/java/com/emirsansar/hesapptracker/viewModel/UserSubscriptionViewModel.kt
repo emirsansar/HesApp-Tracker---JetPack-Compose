@@ -44,48 +44,47 @@ class UserSubscriptionViewModel: ViewModel() {
 
     // Fetches the user's subscriptions from Firestore.
     fun fetchUserSubscriptionsFromFirestore() {
-
         val userRef = db.collection("Users").document(userEmail!!)
 
-        userRef.get().addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                val document = task.result
-                if (document != null && document.exists()) {
-                    val subscriptions = document.data?.get("Subscriptions") as? Map<String, Map<String, Any>>
+        userRef.addSnapshotListener { documentSnapshot, exception ->
+            if (exception != null) {
+                Log.e("UserSubscriptionsVM", "An error occurred while fetching user's subscription list: ${exception.localizedMessage}")
+                _fetchingSubscriptionsState.value = FetchingSubscriptionsState.FAILURE
+                return@addSnapshotListener
+            }
 
-                    if (subscriptions == null) {
-                        Log.e("UserSubscriptionsVM", "User's subscription list cannot be found.")
-                        _fetchingSubscriptionsState.value = FetchingSubscriptionsState.FAILURE
-                        return@addOnCompleteListener
-                    }
+            if (documentSnapshot != null && documentSnapshot.exists()) {
+                val subscriptions = documentSnapshot.data?.get("Subscriptions") as? Map<String, Map<String, Any>>
 
-                    val fetchedSubscriptions: MutableList<UserSubscription> = mutableListOf()
-
-                    for ((serviceName, serviceDetails) in subscriptions) {
-                        val planName = serviceDetails["PlanName"] as? String
-                        val planPrice = serviceDetails["Price"] as? Double
-                        val personCount = (serviceDetails["PersonCount"] as? Number)?.toInt()
-
-                        if (planName != null && planPrice != null && personCount != null) {
-                            val userSub = UserSubscription(serviceName, planName, planPrice, personCount)
-
-                            fetchedSubscriptions.add(userSub)
-                        }
-                    }
-
-                    val sortedSubscriptions = fetchedSubscriptions.sortedBy { it.planPrice / it.personCount.toDouble() }
-
-                    _userSubscriptionList.value = sortedSubscriptions
-                    _fetchingSubscriptionsState.value  = FetchingSubscriptionsState.SUCCESS
-
-                    Log.i("UserSubscriptionsVM", "User's subscriptions list has been fetched successfully.")
-                } else {
+                if (subscriptions == null) {
                     Log.e("UserSubscriptionsVM", "User's subscription list cannot be found.")
-                    _fetchingSubscriptionsState.value  = FetchingSubscriptionsState.FAILURE
+                    _fetchingSubscriptionsState.value = FetchingSubscriptionsState.FAILURE
+                    return@addSnapshotListener
                 }
+
+                val fetchedSubscriptions: MutableList<UserSubscription> = mutableListOf()
+
+                for ((serviceName, serviceDetails) in subscriptions) {
+                    val planName = serviceDetails["PlanName"] as? String
+                    val planPrice = serviceDetails["Price"] as? Double
+                    val personCount = (serviceDetails["PersonCount"] as? Number)?.toInt()
+
+                    if (planName != null && planPrice != null && personCount != null) {
+                        val userSub = UserSubscription(serviceName, planName, planPrice, personCount)
+
+                        fetchedSubscriptions.add(userSub)
+                    }
+                }
+
+                val sortedSubscriptions = fetchedSubscriptions.sortedBy { it.planPrice / it.personCount.toDouble() }
+
+                _userSubscriptionList.value = sortedSubscriptions
+                _fetchingSubscriptionsState.value = FetchingSubscriptionsState.SUCCESS
+
+                Log.i("UserSubscriptionsVM", "User's subscriptions list has been fetched successfully.")
             } else {
-                Log.e("UserSubscriptionsVM", "An error occurred while fetching user's subscription list: ${task.exception?.localizedMessage}")
-                _fetchingSubscriptionsState.value  = FetchingSubscriptionsState.FAILURE
+                Log.e("UserSubscriptionsVM", "User's subscription list cannot be found.")
+                _fetchingSubscriptionsState.value = FetchingSubscriptionsState.FAILURE
             }
         }
     }

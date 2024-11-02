@@ -15,6 +15,9 @@ class AppManager private constructor(context: Context) {
     var isDarkMode = mutableStateOf(sharedThemePref.getBoolean("isDarkMode", false))
         private set
 
+    // Tracks if any subscription has been edited.
+    var isAnySubscriptionEdited = mutableStateOf(false)
+
     // Toggles the theme between dark and light modes.
     fun toggleTheme() {
         isDarkMode.value = !isDarkMode.value
@@ -44,6 +47,10 @@ class AppManager private constructor(context: Context) {
         }
 
         return language
+    }
+
+    fun setIsAnySubscriptionEdited(edited: Boolean) {
+        isAnySubscriptionEdited.value = edited
     }
 
     companion object {

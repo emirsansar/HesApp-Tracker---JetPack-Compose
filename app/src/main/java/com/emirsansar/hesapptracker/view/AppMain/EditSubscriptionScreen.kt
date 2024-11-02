@@ -69,7 +69,7 @@ class EditSubscriptionScreen : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     if (subscription != null) {
-                        EditSubscriptionScreen(subscription, onBackPressed = { finish() })
+                        EditSubscriptionScreen(subscription, navigateBack = { finish() })
                     }
                 }
             }
@@ -81,7 +81,7 @@ class EditSubscriptionScreen : ComponentActivity() {
 fun EditSubscriptionScreen(
     subscription: UserSubscription,
     userSubsVM: UserSubscriptionViewModel = UserSubscriptionViewModel(),
-    onBackPressed: () -> Unit,
+    navigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var planName by remember { mutableStateOf(subscription.planName) }
@@ -99,7 +99,10 @@ fun EditSubscriptionScreen(
     val appManager = AppManager.getInstance(context)
 
     Scaffold(
-        topBar = { TopBarEditSubscriptionScreen(onBackPressed, appManager.isDarkMode.value) },
+        topBar = { TopBarEditSubscriptionScreen(
+            onBackPressed = navigateBack,
+            isDarkMode = appManager.isDarkMode.value)
+        },
         backgroundColor = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor else LightThemeColors.BackgroundColor,
         content = { innerPadding ->
             ModalBottomSheetLayout(
@@ -108,14 +111,20 @@ fun EditSubscriptionScreen(
                     BottomSheetContent(
                         onConfirm = {
                             editSubscriptionByViewModel(
-                                userSubsVM, subscription.serviceName, planName, planPrice, personCount, context
+                                userSubsVM = userSubsVM,
+                                serviceName = subscription.serviceName,
+                                planName = planName, planPrice,
+                                userCount = personCount,
+                                context = context,
+                                appManager = appManager,
+                                onSuccess = navigateBack
                             )
                             coroutineScope.launch { bottomSheetState.hide() }
                         },
                         onCancel = {
                             coroutineScope.launch { bottomSheetState.hide() }
                         },
-                        appManager.isDarkMode.value
+                        isDarkMode = appManager.isDarkMode.value
                     )
                 },
                 content = {
@@ -329,7 +338,9 @@ private fun editSubscriptionByViewModel(
     planName: String,
     planPrice: String,
     userCount: String,
-    context: Context
+    context: Context,
+    appManager: AppManager,
+    onSuccess: () -> Unit
 ) {
     val priceControl = planPrice.replace(',', '.').toDouble()
 
@@ -337,7 +348,9 @@ private fun editSubscriptionByViewModel(
 
     userSubsVM.updateSubscription(userSub) { success ->
         if (success) {
+            appManager.setIsAnySubscriptionEdited(true)
             Toast.makeText(context, R.string.text_subscription_updated_successfully, Toast.LENGTH_SHORT).show()
+            onSuccess()
         } else {
             Toast.makeText(context, R.string.text_subscription_update_failed, Toast.LENGTH_SHORT).show()
         }
