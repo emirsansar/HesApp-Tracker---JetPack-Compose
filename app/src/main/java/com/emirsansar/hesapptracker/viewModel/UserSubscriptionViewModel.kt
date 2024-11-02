@@ -4,11 +4,11 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.emirsansar.hesapptracker.manager.AuthManager
+import com.emirsansar.hesapptracker.manager.FirestoreManager
 import com.emirsansar.hesapptracker.model.Plan
 import com.emirsansar.hesapptracker.model.UserSubscription
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -39,14 +39,13 @@ class UserSubscriptionViewModel: ViewModel() {
     var totalMonthlySpending: LiveData<Double> = _totalMonthlySpending
 
 
-    private val db = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
-
+    private val db = FirestoreManager.instance.db
+    private val userEmail = AuthManager.instance.currentUserEmail
 
     // Fetches the user's subscriptions from Firestore.
-    fun fetchUserSubscriptionsFromFirestore(userEmail: String) {
+    fun fetchUserSubscriptionsFromFirestore() {
 
-        val userRef = db.collection("Users").document(userEmail)
+        val userRef = db.collection("Users").document(userEmail!!)
 
         userRef.get().addOnCompleteListener { task ->
             if (task.isSuccessful) {
@@ -93,7 +92,6 @@ class UserSubscriptionViewModel: ViewModel() {
 
     // Adds a subscription plan to the user's collection in Firestore.
     fun addPlanToUserOnFirestore(serviceName: String, plan: Plan, personCount: Int, completion: (Boolean) -> Unit) {
-        val userEmail = auth.currentUser!!.email
 
         val userRef = db.collection("Users").document(userEmail!!)
 
@@ -141,7 +139,6 @@ class UserSubscriptionViewModel: ViewModel() {
 
     // Fetches a summary of the user's total subscription count and monthly spending from Firestore.
     fun fetchSubscriptionsSummary() {
-        val userEmail = auth.currentUser!!.email
 
         val userRef = db.collection("Users").document(userEmail!!)
 
@@ -183,7 +180,6 @@ class UserSubscriptionViewModel: ViewModel() {
 
     // Removes a selected subscription from the user's collection in Firestore.
     fun removeSubscriptionFromUser(selectedSub: UserSubscription, onComplete: (Boolean) -> Unit) {
-        val userEmail = auth.currentUser!!.email
 
         val userRef = db.collection("Users").document(userEmail!!)
 
@@ -217,7 +213,6 @@ class UserSubscriptionViewModel: ViewModel() {
 
     // Updates the selected subscription on Firebase.
     fun updateSubscription(updatedSubscription: UserSubscription, completion: (Boolean) -> Unit) {
-        val userEmail = auth.currentUser!!.email
 
         val userRef = db.collection("Users").document(userEmail!!)
 

@@ -4,18 +4,19 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.emirsansar.hesapptracker.manager.FirestoreManager
 import com.emirsansar.hesapptracker.model.Plan
-import com.google.firebase.firestore.FirebaseFirestore
 
 class PlanViewModel: ViewModel() {
 
     private var _planList = MutableLiveData<List<Plan>>()
     val planList: LiveData<List<Plan>> = _planList
 
+    private val db = FirestoreManager.instance.db
+
 
     // Fetches plans of the selected service from the 'Services' collection in Firestore.
     fun fetchPlansOfServiceFromFirestore(documentID: String) {
-        val db = FirebaseFirestore.getInstance()
 
         db.collection("Services").document(documentID).get()
             .addOnSuccessListener { documentSnapshot ->

@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.emirsansar.hesapptracker.manager.AuthManager
+import com.emirsansar.hesapptracker.manager.FirestoreManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -21,8 +23,8 @@ class AuthenticationViewModel: ViewModel() {
         FAILURE
     }
 
-    private val auth = FirebaseAuth.getInstance()
-    private val firestore = FirebaseFirestore.getInstance()
+    private val auth = AuthManager.instance.auth
+    private val db = FirestoreManager.instance.db
 
     private val _loginState = MutableLiveData<LoginState>()
     var loginState: LiveData<LoginState> = _loginState
@@ -77,7 +79,7 @@ class AuthenticationViewModel: ViewModel() {
             "Subscriptions" to hashMapOf<String, Any>()
         )
 
-        firestore.collection("Users").document(email).set(userData).addOnCompleteListener { task ->
+        db.collection("Users").document(email).set(userData).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Log.i("AuthenticationVM", "User's details have been saved on Firestore successfully.")
                 completion(true)

@@ -4,12 +4,12 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.emirsansar.hesapptracker.manager.FirestoreManager
 import com.emirsansar.hesapptracker.model.Service
-import com.google.firebase.firestore.FirebaseFirestore
 
 class ServiceViewModel: ViewModel() {
 
-    private val firestore = FirebaseFirestore.getInstance()
+    private val db = FirestoreManager.instance.db
 
 //    var services: List<Service> = emptyList()
 //        private set
@@ -20,7 +20,7 @@ class ServiceViewModel: ViewModel() {
 
     // Fetches all services from the 'Services' collection in Firestore.
     fun fetchServicesFromFirestore(completion: (List<Service>?, Exception?) -> Unit) {
-        firestore.collection("Services").get()
+        db.collection("Services").get()
             .addOnSuccessListener { querySnapshot ->
                 val services = mutableListOf<Service>()
 

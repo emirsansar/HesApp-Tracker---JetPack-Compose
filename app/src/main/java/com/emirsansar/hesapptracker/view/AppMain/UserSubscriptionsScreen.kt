@@ -78,12 +78,11 @@ fun UserSubscriptionsScreen(
     val fetchingSubsState by userSubsVM.fetchingSubscriptionsState.observeAsState(UserSubscriptionViewModel.FetchingSubscriptionsState.IDLE)
     var isSortPickerExpanded by remember { mutableStateOf(false) }
 
-    val userEmail = FirebaseAuth.getInstance().currentUser!!.email
     val context = LocalContext.current
     val appManager = AppManager.getInstance(context)
 
-    LaunchedEffect(userEmail) {
-        userSubsVM.fetchUserSubscriptionsFromFirestore(userEmail!!)
+    LaunchedEffect(Unit) {
+        userSubsVM.fetchUserSubscriptionsFromFirestore()
     }
 
     LaunchedEffect(fetchedUserSubList) {

@@ -2,18 +2,18 @@ package com.emirsansar.hesapptracker.viewModel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.emirsansar.hesapptracker.manager.AuthManager
+import com.emirsansar.hesapptracker.manager.FirestoreManager
 
 class UserViewModel: ViewModel() {
 
-    private val db = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
-    fun fetchUserFullName(completion: (String?) -> Unit) {
-        val email = auth.currentUser!!.email
+    private val db = FirestoreManager.instance.db
+    private val userEmail = AuthManager.instance.currentUserEmail
 
-        if (email != null) {
-            db.collection("Users").document(email).get()
+    fun fetchUserFullName(completion: (String?) -> Unit) {
+
+        if (userEmail != null) {
+            db.collection("Users").document(userEmail).get()
                 .addOnSuccessListener { documentSnapshot ->
                     val name = documentSnapshot.getString("Name") ?: ""
                     val surname = documentSnapshot.getString("Surname") ?: ""
