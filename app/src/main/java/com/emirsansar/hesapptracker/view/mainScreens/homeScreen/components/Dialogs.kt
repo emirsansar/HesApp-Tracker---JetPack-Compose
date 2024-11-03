@@ -38,38 +38,81 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-internal fun LogOutDialog(
-    context: Context,
-    scope: CoroutineScope,
-    isDarkMode: Boolean,
-    setShowLogOutDialog: (Boolean) -> Unit
+internal fun LogOutConfirmationDialog(
+    setShowLogOutDialog: (Boolean) -> Unit,
+    setShowLogoutProgressDialog: (Boolean) -> Unit,
+    isDarkMode: Boolean
 ) {
     AlertDialog(
         onDismissRequest = { setShowLogOutDialog(true) },
-        title = { Text(text = stringResource(id = R.string.label_log_out), fontSize = 18.sp, fontWeight = FontWeight.Medium,
+        title = { Text(text = stringResource(id = R.string.label_log_out), fontSize = 17.sp, fontWeight = FontWeight.Medium,
             color = if (isDarkMode) Color.White else Color.Black)  },
         text = { Text(
-            stringResource(id = R.string.text_log_out_confirmation), fontSize = 16.sp,
+            stringResource(id = R.string.text_log_out_confirmation), fontSize = 15.sp,
             color = if (isDarkMode) Color.White else Color.Black) },
         confirmButton = {
             TextButton(
                 onClick = {
                     setShowLogOutDialog(false)
-                    logOut(context, scope)
+                    setShowLogoutProgressDialog(true)
                 }
             ) {
-                Text(stringResource(id = R.string.label_log_out), fontSize = 15.sp, color = Color.Green)
+                Text(stringResource(id = R.string.label_log_out), fontSize = 14.sp, color = Color.Green)
             }
         },
         dismissButton = {
             TextButton(onClick = { setShowLogOutDialog(false) }) {
-                Text(stringResource(id = R.string.button_cancel), fontSize = 15.sp, color = Color.Red)
+                Text(stringResource(id = R.string.button_cancel), fontSize = 14.sp, color = Color.Red)
             }
         },
         shape = RoundedCornerShape(16.dp),
         containerColor = if (isDarkMode) DarkThemeColors.DrawerContentColor
         else LightThemeColors.DrawerContentColor
     )
+}
+
+@Composable
+internal fun LogoutProgressDialog(
+    context: Context,
+    scope: CoroutineScope,
+    isDarkMode: Boolean
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.5f)),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier
+                .background(
+                    color = if (isDarkMode) DarkThemeColors.DrawerContentColor else LightThemeColors.DrawerContentColor,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(id = R.string.text_logging_out),
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                color = if (isDarkMode) Color.White else Color.Black,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            CircularProgressIndicator(
+                color = if (isDarkMode) Color.Cyan else Color.Blue,
+                modifier = Modifier.size(17.dp)
+            )
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        delay(1500)
+        logOut(context, scope)
+    }
 }
 
 @Composable
@@ -94,7 +137,7 @@ internal fun ChangeLanguageDialog(
         ) {
             Text(
                 text = stringResource(id = R.string.text_changing_language),
-                fontSize = 16.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
                 color = if (isDarkMode) Color.White else Color.Black,
                 textAlign = TextAlign.Center

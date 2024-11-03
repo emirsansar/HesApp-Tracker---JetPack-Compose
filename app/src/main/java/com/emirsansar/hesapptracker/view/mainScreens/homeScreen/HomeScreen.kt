@@ -47,7 +47,8 @@ import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
 import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
 import com.emirsansar.hesapptracker.view.mainScreens.homeScreen.components.ChangeLanguageDialog
 import com.emirsansar.hesapptracker.view.mainScreens.homeScreen.components.DrawerContent
-import com.emirsansar.hesapptracker.view.mainScreens.homeScreen.components.LogOutDialog
+import com.emirsansar.hesapptracker.view.mainScreens.homeScreen.components.LogOutConfirmationDialog
+import com.emirsansar.hesapptracker.view.mainScreens.homeScreen.components.LogoutProgressDialog
 import com.emirsansar.hesapptracker.view.mainScreens.homeScreen.components.SubscriptionSummaryCard
 import com.emirsansar.hesapptracker.viewModel.UserSubscriptionViewModel
 import com.emirsansar.hesapptracker.viewModel.UserViewModel
@@ -65,7 +66,8 @@ fun HomeScreen(
     val fetchedSubsCount by userSubVM.totalSubscriptionCount.observeAsState(0)
     val fetchedMonthlySpend by userSubVM.totalMonthlySpending.observeAsState(0.0)
     var userFullName by remember { mutableStateOf("") }
-    var showLogoutDialog by remember { mutableStateOf(false) }
+    var showLogoutConfirmationDialog by remember { mutableStateOf(false) }
+    var showLogoutProgressDialog by remember { mutableStateOf(false) }
     var showChangeLanguageDialog by remember { mutableStateOf(false) }
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -89,7 +91,7 @@ fun HomeScreen(
                 drawerState = drawerState,
                 scope = scope,
                 context = context,
-                setShowLogoutDialog = { showLogoutDialog = it },
+                setShowLogoutDialog = { showLogoutConfirmationDialog = it },
                 setShowSwitchLanguageMessage = { showChangeLanguageDialog = it},
                 appManager = appManager
             )
@@ -131,12 +133,19 @@ fun HomeScreen(
         }
     )
 
-    if (showLogoutDialog) {
-        LogOutDialog(
+    if (showLogoutConfirmationDialog) {
+        LogOutConfirmationDialog(
+            setShowLogOutDialog = { showLogoutConfirmationDialog = it },
+            setShowLogoutProgressDialog = { showLogoutProgressDialog = it },
+            isDarkMode = appManager.isDarkMode.value,
+        )
+    }
+
+    if (showLogoutProgressDialog) {
+        LogoutProgressDialog(
             context = context,
             scope = scope,
-            isDarkMode = appManager.isDarkMode.value,
-            setShowLogOutDialog = { showLogoutDialog = it }
+            isDarkMode = appManager.isDarkMode.value
         )
     }
 
