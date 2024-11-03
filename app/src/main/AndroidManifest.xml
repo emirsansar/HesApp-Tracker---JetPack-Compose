@@ -13,17 +13,17 @@
         android:theme="@style/Theme.HesAppTracker"
         tools:targetApi="31">
         <activity
-            android:name=".view.AppMain.CustomPlanScreen"
+            android:name=".view.mainScreens.customPlanScreen.CustomPlanScreen"
             android:exported="false"
             android:label="@string/title_activity_custom_plan_screen"
             android:theme="@style/Theme.HesAppTracker" />
         <activity
-            android:name=".view.AppMain.CustomServiceScreen"
+            android:name=".view.mainScreens.customServiceScreen.CustomServiceScreen"
             android:exported="false"
             android:label="@string/title_activity_custom_service_screen"
             android:theme="@style/Theme.HesAppTracker" />
         <activity
-            android:name=".view.AppMain.EditSubscriptionScreen"
+            android:name=".view.mainScreens.editSubscriptionScreen.EditSubscriptionScreen"
             android:exported="false"
             android:label="@string/title_activity_edit_subscription_screen"
             android:theme="@style/Theme.HesAppTracker" />
@@ -39,12 +39,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".view.Authentication.AuthenticationActivity"
+            android:name=".view.authenticationScreens.AuthenticationActivity"
             android:exported="false"
             android:label="@string/title_activity_authentication"
             android:theme="@style/Theme.HesAppTracker" />
         <activity
-            android:name=".view.AppMain.MainActivity"
+            android:name=".view.mainScreens.MainActivity"
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.HesAppTracker" />

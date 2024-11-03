@@ -5,9 +5,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.manager.AuthManager
-import com.emirsansar.hesapptracker.view.AppMain.MainActivity
-import com.emirsansar.hesapptracker.view.Authentication.AuthenticationActivity
-import com.google.firebase.auth.FirebaseAuth
+import com.emirsansar.hesapptracker.view.mainScreens.MainActivity
+import com.emirsansar.hesapptracker.view.authenticationScreens.AuthenticationActivity
 
 class StartupActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

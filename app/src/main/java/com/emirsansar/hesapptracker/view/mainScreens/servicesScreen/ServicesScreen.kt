@@ -1,7 +1,6 @@
-package com.emirsansar.hesapptracker.view.AppMain
+package com.emirsansar.hesapptracker.view.mainScreens.servicesScreen
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,12 +16,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Card
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -43,6 +38,8 @@ import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.model.Service
 import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
 import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
+import com.emirsansar.hesapptracker.view.mainScreens.customServiceScreen.CustomServiceScreen
+import com.emirsansar.hesapptracker.view.mainScreens.sharedComponents.CustomTopBar
 import com.emirsansar.hesapptracker.viewModel.ServiceViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -63,8 +60,18 @@ fun ServicesScreen(
     }
 
     Scaffold(
-        topBar = { TopBarServiceScreen(context, appManager.isDarkMode.value) },
-        backgroundColor = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor else LightThemeColors.BackgroundColor,
+        topBar = {
+            CustomTopBar(
+                title = stringResource(id = R.string.services),
+                isDarkMode = appManager.isDarkMode.value,
+                onAddButtonClicked = {
+                    val intent = Intent(context, CustomServiceScreen::class.java)
+                    context.startActivity(intent)
+                }
+            )
+        },
+        backgroundColor = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor
+                          else LightThemeColors.BackgroundColor,
         content = { paddingValues ->
             Column(
                 modifier = Modifier
@@ -73,7 +80,10 @@ fun ServicesScreen(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ServiceList(serviceList, navController, appManager.isDarkMode.value)
+                ServiceList(
+                    serviceList = serviceList,
+                    navController = navController
+                )
             }
         }
     )
@@ -81,19 +91,28 @@ fun ServicesScreen(
 }
 
 @Composable
-private fun ServiceList(serviceList: List<Service>, navController: NavController, isDarkMode: Boolean) {
+private fun ServiceList(
+    serviceList: List<Service>,
+    navController: NavController
+) {
     LazyColumn( modifier = Modifier
         .fillMaxSize()
         .padding(all = 10.dp))
     {
         items(serviceList) { service ->
-            ServiceCard(service = service, navController, isDarkMode)
+            ServiceCard(
+                service = service,
+                navController = navController
+            )
         }
     }
 }
 
 @Composable
-private fun ServiceCard(service: Service, navController: NavController, isDarkMode: Boolean) {
+private fun ServiceCard(
+    service: Service,
+    navController: NavController
+) {
     Card(
         modifier = Modifier
             .padding(all = 10.dp)
@@ -125,25 +144,4 @@ private fun ServiceCard(service: Service, navController: NavController, isDarkMo
             )
         }
     }
-}
-
-@Composable
-private fun TopBarServiceScreen(context: Context, isDarkMode: Boolean) {
-    TopAppBar(
-        title = {
-            Text(text = stringResource(id = R.string.services), fontSize = 21.sp, fontWeight = FontWeight.SemiBold,
-                color =  if (isDarkMode) Color.White else Color.Black)
-        },
-        actions = {
-            IconButton(onClick = {
-                val intent = Intent(context, CustomServiceScreen::class.java)
-                context.startActivity(intent)
-            }) {
-                Icon( imageVector = Icons.Default.AddCircle, contentDescription = "Add Service Button",
-                    tint =  if (isDarkMode) Color.White else Color.Black)
-            }
-        },
-        backgroundColor = if (isDarkMode) DarkThemeColors.BarColor else LightThemeColors.BarColor,
-        modifier = Modifier.fillMaxWidth()
-    )
 }

@@ -1,32 +1,25 @@
-package com.emirsansar.hesapptracker.view.AppMain
+package com.emirsansar.hesapptracker.view.mainScreens.editSubscriptionScreen
 
 import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,12 +38,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import com.emirsansar.hesapptracker.R
 import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
 import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
+import com.emirsansar.hesapptracker.view.mainScreens.editSubscriptionScreen.components.BottomSheetContentEditSubscriptionScreen
+import com.emirsansar.hesapptracker.view.mainScreens.sharedComponents.CustomOutlinedTextField
+import com.emirsansar.hesapptracker.view.mainScreens.sharedComponents.CustomTopBar
 import com.emirsansar.hesapptracker.viewModel.UserSubscriptionViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -99,16 +95,19 @@ fun EditSubscriptionScreen(
     val appManager = AppManager.getInstance(context)
 
     Scaffold(
-        topBar = { TopBarEditSubscriptionScreen(
-            onBackPressed = navigateBack,
-            isDarkMode = appManager.isDarkMode.value)
+        topBar = {
+            CustomTopBar(
+                title = stringResource(id = R.string.your_subscriptions),
+                isDarkMode = appManager.isDarkMode.value,
+                onBackPressed = navigateBack
+            )
         },
         backgroundColor = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor else LightThemeColors.BackgroundColor,
         content = { innerPadding ->
             ModalBottomSheetLayout(
                 sheetState = bottomSheetState,
                 sheetContent = {
-                    BottomSheetContent(
+                    BottomSheetContentEditSubscriptionScreen(
                         onConfirm = {
                             editSubscriptionByViewModel(
                                 userSubsVM = userSubsVM,
@@ -164,26 +163,7 @@ fun EditSubscriptionScreen(
     )
 }
 
-// Composable:
-
-@Composable
-private fun TopBarEditSubscriptionScreen(
-    onBackPressed: () -> Unit,
-    isDarkMode: Boolean
-) {
-    TopAppBar(
-        title = { Text(text = stringResource(id = R.string.your_subscriptions), fontSize = 20.sp,
-            color = if (isDarkMode) Color.White else Color.Black ) },
-        navigationIcon = {
-            IconButton(onClick = { onBackPressed() }) {
-                Icon(Icons.Filled.ArrowBack, contentDescription = "Back",
-                    tint =  if (isDarkMode) Color.White else Color.Black)
-            }
-        },
-        backgroundColor = if (isDarkMode) DarkThemeColors.BarColor else LightThemeColors.BarColor,
-        modifier = Modifier.fillMaxWidth()
-    )
-}
+// Components:
 
 @Composable
 private fun BodyContent(
@@ -218,7 +198,8 @@ private fun BodyContent(
             text = stringResource(id = R.string.label_edit_subscription) + subscription.serviceName,
             fontSize = 24.sp,
             color = if (isDarkMode) Color.White else Color.Black,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp),
+            textAlign = TextAlign.Center
         )
 
         CustomOutlinedTextField(
@@ -226,7 +207,8 @@ private fun BodyContent(
             label = stringResource(id = R.string.label_new_plan_name),
             error = planNameError,
             onValueChange =  onPlanNameChange,
-            isDarkMode = isDarkMode
+            isDarkMode = isDarkMode,
+            modifier = Modifier.fillMaxWidth(0.95f).padding(bottom = 8.dp)
         )
 
         CustomOutlinedTextField(
@@ -239,7 +221,8 @@ private fun BodyContent(
                 }
             },
             isDarkMode = isDarkMode,
-            keyboardType = KeyboardType.Decimal
+            keyboardType = KeyboardType.Decimal,
+            modifier = Modifier.fillMaxWidth(0.95f).padding(bottom = 8.dp)
         )
 
         CustomOutlinedTextField(
@@ -252,7 +235,8 @@ private fun BodyContent(
                 }
             },
             isDarkMode = isDarkMode,
-            keyboardType = KeyboardType.Number
+            keyboardType = KeyboardType.Number,
+            modifier = Modifier.fillMaxWidth(0.95f).padding(bottom = 8.dp)
         )
 
         Button(
@@ -263,7 +247,7 @@ private fun BodyContent(
                 }
             },
             enabled = !planNameError && !planPriceError && !personCountError,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(0.95f)
         ) {
             Text(text = stringResource(id = R.string.button_save_changes))
         }
@@ -279,56 +263,7 @@ private fun BodyContent(
     }
 }
 
-@Composable
-private fun BottomSheetContent(
-    onConfirm: () -> Unit,
-    onCancel: () -> Unit,
-    isDarkMode: Boolean
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = if (isDarkMode) DarkThemeColors.DrawerContentColor
-                else LightThemeColors.DrawerContentColor
-            )
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
-    ) {
-        Text(
-            text = stringResource(id = R.string.text_question_changing_service),
-            fontSize = 16.sp,
-            modifier = Modifier.padding(horizontal = 20.dp),
-            color = if (isDarkMode) Color.White else Color.Black
-        )
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-        ) {
-            Text(
-                text = stringResource(id = R.string.button_cancel),
-                color = Color.Red,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier
-                    .clickable(onClick = onCancel)
-                    .padding(16.dp)
-            )
-
-            Text(
-                text = stringResource(id = R.string.button_confirm),
-                color = Color.Green,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier
-                    .clickable(onClick = onConfirm)
-                    .padding(16.dp)
-            )
-        }
-    }
-}
 
 // Functions:
 

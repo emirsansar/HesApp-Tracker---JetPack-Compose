@@ -1,36 +1,21 @@
-package com.emirsansar.hesapptracker.view.AppMain
+package com.emirsansar.hesapptracker.view.mainScreens.plansScreen
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.Scaffold
-import androidx.compose.material.TextButton
 import androidx.compose.material3.Text
-import androidx.compose.material.TopAppBar
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,6 +38,9 @@ import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.model.Plan
 import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
 import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
+import com.emirsansar.hesapptracker.view.mainScreens.customPlanScreen.CustomPlanScreen
+import com.emirsansar.hesapptracker.view.mainScreens.plansScreen.components.AddPlanDialog
+import com.emirsansar.hesapptracker.view.mainScreens.sharedComponents.CustomTopBar
 import com.emirsansar.hesapptracker.viewModel.PlanViewModel
 import com.emirsansar.hesapptracker.viewModel.UserSubscriptionViewModel
 
@@ -79,11 +66,17 @@ fun PlansScreen(
 
     Scaffold(
         topBar = {
-            TopBarPlansScreen(
-                serviceName,
-                navController,
-                context,
-                appManager.isDarkMode.value )
+            CustomTopBar(
+                title = stringResource(id = R.string.services),
+                isDarkMode = appManager.isDarkMode.value,
+                onBackPressed = { navController.popBackStack() },
+                onAddButtonClicked = {
+                    val intent = Intent(context, CustomPlanScreen::class.java).apply {
+                        putExtra("serviceName", serviceName)
+                    }
+                    context.startActivity(intent)
+                }
+            )
         },
         backgroundColor = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor else LightThemeColors.BackgroundColor,
         content = { paddingValues ->
@@ -189,132 +182,6 @@ private fun PlanCard(
             )
         }
     }
-}
-
-
-@Composable
-private fun TopBarPlansScreen(
-    serviceName: String,
-    navController: NavController,
-    context: Context,
-    isDarkMode: Boolean
-) {
-    TopAppBar(
-        title = {
-            Text(
-                text = stringResource(id = R.string.services),
-                fontSize = 20.sp, fontWeight = FontWeight.Medium, color = if (isDarkMode) Color.White else Color.Black,
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = { navController.popBackStack() }) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
-                    tint = if (isDarkMode) Color.White else Color.Black,
-                )
-            }
-        },
-        actions = {
-            IconButton(onClick = {
-                val intent = Intent(context, CustomPlanScreen::class.java).apply {
-                    putExtra("serviceName", serviceName)
-                }
-                context.startActivity(intent)
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add Custom Plan Button",
-                    tint = if (isDarkMode) Color.White else Color.Black,
-                )
-            }
-        },
-        backgroundColor = if (isDarkMode) DarkThemeColors.BarColor else LightThemeColors.BarColor,
-        modifier = Modifier.fillMaxWidth()
-    )
-}
-
-@Composable
-private fun AddPlanDialog(
-    plan: Plan,
-    onConfirm: (Int) -> Unit,
-    onDismiss: () -> Unit,
-    isDarkMode: Boolean
-) {
-    var personCount by remember { mutableStateOf("1") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = stringResource(id = R.string.label_adding_plan),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (isDarkMode) Color.White else Color.Black
-            )
-        },
-        text = {
-            Column {
-                Text(
-                    text = stringResource(id = R.string.text_plan_details, plan.planName, plan.planPrice),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = if (isDarkMode) Color.White else Color.Black
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Text(
-                    text = stringResource(id = R.string.label_how_many_users),
-                    fontSize = 16.sp,
-                    color = if (isDarkMode) Color.White else Color.Black
-                )
-
-                TextField(
-                    value = personCount,
-                    onValueChange = {
-                        if (it.all { char -> char.isDigit() }) {
-                            personCount = it
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        textColor = if (isDarkMode) Color.White else Color.Black,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = if (isDarkMode) Color.Gray else Color.DarkGray,
-                        focusedLabelColor = if (isDarkMode) Color.LightGray else Color.DarkGray,
-                        unfocusedLabelColor = if (isDarkMode) Color.LightGray else Color.DarkGray,
-                    )
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    personCount.toIntOrNull()?.let { count ->
-                        onConfirm(count)
-                    }
-                    onDismiss()
-                }
-            ) {
-                Text(stringResource(id = R.string.button_confirm), fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = Color.Green)
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDismiss
-            ) {
-                Text(stringResource(id = R.string.button_cancel), fontSize = 17.sp, fontWeight = FontWeight.Medium, color = Color.Red)
-            }
-        },
-        containerColor = if (isDarkMode) DarkThemeColors.DrawerContentColor
-                         else LightThemeColors.DrawerContentColor
-    )
 }
 
 @Composable

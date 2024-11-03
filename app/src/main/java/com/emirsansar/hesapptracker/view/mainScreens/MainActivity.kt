@@ -1,4 +1,4 @@
-package com.emirsansar.hesapptracker.view.AppMain
+package com.emirsansar.hesapptracker.view.mainScreens
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -37,6 +37,10 @@ import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
 import com.emirsansar.hesapptracker.ui.theme.HesAppTrackerTheme
 import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
+import com.emirsansar.hesapptracker.view.mainScreens.homeScreen.HomeScreen
+import com.emirsansar.hesapptracker.view.mainScreens.servicesScreen.ServicesScreen
+import com.emirsansar.hesapptracker.view.mainScreens.userSubscriptionScreen.UserSubscriptionsScreen
+import com.emirsansar.hesapptracker.view.mainScreens.plansScreen.PlansScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

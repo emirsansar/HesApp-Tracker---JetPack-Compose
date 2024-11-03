@@ -1,21 +1,14 @@
-package com.emirsansar.hesapptracker.view.Authentication
+package com.emirsansar.hesapptracker.view.authenticationScreens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.Surface
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,12 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -43,6 +32,13 @@ import com.emirsansar.hesapptracker.R
 import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
 import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
+import com.emirsansar.hesapptracker.view.mainScreens.sharedComponents.CustomOutlinedTextFieldForAuthScreens
+import com.emirsansar.hesapptracker.view.authenticationScreens.components.AppLogoForAuthScreen
+import com.emirsansar.hesapptracker.view.authenticationScreens.components.ErrorDialogForAuthScreen
+import com.emirsansar.hesapptracker.view.authenticationScreens.components.ErrorMessageForAuthScreen
+import com.emirsansar.hesapptracker.view.authenticationScreens.components.HeaderTextForAuthScreen
+import com.emirsansar.hesapptracker.view.authenticationScreens.components.HyperlinkTextForAuthScreens
+import com.emirsansar.hesapptracker.view.authenticationScreens.components.RegisterSuccessDialog
 import com.emirsansar.hesapptracker.viewModel.AuthenticationViewModel
 import kotlinx.coroutines.delay
 
@@ -66,6 +62,8 @@ fun RegisterScreen(
     val registerState by authVM.registerState.observeAsState(AuthenticationViewModel.RegisterState.IDLE)
     val registerError by authVM.registrationError.observeAsState()
 
+    var showErrorDialog by remember { mutableStateOf(false) }
+
     BackHandler {
         navController.navigate("login_screen") {
             navigateToLoginScreen(navController)
@@ -82,30 +80,11 @@ fun RegisterScreen(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally)
         {
-            Box (modifier = Modifier
-                .fillMaxWidth()
-                .height(130.dp)
-                .padding(bottom = 30.dp)
-                .background(
-                    if (appManager.isDarkMode.value) DarkThemeColors.BarColor
-                    else LightThemeColors.BarColor
-                ),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.hesapp),
-                    contentDescription = "Application Logo",
-                    modifier = Modifier
-                        .width(220.dp)
-                )
-            }
+            AppLogoForAuthScreen(isDarkMode = appManager.isDarkMode.value)
 
-            Text(
-                text = stringResource(id = R.string.label_create_account),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = if (appManager.isDarkMode.value) Color.White else Color.Black,
-                modifier = Modifier.padding(bottom = 16.dp)
+            HeaderTextForAuthScreen(
+                message = stringResource(id = R.string.label_create_account),
+                isDarkMode = appManager.isDarkMode.value
             )
 
             Column (
@@ -200,23 +179,14 @@ fun RegisterScreen(
                      color = Color.White)
             }
 
-            Text(
+            HyperlinkTextForAuthScreens(
                 text = stringResource(id = R.string.label_navigate_to_login),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    textDecoration = TextDecoration.Underline
-                ),
-                color = if (appManager.isDarkMode.value) Color.White
-                        else Color.Black,
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .clickable { navigateToLoginScreen(navController) }
+                isDarkMode = appManager.isDarkMode.value,
+                onClick = { navigateToLoginScreen(navController) }
             )
 
             if (matchingPasswordError) {
-                Text(
-                    text = stringResource(id = R.string.error_password_does_not_match),
-                    color = Color.Red, fontSize = 15.sp, modifier = Modifier.padding(top = 8.dp)
-                )
+                ErrorMessageForAuthScreen(message = stringResource(id = R.string.error_password_does_not_match))
 
                 LaunchedEffect(Unit) {
                     delay(3000)
@@ -224,43 +194,30 @@ fun RegisterScreen(
                 }
             }
 
-
-            Box (modifier = Modifier.padding(top = 12.dp).fillMaxWidth(0.75f))
-            {
-                when (registerState) {
-                    AuthenticationViewModel.RegisterState.SUCCESS -> {
-                        Text(text = stringResource(id = R.string.text_registration_successful),
-                            color = Color.Green,
-                            fontSize = 15.sp,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-
-                        LaunchedEffect(Unit) {
-                            delay(1500)
-                            navigateToLoginScreen(navController)
-                        }
-                    }
-
-                    AuthenticationViewModel.RegisterState.FAILURE -> {
-                        Text(text = stringResource(id = R.string.text_registration_failed, registerError!!),
-                            color = Color.Red,
-                            fontSize = 15.sp,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-
-                        LaunchedEffect(Unit) {
-                            delay(2000)
-                            authVM.setRegisterStateIdle()
-                        }
-                    }
-
-                    else -> {}
-                }
-            }
-
         }
+    }
+
+    when (registerState) {
+        AuthenticationViewModel.RegisterState.SUCCESS -> {
+            RegisterSuccessDialog(
+                isDarkMode = appManager.isDarkMode.value,
+                onDismiss = {
+                    navigateToLoginScreen(navController)
+                }
+            )
+        }
+
+        AuthenticationViewModel.RegisterState.FAILURE -> {
+            ErrorDialogForAuthScreen(
+                message = stringResource(id = R.string.text_registration_failed, registerError!!),
+                isDarkMode = appManager.isDarkMode.value,
+                onDismiss = {
+                    authVM.setRegisterStateIdle()
+                }
+            )
+        }
+
+        else -> {}
     }
 
 }

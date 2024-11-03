@@ -1,4 +1,4 @@
-package com.emirsansar.hesapptracker.view.Authentication
+package com.emirsansar.hesapptracker.view.authenticationScreens
 
 import android.annotation.SuppressLint
 import android.os.Bundle

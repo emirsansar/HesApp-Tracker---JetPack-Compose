@@ -1,4 +1,4 @@
-package com.emirsansar.hesapptracker.view.AppMain
+package com.emirsansar.hesapptracker.view.mainScreens.userSubscriptionScreen
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -15,21 +15,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ExposedDropdownMenuBox
-import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,9 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.emirsansar.hesapptracker.R
@@ -52,6 +43,9 @@ import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.model.UserSubscription
 import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
 import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
+import com.emirsansar.hesapptracker.view.mainScreens.editSubscriptionScreen.EditSubscriptionScreen
+import com.emirsansar.hesapptracker.view.mainScreens.userSubscriptionScreen.components.SortPicker
+import com.emirsansar.hesapptracker.view.mainScreens.sharedComponents.CustomTopBar
 import com.emirsansar.hesapptracker.viewModel.UserSubscriptionViewModel
 import kotlinx.coroutines.delay
 
@@ -100,11 +94,12 @@ fun UserSubscriptionsScreen(
 
     Scaffold(
         topBar = {
-            TopBarUserSubscriptionScreen(
+            CustomTopBar(
+                title = stringResource(id = R.string.your_subscriptions),
+                isDarkMode = appManager.isDarkMode.value,
                 onSortButtonClicked = {
                     isSortPickerExpanded = !isSortPickerExpanded
-                },
-                isDarkMode = appManager.isDarkMode.value
+                }
             )
         },
         backgroundColor = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor else LightThemeColors.BackgroundColor,
@@ -171,7 +166,7 @@ fun UserSubscriptionsScreen(
     )
 }
 
-// Composable:
+// Components:
 
 // Composable function to display a list of subscriptions in a LazyColumn.
 @Composable
@@ -212,7 +207,7 @@ private fun SubscriptionCard(
             .padding(all = 10.dp)
             .fillMaxWidth()
             .clickable { expandedMenu = true },
-        backgroundColor = if (isDarkMode) Color.LightGray else Color.White
+        backgroundColor = Color.White
     ) {
         Row(
             modifier = Modifier
@@ -270,91 +265,6 @@ private fun SubscriptionMenu(
     }
 }
 
-// Composable function for SortPicker.
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-private fun SortPicker(
-    sortType: SortType,
-    onSortTypeChanged: (SortType) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        OutlinedButton(
-            onClick = { expanded = true },
-            modifier = Modifier.width(250.dp)
-        ) {
-            when (sortType) {
-                SortType.Default -> Text(text = stringResource(id = R.string.sort_option))
-                SortType.PriceAscending -> Text(text = stringResource(id = R.string.priceAscending))
-                SortType.PriceDescending -> Text(text = stringResource(id = R.string.priceDescending))
-                SortType.Alphabetical -> Text(text = stringResource(id = R.string.alphabetically))
-            }
-        }
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(onClick = {
-                onSortTypeChanged(SortType.PriceAscending)
-                expanded = false
-            }) {
-                Text(stringResource(id = R.string.priceAscending))
-            }
-            DropdownMenuItem(onClick = {
-                onSortTypeChanged(SortType.PriceDescending)
-                expanded = false
-            }) {
-                Text(stringResource(id = R.string.priceDescending))
-            }
-            DropdownMenuItem(onClick = {
-                onSortTypeChanged(SortType.Alphabetical)
-                expanded = false
-            }) {
-                Text(stringResource(id = R.string.alphabetically))
-            }
-        }
-    }
-}
-
-@Composable
-private fun TopBarUserSubscriptionScreen(
-    onSortButtonClicked: () -> Unit,
-    isDarkMode: Boolean
-) {
-    TopAppBar(
-        title = {
-            Text(text = stringResource(id = R.string.your_subscriptions), fontSize = 21.sp, fontWeight = FontWeight.SemiBold,
-                color =  if (isDarkMode) Color.White else Color.Black)
-        },
-        actions = {
-            IconButton(onClick = onSortButtonClicked) {
-                Icon(
-                    painter = painterResource(id = R.drawable.icon_sorting),
-                    contentDescription = "Sort Subscription Button",
-                    tint =  if (isDarkMode) Color.White else Color.Black
-                )
-            }
-        },
-        backgroundColor = if (isDarkMode) DarkThemeColors.BarColor else LightThemeColors.BarColor,
-        modifier = Modifier.fillMaxWidth()
-    )
-}
-
-// Function to sort subscriptions based on selected sort type.
-private fun sortSubscriptions(userSubList: List<UserSubscription>, sortType: SortType): List<UserSubscription> {
-    return when (sortType) {
-        SortType.Default -> userSubList
-        SortType.PriceAscending -> userSubList.sortedBy { it.planPrice / it.personCount.toDouble() }
-        SortType.PriceDescending -> userSubList.sortedByDescending { it.planPrice / it.personCount.toDouble() }
-        SortType.Alphabetical -> userSubList.sortedBy { it.serviceName }
-    }
-}
-
 @Composable
 private fun CenteredText(text: String, isDarkMode: Boolean) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -374,6 +284,16 @@ private fun CenteredCircularProgress() {
 }
 
 // Functions:
+
+// Function to sort subscriptions based on selected sort type.
+private fun sortSubscriptions(userSubList: List<UserSubscription>, sortType: SortType): List<UserSubscription> {
+    return when (sortType) {
+        SortType.Default -> userSubList
+        SortType.PriceAscending -> userSubList.sortedBy { it.planPrice / it.personCount.toDouble() }
+        SortType.PriceDescending -> userSubList.sortedByDescending { it.planPrice / it.personCount.toDouble() }
+        SortType.Alphabetical -> userSubList.sortedBy { it.serviceName }
+    }
+}
 
 private fun removeSubscription(context: Context, userSubsVM: UserSubscriptionViewModel, sub: UserSubscription, displayedUserSubList: MutableList<UserSubscription>) {
     userSubsVM.removeSubscriptionFromUser(sub) { success ->
