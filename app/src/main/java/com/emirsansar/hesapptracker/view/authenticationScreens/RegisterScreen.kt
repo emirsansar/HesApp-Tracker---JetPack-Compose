@@ -170,7 +170,7 @@ fun RegisterScreen(
                         matchingPasswordError = true
                     } else {
                         matchingPasswordError = false
-                        authVM.registerUserToFirebaseAuth(emailState, passwordState, nameState, surnameState)
+                        authVM.registerUserToFirebaseAuth(emailState, passwordState, nameState, surnameState, context)
                     }
                 },
                 enabled = registerState != AuthenticationViewModel.RegisterState.SUCCESS
@@ -222,7 +222,9 @@ fun RegisterScreen(
 
 }
 
+// Functions:
 
+// Navigates to the login screen.
 private fun navigateToLoginScreen(navController: NavController) {
     navController.navigate("login_screen") {
         popUpTo("register_screen") { inclusive = true }

@@ -105,8 +105,7 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth(0.8f),
                 onClick = {
                     keyboardController?.hide()
-                    authVM.setLoginStateIdle()
-                    authVM.loginUser(emailState, passwordState)
+                    authVM.loginUser(emailState, passwordState, context)
                 },
                 enabled = loginState != AuthenticationViewModel.LoginState.SUCCESS)
             {
