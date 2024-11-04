@@ -39,6 +39,8 @@ import com.emirsansar.hesapptracker.model.Service
 import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
 import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
 import com.emirsansar.hesapptracker.view.mainScreens.customServiceScreen.CustomServiceScreen
+import com.emirsansar.hesapptracker.view.mainScreens.servicesScreen.components.FilterPicker
+import com.emirsansar.hesapptracker.view.mainScreens.servicesScreen.components.FilterType
 import com.emirsansar.hesapptracker.view.mainScreens.sharedComponents.CustomTopBar
 import com.emirsansar.hesapptracker.viewModel.ServiceViewModel
 
@@ -49,13 +51,23 @@ fun ServicesScreen(
     serviceVM: ServiceViewModel = ServiceViewModel(),
     navController: NavController
 ){
-    var serviceList by remember { mutableStateOf(emptyList<Service>()) }
     val context = LocalContext.current
     val appManager = AppManager.getInstance(context)
 
+    // Holds the original list of services fetched from Firestore.
+    var originalServiceList by remember { mutableStateOf(emptyList<Service>()) }
+    // Holds the filtered list of services based on the selected filter type.
+    var filteredServiceList by remember { mutableStateOf(emptyList<Service>()) }
+
+    var filterType by remember { mutableStateOf(FilterType.All) }
+    var isFilterPickerExpanded by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         serviceVM.fetchServicesFromFirestore { services, _ ->
-            if (!services.isNullOrEmpty()) serviceList = services
+            if (!services.isNullOrEmpty()) {
+                originalServiceList = services
+                filteredServiceList = originalServiceList
+            }
         }
     }
 
@@ -67,6 +79,9 @@ fun ServicesScreen(
                 onAddButtonClicked = {
                     val intent = Intent(context, CustomServiceScreen::class.java)
                     context.startActivity(intent)
+                },
+                onSortButtonClicked = {
+                    isFilterPickerExpanded = true
                 }
             )
         },
@@ -81,14 +96,30 @@ fun ServicesScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 ServiceList(
-                    serviceList = serviceList,
+                    serviceList = filteredServiceList,
                     navController = navController
+                )
+            }
+
+            if (isFilterPickerExpanded) {
+                FilterPicker(
+                    selectedType = filterType,
+                    onFilterTypeChanged = { filterType = it },
+                    onConfirm = {
+                        filteredServiceList = filterServices(originalServiceList, filterType)
+                        isFilterPickerExpanded = false
+                    },
+                    onDismissRequest = { isFilterPickerExpanded = false },
+                    isDarkMode = appManager.isDarkMode.value,
+                    context = context
                 )
             }
         }
     )
 
 }
+
+// Components:
 
 @Composable
 private fun ServiceList(
@@ -142,6 +173,22 @@ private fun ServiceCard(
                 tint = Color.DarkGray,
                 modifier = Modifier.size(18.dp)
             )
+        }
+    }
+}
+
+
+// Functions:
+
+// Filters services based on the selected service type.
+private fun filterServices(serviceList: List<Service>, serviceType: FilterType): List<Service> {
+    return if (serviceType == FilterType.All) {
+        serviceList
+    } else {
+        val lowercasedServiceType = serviceType.name.replaceFirstChar { it.lowercase() }
+
+        serviceList.filter { service ->
+            service.serviceType == lowercasedServiceType
         }
     }
 }
