@@ -7,6 +7,8 @@ This application, developed using **'Jetpack Compose'**, efficiently manages use
 
 Additionally, users can customize the app's theme according to their preferences. The application supports two language options: Turkish and English, allowing users to switch between languages seamlessly.
 
+I had done this project with XML Layout in previous months. You can access it here: <br> https://github.com/emirsansar/HesApp---Subscriptions-Tracker
+
 Here's a video of the application on Youtube:
 
 <a href="https://youtu.be/OT4P4Kk76Ss" target="_blank">
