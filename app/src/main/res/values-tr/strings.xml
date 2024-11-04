@@ -13,6 +13,7 @@
     <string name="button_save_changes">Değişikleri Kaydet</string>
     <string name="button_edit">Düzenle</string>
     <string name="button_remove">Kaldır</string>
+    <string name="button_close">Kapat</string>
 
     <string name="label_error">Hata</string>
     <string name="label_success">Başarılı</string>
@@ -46,7 +47,7 @@
     <string name="text_error_log_out">Çıkış yapılırken bir hata oluştu.</string>
     <string name="label_log_out">Çıkış Yap</string>
     <string name="text_log_out_confirmation">Hesabınızdan çıkış yapmak istediğinize emin misiniz?</string>
-    <string name="text_logging_out">Çıkış yapılıyor..</string>
+    <string name="text_logging_out">Çıkış yapılıyor…\nLütfen bekleyiniz.</string>
     <string name="label_total_sub_count">Abonelik Sayısı:</string>
     <string name="label_monthly_spend">Aylık Tutar:</string>
     <string name="label_annual_spend">Yıllık Tutar:</string>
@@ -59,14 +60,15 @@
     <string name="search_service">Servis Ara</string>
     <string name="service_name_field">Servis İsmi…</string>
 
-    <string name="all">Tümü</string>
-    <string name="shopping">Alışveriş</string>
-    <string name="seriesMovies">Dizi - Film</string>
-    <string name="selfDevelopment">Kişisel Gelişim</string>
-    <string name="music">Müzik</string>
-    <string name="game">Oyun</string>
-    <string name="sport">Spor</string>
-    <string name="storage">Depolama</string>
+    <string name="All">Tümü</string>
+    <string name="Shopping">Alışveriş</string>
+    <string name="SeriesMovies">Dizi - Film</string>
+    <string name="SelfDevelopment">Kişisel Gelişim</string>
+    <string name="Music">Müzik</string>
+    <string name="Game">Oyun</string>
+    <string name="Sport">Spor</string>
+    <string name="Storage">Depolama</string>
+    <string name="label_filter_options">Servis Türünü Seçiniz:</string>
 
     <string name="your_subscriptions">Aboneliklerim</string>
     <string name="sort_option">Sıralama Seçenekleri…</string>
@@ -107,7 +109,7 @@
     <string name="label_user_count">Kullanıcı Sayısı</string>
     <string name="label_enter_user_count">Kaç kullanıcı kullanıyor?</string>
     <string name="button_add_service">Ekle</string>
-    <string name="text_invalid_price_format">Geçersiz fiyat formatı.</string>
+    <string name="text_invalid_price_format">Lütfen girdiğiniz fiyat veya kullanıcı sayısını kontrol ediniz.</string>
     <string name="label_adding_plan">Plan Ekle</string>
     <string name="label_adding_service">Service Ekle</string>
     <string name="label_plan">Plan:</string>
@@ -126,7 +128,7 @@
 
     <string name="label_your_custom_plan">Özel Plan</string>
     <string name="label_plan_price_with_format">00.00</string>
-    <string name="label_error_invalid_format">Lütfen fiyatı geçerli formatta giriniz.</string>
+    <string name="label_error_invalid_format">Geçersiz format…</string>
 
     <string name="button_change">Değiştir</string>
     <string name="text_changing_language">Dil değiştiriliyor.\nLütfen bekleyiniz.</string>

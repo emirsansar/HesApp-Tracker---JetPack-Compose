@@ -12,6 +12,7 @@
     <string name="button_save_changes">Save Changes</string>
     <string name="button_edit">Edit</string>
     <string name="button_remove">Remove</string>
+    <string name="button_close">Close</string>
 
     <string name="label_error">Error</string>
     <string name="label_success">Success</string>
@@ -45,7 +46,7 @@
     <string name="text_error_log_out">An error occurred while logging out.\nPlease try again.</string>
     <string name="label_log_out">Log Out</string>
     <string name="text_log_out_confirmation">Are you sure you want to log out?</string>
-    <string name="text_logging_out">Logging out…</string>
+    <string name="text_logging_out">Logging out…\nPlease wait.</string>
     <string name="label_total_sub_count">Subscription Count:</string>
     <string name="label_monthly_spend">Monthly spend:</string>
     <string name="label_annual_spend">Annual spend:</string>
@@ -58,14 +59,15 @@
     <string name="search_service">Search Services</string>
     <string name="service_name_field">Service Name…</string>
 
-    <string name="all">All</string>
-    <string name="shopping">Shopping</string>
-    <string name="seriesMovies">Series and Movies</string>
-    <string name="selfDevelopment">Self-Development</string>
-    <string name="music">Music</string>
-    <string name="game">Games</string>
-    <string name="sport">Sport</string>
-    <string name="storage">Storage</string>
+    <string name="All">All</string>
+    <string name="Shopping">Shopping</string>
+    <string name="SeriesMovies">Series and Movies</string>
+    <string name="SelfDevelopment">Self-Development</string>
+    <string name="Music">Music</string>
+    <string name="Game">Games</string>
+    <string name="Sport">Sport</string>
+    <string name="Storage">Storage</string>
+    <string name="label_filter_options">Select Service Type:</string>
 
     <string name="your_subscriptions">My Subscriptions</string>
     <string name="sort_option">Sort Options…</string>
@@ -106,7 +108,7 @@
     <string name="label_user_count">User Count:</string>
     <string name="label_enter_user_count">How many users are using it?</string>
     <string name="button_add_service">Add</string>
-    <string name="text_invalid_price_format">Invalid price format. Please enter a valid price.</string>
+    <string name="text_invalid_price_format">Please check the price or user count you entered.</string>
     <string name="label_adding_plan">Adding Plan</string>
     <string name="label_adding_service">Adding Service</string>
     <string name="label_plan">Plan:</string>
@@ -125,7 +127,7 @@
 
     <string name="label_your_custom_plan">Your Custom Plan</string>
     <string name="label_plan_price_with_format">00.00</string>
-    <string name="label_error_invalid_format">Error: Please enter a valid price.</string>
+    <string name="label_error_invalid_format">Invalid format…</string>
 
     <string name="button_change">Change</string>
     <string name="text_changing_language">Changing language.\nPlease wait.</string>
