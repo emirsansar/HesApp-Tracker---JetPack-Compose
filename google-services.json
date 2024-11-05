@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "973564931728",
     "project_id": "hesapp-tracker",
-    "storage_bucket": "hesapp-tracker.appspot.com"
+    "storage_bucket": "hesapp-tracker.firebasestorage.app"
   },
   "client": [
     {
@@ -12,7 +12,12 @@
           "package_name": "com.emirsansar.hesapptracker"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "973564931728-0nbb4htoubi4ghelrmrhgdlma9jh8kh2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDGiPqygYyZNAl1ahd_djlb-zSbMRlC92M"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "973564931728-0nbb4htoubi4ghelrmrhgdlma9jh8kh2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "973564931728-5a11o2nd2enfmvucfa71l5mn7r78hnpb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.emirsansar.HesApp-Tracker"
+              }
+            }
+          ]
         }
       }
     }

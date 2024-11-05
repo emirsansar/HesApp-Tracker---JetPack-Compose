@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.emirsansar.hesapptracker"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.emirsansar.hesapptracker"
@@ -54,21 +54,21 @@ android {
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
-    implementation("androidx.activity:activity-compose:1.9.2")
+    implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+    implementation("androidx.activity:activity-compose:1.9.3")
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    implementation("com.google.firebase:firebase-firestore:25.1.0")
-    implementation("com.google.firebase:firebase-auth:23.0.0")
+    implementation("com.google.firebase:firebase-firestore:25.1.1")
+    implementation("com.google.firebase:firebase-auth:23.1.0")
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
     implementation("com.google.android.material:material:1.12.0")
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    implementation("com.google.firebase:firebase-inappmessaging-ktx:21.0.0")
+    implementation("com.google.firebase:firebase-inappmessaging-ktx:21.0.1")
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
     testImplementation("junit:junit:4.13.2")
@@ -84,11 +84,16 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    implementation("androidx.compose.material:material:1.7.3")
-    implementation("androidx.navigation:navigation-compose:2.8.2")
+    implementation("androidx.compose.material:material:1.7.5")
+    implementation("androidx.navigation:navigation-compose:2.8.3")
 
     implementation(platform("com.google.firebase:firebase-bom:33.3.0"))
     implementation("com.google.firebase:firebase-analytics")
 
-    implementation("androidx.compose.runtime:runtime-livedata:1.7.3")
+    implementation("androidx.compose.runtime:runtime-livedata:1.7.5")
+
+    implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
+
+
 }
