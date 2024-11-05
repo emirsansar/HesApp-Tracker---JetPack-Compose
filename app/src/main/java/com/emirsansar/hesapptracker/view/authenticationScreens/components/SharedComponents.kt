@@ -78,7 +78,7 @@ internal fun HeaderTextForAuthScreen(message: String, isDarkMode: Boolean){
 internal fun AppLogoForAuthScreen(){
     Box (modifier = Modifier
         .fillMaxWidth()
-        .height(130.dp)
+        .height(90.dp)
         .padding(bottom = 10.dp),
         contentAlignment = Alignment.Center
     ) {

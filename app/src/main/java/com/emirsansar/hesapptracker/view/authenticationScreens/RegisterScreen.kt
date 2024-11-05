@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -24,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -96,21 +99,25 @@ fun RegisterScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor
-                else LightThemeColors.BackgroundColor
+        color = if (appManager.isDarkMode.value) DarkThemeColors.BarColor
+                else LightThemeColors.BarColor
     ) {
-        Column (
-            modifier = Modifier.fillMaxSize(),
+        Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            AppLogoForAuthScreen()
+
             Column (
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor
+                                else LightThemeColors.BackgroundColor
+                    ),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally)
             {
-                AppLogoForAuthScreen()
-
                 HeaderTextForAuthScreen(
                     message = stringResource(id = R.string.label_create_account),
                     isDarkMode = appManager.isDarkMode.value
@@ -232,7 +239,6 @@ fun RegisterScreen(
                         matchingPasswordError = false
                     }
                 }
-
             }
         }
     }

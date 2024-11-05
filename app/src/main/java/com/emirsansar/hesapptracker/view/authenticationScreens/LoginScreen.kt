@@ -7,6 +7,7 @@ import android.os.Looper
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -87,8 +88,7 @@ fun LoginScreen(
             }
         }
 
-        Column (
-            modifier = Modifier.fillMaxSize(),
+        Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -98,7 +98,10 @@ fun LoginScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(24.dp))
-                    .background(LightThemeColors.BackgroundColor),
+                    .background(
+                        if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor
+                        else LightThemeColors.BackgroundColor
+                    ),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -167,8 +170,6 @@ fun LoginScreen(
                     )
                 }
             }
-
-
         }
     }
 
