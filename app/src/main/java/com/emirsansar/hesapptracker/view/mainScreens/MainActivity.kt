@@ -1,8 +1,9 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.emirsansar.hesapptracker.view.mainScreens
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.ContextWrapper
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,10 +30,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.emirsansar.hesapptracker.manager.googleAuth.GoogleAuthUiClient
 import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
 import com.emirsansar.hesapptracker.ui.theme.HesAppTrackerTheme
@@ -41,20 +44,30 @@ import com.emirsansar.hesapptracker.view.mainScreens.homeScreen.HomeScreen
 import com.emirsansar.hesapptracker.view.mainScreens.servicesScreen.ServicesScreen
 import com.emirsansar.hesapptracker.view.mainScreens.userSubscriptionScreen.UserSubscriptionsScreen
 import com.emirsansar.hesapptracker.view.mainScreens.plansScreen.PlansScreen
+import com.google.android.gms.auth.api.identity.Identity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
+    private val googleAuthUiClient by lazy {
+        GoogleAuthUiClient(
+            context = applicationContext,
+            oneTapClient = Identity.getSignInClient(applicationContext)
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             HesAppTrackerTheme {
                 // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    MainActivityScreen(this)
-                }
+                MainActivityScreen(
+                    context = applicationContext,
+                    lifecycleScope = lifecycleScope,
+                    googleAuthUiClient = googleAuthUiClient
+                )
             }
         }
     }
@@ -69,42 +82,64 @@ sealed class BottomNavItem(val route: String, val icon: ImageVector, val title: 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainActivityScreen(context: Context) {
-    val items = listOf(BottomNavItem.Home, BottomNavItem.Services, BottomNavItem.UserSubscriptions)
-    val selectedBar = remember { mutableStateOf(0)}
-    val navController = rememberNavController()
-    val appManager = AppManager.getInstance(context)
+fun MainActivityScreen(
+    context: Context,
+    lifecycleScope: CoroutineScope,
+    googleAuthUiClient: GoogleAuthUiClient
+) {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        val items = listOf(BottomNavItem.Home, BottomNavItem.Services, BottomNavItem.UserSubscriptions)
+        val selectedBar = remember { mutableStateOf(0)}
+        val navController = rememberNavController()
+        val appManager = AppManager.getInstance(context)
 
-    Scaffold(
-        content = { paddingValues ->
-            NavHost(navController = navController, startDestination = "home_screen") {
-                composable("home_screen") {
-                    HomeScreen(modifier = Modifier.padding(paddingValues))
+        Scaffold(
+            content = { paddingValues ->
+                NavHost(navController = navController, startDestination = "home_screen") {
+
+                    composable("home_screen") {
+                        HomeScreen(
+                            modifier = Modifier.padding(paddingValues),
+                            onSignOut = {
+                                lifecycleScope.launch {
+                                    googleAuthUiClient.signOut()
+                                }
+                            }
+                        )
+                    }
+
+                    composable("services_screen") {
+                        ServicesScreen(
+                            modifier = Modifier.padding(paddingValues),
+                            navController = navController
+                        )
+                    }
+
+                    composable("usersubscriptions_screen") {
+                        UserSubscriptionsScreen(modifier = Modifier.padding(paddingValues))
+                    }
+
+                    composable("service_plans_screen/{serviceName}") { backStackEntry ->
+                        val serviceName = backStackEntry.arguments?.getString("serviceName")
+                        PlansScreen(
+                            modifier = Modifier.padding(paddingValues),
+                            serviceName = serviceName!!,
+                            navController = navController
+                        )
+                    }
                 }
-                composable("services_screen") {
-                    ServicesScreen(
-                        modifier = Modifier.padding(paddingValues),
-                        navController = navController
-                    )
-                }
-                composable("usersubscriptions_screen") {
-                    UserSubscriptionsScreen(modifier = Modifier.padding(paddingValues))
-                }
-                composable("service_plans_screen/{serviceName}") { backStackEntry ->
-                    val serviceName = backStackEntry.arguments?.getString("serviceName")
-                    PlansScreen(
-                        modifier = Modifier.padding(paddingValues),
-                        serviceName = serviceName!!,
-                        navController = navController
-                    )
-                }
+            },
+            bottomBar = {
+                ApplicationNavigationBar(items, selectedBar, navController, appManager)
             }
-        },
-        bottomBar = {
-            ApplicationNavigationBar(items, selectedBar, navController, appManager)
-        }
-    )
+        )
+    }
 }
+
+// Components:
 
 @Composable
 private fun ApplicationNavigationBar(
@@ -139,6 +174,7 @@ private fun ApplicationNavigationBar(
     }
 }
 
+// Functions:
 
 // Navigate to a new destination while clearing all previous screens from the back stack.
 private fun navigateAndClearBackStack(
@@ -154,7 +190,5 @@ private fun navigateAndClearBackStack(
 @Preview(showBackground = true)
 @Composable
 fun AppMainActivityPreview() {
-    HesAppTrackerTheme {
-        MainActivityScreen(ContextWrapper(null))
-    }
+
 }

@@ -70,20 +70,16 @@ internal fun HeaderTextForAuthScreen(message: String, isDarkMode: Boolean){
         fontSize = 22.sp,
         fontWeight = FontWeight.SemiBold,
         color = if (isDarkMode) Color.White else Color.Black,
-        modifier = Modifier.padding(bottom = 16.dp)
+        modifier = Modifier.padding(bottom = 16.dp, top = 15.dp)
     )
 }
 
 @Composable
-internal fun AppLogoForAuthScreen(isDarkMode: Boolean){
+internal fun AppLogoForAuthScreen(){
     Box (modifier = Modifier
         .fillMaxWidth()
         .height(130.dp)
-        .padding(bottom = 30.dp)
-        .background(
-            if (isDarkMode) DarkThemeColors.BarColor
-            else LightThemeColors.BarColor
-        ),
+        .padding(bottom = 10.dp),
         contentAlignment = Alignment.Center
     ) {
         Image(

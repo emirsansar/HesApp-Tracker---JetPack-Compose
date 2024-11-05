@@ -60,7 +60,8 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     modifier: Modifier,
     userSubVM: UserSubscriptionViewModel = UserSubscriptionViewModel(),
-    userVM: UserViewModel = UserViewModel()
+    userVM: UserViewModel = UserViewModel(),
+    onSignOut: () -> Unit
 ){
     val fetchingSummaryState by userSubVM.fetchingSummaryState.observeAsState(UserSubscriptionViewModel.FetchingSummaryState.IDLE)
     val fetchedSubsCount by userSubVM.totalSubscriptionCount.observeAsState(0)
@@ -145,6 +146,7 @@ fun HomeScreen(
         LogoutProgressDialog(
             context = context,
             scope = scope,
+            progressLogOut = onSignOut,
             isDarkMode = appManager.isDarkMode.value
         )
     }

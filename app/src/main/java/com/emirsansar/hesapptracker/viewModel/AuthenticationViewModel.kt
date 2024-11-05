@@ -6,10 +6,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.emirsansar.hesapptracker.R
+import com.emirsansar.hesapptracker.manager.googleAuth.AuthResultOnGoogle
 import com.emirsansar.hesapptracker.manager.AuthManager
 import com.emirsansar.hesapptracker.manager.FirestoreManager
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.emirsansar.hesapptracker.manager.googleAuth.AuthStateOnGoogle
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class AuthenticationViewModel: ViewModel() {
 
@@ -37,6 +40,9 @@ class AuthenticationViewModel: ViewModel() {
     var registerState: LiveData<RegisterState> = _registerState
     private val _registrationError = MutableLiveData<String?>()
     var registrationError: LiveData<String?> = _registrationError
+
+    private val _stateForGoogle = MutableStateFlow(AuthStateOnGoogle())
+    val stateForGoogle = _stateForGoogle.asStateFlow()
 
 
     // Logs in a user with Firebase Authentication.
@@ -84,22 +90,47 @@ class AuthenticationViewModel: ViewModel() {
     }
 
     // Saves user details to Firestore.
-    private fun saveUserDetailsToFirestore(email: String, name: String, surname: String, completion: (Boolean) -> Unit) {
-        val userData = hashMapOf(
-            "Name" to name,
-            "Surname" to surname,
-            "Subscriptions" to hashMapOf<String, Any>()
-        )
-
-        db.collection("Users").document(email).set(userData).addOnCompleteListener { task ->
+    fun saveUserDetailsToFirestore(email: String, name: String, surname: String, completion: (Boolean) -> Unit) {
+        db.collection("Users").document(email).get().addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Log.i("AuthenticationVM", "User's details have been saved on Firestore successfully.")
-                completion(true)
+                val document = task.result
+                if (document != null && document.exists()) {
+                    Log.e("AuthenticationVM", "A document with this email already exists.")
+                    completion(false)
+                } else {
+                    val userData = hashMapOf(
+                        "Name" to name,
+                        "Surname" to surname,
+                        "Subscriptions" to hashMapOf<String, Any>()
+                    )
+
+                    db.collection("Users").document(email).set(userData).addOnCompleteListener { saveTask ->
+                        if (saveTask.isSuccessful) {
+                            Log.i("AuthenticationVM", "User's details have been saved on Firestore successfully.")
+                            completion(true)
+                        } else {
+                            Log.e("AuthenticationVM", "An error occurred while saving user's details: ${saveTask.exception?.localizedMessage}")
+                            completion(false)
+                        }
+                    }
+                }
             } else {
-                Log.e("AuthenticationVM", "An error occurred while saving user's details: ${task.exception?.localizedMessage}")
+                Log.e("AuthenticationVM", "An error occurred while checking for existing document: ${task.exception?.localizedMessage}")
                 completion(false)
             }
         }
+    }
+
+    fun onSignInResult(result: AuthResultOnGoogle) {
+        _stateForGoogle.update { it.copy(
+            isSignInSuccessful = result.data != null,
+            signInError = result.errorMessage
+            )
+        }
+    }
+
+    fun resetStateForGoogle() {
+        _stateForGoogle.update { AuthStateOnGoogle() }
     }
 
     fun setRegisterStateIdle() {

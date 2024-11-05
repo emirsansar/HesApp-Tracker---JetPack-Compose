@@ -75,6 +75,7 @@ internal fun LogOutConfirmationDialog(
 internal fun LogoutProgressDialog(
     context: Context,
     scope: CoroutineScope,
+    progressLogOut: () -> Unit,
     isDarkMode: Boolean
 ) {
     Box(
@@ -111,7 +112,8 @@ internal fun LogoutProgressDialog(
 
     LaunchedEffect(Unit) {
         delay(1500)
-        logOut(context, scope)
+        progressLogOut()
+        navigateToAuthentication(context, scope)
     }
 }
 
@@ -161,19 +163,12 @@ internal fun ChangeLanguageDialog(
 
 // Functions:
 
-// Logs out the user, finishes the current activity, and restarts the AuthenticationActivity.
-private fun logOut(context: Context, scope: CoroutineScope) {
+// Finishes the current activity, and starts the AuthenticationActivity.
+private fun navigateToAuthentication(context: Context, scope: CoroutineScope) {
     scope.launch {
-        try {
-            FirebaseAuth.getInstance().signOut()
-
-            delay(1000L)
-
-            (context as Activity).finish()
-            context.startActivity(Intent(context, AuthenticationActivity::class.java))
-        } catch (e: Exception) {
-            Toast.makeText(context, R.string.text_error_log_out, Toast.LENGTH_SHORT).show()
-        }
+        delay(1200L)
+        (context as Activity).finish()
+        context.startActivity(Intent(context, AuthenticationActivity::class.java))
     }
 }
 

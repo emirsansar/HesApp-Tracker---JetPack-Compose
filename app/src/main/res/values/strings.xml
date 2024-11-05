@@ -6,6 +6,8 @@
     <string name="title_activity_custom_service_screen">CustomServiceScreen</string>
     <string name="title_activity_custom_plan_screen">CustomPlanScreen</string>
 
+    <string name="web_client_id" translatable="false">973564931728-0nbb4htoubi4ghelrmrhgdlma9jh8kh2.apps.googleusercontent.com</string>
+
     <string name="button_confirm">Confirm</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_ok">OK</string>
@@ -30,6 +32,8 @@
     <string name="button_login">Log In</string>
     <string name="label_login">Log In</string>
     <string name="label_navigate_to_register">Don\'t have an account? Register.</string>
+    <string name="label_login_by_google">Log In by Google</string>
+    <string name="label_or">OR</string>
 
     <string name="text_registration_successful">Registration successful.</string>
     <string name="text_registration_failed">Registration failed!\n%1$s.</string>
@@ -40,6 +44,7 @@
     <string name="error_password_does_not_match">Passwords don\'t match.</string>
     <string name="label_create_account">Create Account</string>
     <string name="label_navigate_to_login">Do you have an account? Sign In</string>
+    <string name="label_register_by_google">Sign Up by Google</string>
 
     <string name="welcome"> Welcome,</string>
     <string name="home">Home</string>

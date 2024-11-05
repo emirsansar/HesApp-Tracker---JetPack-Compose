@@ -7,6 +7,8 @@
     <string name="title_activity_custom_service_screen">CustomServiceScreen</string>
     <string name="title_activity_custom_plan_screen">CustomPlanScreen</string>
 
+    <string name="web_client_id" translatable="false">973564931728-0nbb4htoubi4ghelrmrhgdlma9jh8kh2.apps.googleusercontent.com</string>
+
     <string name="button_confirm">Onayla</string>
     <string name="button_cancel">İptal</string>
     <string name="button_ok">Tamam</string>
@@ -31,6 +33,8 @@
     <string name="button_login">Giriş</string>
     <string name="label_login">Giriş</string>
     <string name="label_navigate_to_register">Hesabınız yok mu? Kayıt olun.</string>
+    <string name="label_login_by_google">Google ile Giriş Yap</string>
+    <string name="label_or">YA DA</string>
 
     <string name="text_registration_successful">Kayıt Başarılı!</string>
     <string name="text_registration_failed">Kayıt başarısız!\n%1$s.</string>
@@ -41,6 +45,7 @@
     <string name="error_password_does_not_match">Şifreler eşleşmiyor!</string>
     <string name="label_create_account">Hesap Oluştur</string>
     <string name="label_navigate_to_login">Hesabınız var mı? Giriş yapın.</string>
+    <string name="label_register_by_google">Google ile Kayıt Ol</string>
 
     <string name="welcome">Hoşgeldiniz,</string>
     <string name="home">Ana Sayfa</string>
