@@ -111,7 +111,7 @@ fun RegisterScreen(
             Column (
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(24.dp))
+                    .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                     .background(if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor
                                 else LightThemeColors.BackgroundColor
                     ),
