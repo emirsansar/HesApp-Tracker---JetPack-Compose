@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
-package com.emirsansar.hesapptracker.view.mainScreens.homeScreen.components
+package com.emirsansar.hesapptracker.view.mainScreens.sharedComponents
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
@@ -78,7 +78,7 @@ internal fun DrawerContent(
         ) {
             Text(
                 text = stringResource(id = R.string.label_settings),
-                fontSize = 24.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = if (appManager.isDarkMode.value) Color.White else Color.Black
             )
@@ -113,12 +113,12 @@ private fun ThemeSwitch(
             painter = painterResource(id = R.drawable.icon_dark_mode),
             contentDescription = "Dark Mode Icon",
             tint = if (appManager.isDarkMode.value) Color.White else Color.Black,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stringResource(id = R.string.label_dark_mode),
-            fontSize = 18.sp,
+            fontSize = 17.sp,
             color = if (appManager.isDarkMode.value) Color.White else Color.Black
         )
         Spacer(modifier = Modifier.weight(1f))
@@ -154,12 +154,12 @@ private fun LogOutButton(
                 painter = painterResource(id = R.drawable.icon_logout),
                 contentDescription = "Logout Icon",
                 tint = Color.Red,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(18.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = stringResource(id = R.string.label_log_out),
-                fontSize = 16.sp,
+                fontSize = 15.sp,
                 color = Color.Red
             )
         }
@@ -194,12 +194,12 @@ private fun ChangeLanguageButton(
             painter = painterResource(id = R.drawable.icon_language),
             contentDescription = "Language Icon",
             tint = if (appManager.isDarkMode.value) Color.White else Color.Black,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stringResource(id = R.string.label_change_language),
-            fontSize = 18.sp,
+            fontSize = 17.sp,
             color = if (appManager.isDarkMode.value) Color.White else Color.Black
         )
         Spacer(modifier = Modifier.weight(1f))
@@ -261,6 +261,7 @@ private fun ChangeLanguageButton(
     }
 }
 
+// Functions:
 
 // Updates and applies the theme mode (dark or light) based on user selection.
 private fun updateTheme(context: Context, isDarkMode: Boolean) {

@@ -1,9 +1,8 @@
-package com.emirsansar.hesapptracker.view.mainScreens.homeScreen.components
+package com.emirsansar.hesapptracker.view.mainScreens.sharedComponents
 
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,7 +31,6 @@ import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
 import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
 import com.emirsansar.hesapptracker.view.mainScreens.MainActivity
 import com.emirsansar.hesapptracker.view.authenticationScreens.AuthenticationActivity
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -73,9 +71,7 @@ internal fun LogOutConfirmationDialog(
 
 @Composable
 internal fun LogoutProgressDialog(
-    context: Context,
-    scope: CoroutineScope,
-    progressLogOut: () -> Unit,
+    onLogOut: () -> Unit,
     isDarkMode: Boolean
 ) {
     Box(
@@ -111,15 +107,14 @@ internal fun LogoutProgressDialog(
     }
 
     LaunchedEffect(Unit) {
-        delay(1500)
-        progressLogOut()
-        navigateToAuthentication(context, scope)
+        //progressLogOut()
+        onLogOut()
     }
 }
 
 @Composable
 internal fun ChangeLanguageDialog(
-    context: Context,
+    onChangeLanguage: () -> Unit,
     isDarkMode: Boolean
 ) {
     Box(
@@ -156,26 +151,11 @@ internal fun ChangeLanguageDialog(
 
     LaunchedEffect(Unit) {
         delay(1500)
-        restartMainActivityForLanguageChange(context)
+        onChangeLanguage()
     }
 }
 
 
 // Functions:
 
-// Finishes the current activity, and starts the AuthenticationActivity.
-private fun navigateToAuthentication(context: Context, scope: CoroutineScope) {
-    scope.launch {
-        delay(1200L)
-        (context as Activity).finish()
-        context.startActivity(Intent(context, AuthenticationActivity::class.java))
-    }
-}
 
-// Restarts the main activity to apply the language change.
-private fun restartMainActivityForLanguageChange(context: Context) {
-    val intent = Intent(context, MainActivity::class.java)
-    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-    context.startActivity(intent)
-    (context as Activity).finish()
-}
