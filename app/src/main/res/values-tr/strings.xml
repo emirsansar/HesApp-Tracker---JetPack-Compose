@@ -118,7 +118,7 @@
     <string name="label_adding_plan">Plan Ekle</string>
     <string name="label_adding_service">Service Ekle</string>
     <string name="label_plan">Plan:</string>
-    <string name="label_plans">Planlar:</string>
+    <string name="label_plans">Planlar</string>
     <string name="button_add">Ekle</string>
     <string name="text_plan_details">Plan Detayları:\n - Ad: %1$s\n - Fiyat: %2$s:</string>
     <string name="text_plan_details_with_person_count">Plan Detayları:\n - Ad: %1$s\n - Fiyat: %2$s\n - Kullancı Sayısı: %3$s</string>

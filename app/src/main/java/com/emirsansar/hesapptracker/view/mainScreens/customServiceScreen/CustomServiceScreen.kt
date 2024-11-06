@@ -1,5 +1,6 @@
 package com.emirsansar.hesapptracker.view.mainScreens.customServiceScreen
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -289,6 +290,7 @@ private fun BodyContent(
                     serviceName = serviceName,
                     personCount = personCount,
                     userSubVM = userSubVM,
+                    context = context,
                     coroutineScope = coroutineScope,
                     onBottomSheetMessageChange = onBottomSheetMessageChange,
                     onBottomSheetSuccessChange = onBottomSheetSuccessChange,
@@ -311,6 +313,7 @@ private fun handleAddService(
     serviceName: String,
     personCount: String,
     userSubVM: UserSubscriptionViewModel,
+    context: Context,
     coroutineScope: CoroutineScope,
     onBottomSheetMessageChange: (String) -> Unit,
     onBottomSheetSuccessChange: (Boolean) -> Unit,
@@ -321,10 +324,10 @@ private fun handleAddService(
     userSubVM.addPlanToUserOnFirestore(serviceName, plan, personCount.toInt()) { success ->
         coroutineScope.launch {
             if (success) {
-                onBottomSheetMessageChange(R.string.text_selected_plan_added.toString())
+                onBottomSheetMessageChange(context.getString(R.string.text_selected_plan_added))
                 onBottomSheetSuccessChange(true)
             } else {
-                onBottomSheetMessageChange(R.string.text_error_selected_plan_added.toString())
+                onBottomSheetMessageChange(context.getString(R.string.text_error_selected_plan_added))
                 onBottomSheetSuccessChange(false)
             }
             scaffoldState.bottomSheetState.expand()

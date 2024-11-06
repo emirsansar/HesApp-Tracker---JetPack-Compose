@@ -98,7 +98,7 @@ fun CustomPlanScreenView(
         scaffoldState = scaffoldState,
         topBar = {
             CustomTopBar(
-                title = stringResource(id = R.string.services),
+                title = stringResource(id = R.string.label_plans),
                 isDarkMode = appManager.isDarkMode.value,
                 onBackPressed = onBackPressed
             )
@@ -291,6 +291,7 @@ private fun BodyContent(
                     serviceName = serviceName,
                     personCount = personCount,
                     userSubVM = userSubVM,
+                    context = context,
                     coroutineScope = coroutineScope,
                     onBottomSheetMessageChange = onBottomSheetMessageChange,
                     onBottomSheetSuccessChange = onBottomSheetSuccessChange,
@@ -313,6 +314,7 @@ private fun handleAddPlan(
     serviceName: String,
     personCount: String,
     userSubVM: UserSubscriptionViewModel,
+    context: Context,
     coroutineScope: CoroutineScope,
     onBottomSheetMessageChange: (String) -> Unit,
     onBottomSheetSuccessChange: (Boolean) -> Unit,
@@ -323,11 +325,10 @@ private fun handleAddPlan(
     userSubVM.addPlanToUserOnFirestore(serviceName, plan, personCount.toInt()) { success ->
         coroutineScope.launch {
             if (success) {
-                onBottomSheetMessageChange(R.string.text_selected_plan_added.toString())
+                onBottomSheetMessageChange(context.getString(R.string.text_selected_plan_added))
                 onBottomSheetSuccessChange(true)
             } else {
-                onBottomSheetMessageChange(R.string.text_error_selected_plan_added.toString())
-                onBottomSheetSuccessChange(false)
+                onBottomSheetMessageChange(context.getString(R.string.text_error_selected_plan_added))
             }
             scaffoldState.bottomSheetState.expand()
         }
