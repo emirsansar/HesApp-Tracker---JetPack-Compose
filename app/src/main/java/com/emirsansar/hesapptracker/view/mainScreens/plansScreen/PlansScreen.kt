@@ -51,14 +51,14 @@ fun PlansScreen(
     modifier: Modifier,
     navController: NavController,
     plansVM: PlanViewModel = PlanViewModel(),
-    userSubsVM: UserSubscriptionViewModel = UserSubscriptionViewModel()
+    userSubsVM: UserSubscriptionViewModel = UserSubscriptionViewModel(),
+    isDarkMode: Boolean
 ) {
     val fetchedPlanList by plansVM.planList.observeAsState(emptyList())
 
     var selectedPlan by remember { mutableStateOf<Plan?>(null) }
     var showDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val appManager = AppManager.getInstance(context)
 
     LaunchedEffect(serviceName) {
         plansVM.fetchPlansOfServiceFromFirestore(serviceName)
@@ -68,7 +68,7 @@ fun PlansScreen(
         topBar = {
             CustomTopBar(
                 title = stringResource(id = R.string.services),
-                isDarkMode = appManager.isDarkMode.value,
+                isDarkMode = isDarkMode,
                 onBackPressed = { navController.popBackStack() },
                 onAddButtonClicked = {
                     val intent = Intent(context, CustomPlanScreen::class.java).apply {
@@ -78,7 +78,7 @@ fun PlansScreen(
                 }
             )
         },
-        backgroundColor = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor else LightThemeColors.BackgroundColor,
+        backgroundColor = if (isDarkMode) DarkThemeColors.BackgroundColor else LightThemeColors.BackgroundColor,
         content = { paddingValues ->
             Column(
                 modifier = modifier
@@ -87,8 +87,8 @@ fun PlansScreen(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                HeaderText(serviceName, appManager.isDarkMode.value)
-                PlansText(appManager.isDarkMode.value)
+                HeaderText(serviceName = serviceName, isDarkMode = isDarkMode)
+                PlansText(isDarkMode = isDarkMode)
 
                 PlanList(
                     fetchedPlanList,
@@ -108,7 +108,7 @@ fun PlansScreen(
                                 showDialog = false
                             },
                             onDismiss = { showDialog = false },
-                            isDarkMode = appManager.isDarkMode.value
+                            isDarkMode = isDarkMode
                         )
                     }
                 }

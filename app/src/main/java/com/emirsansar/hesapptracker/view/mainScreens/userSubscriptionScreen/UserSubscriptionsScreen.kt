@@ -62,8 +62,10 @@ enum class SortType {
 @Composable
 fun UserSubscriptionsScreen(
     modifier: Modifier, userSubsVM:
-    UserSubscriptionViewModel = UserSubscriptionViewModel())
-{
+    UserSubscriptionViewModel = UserSubscriptionViewModel(),
+    appManager: AppManager,
+    isDarkMode: Boolean
+) {
     val fetchedUserSubList by userSubsVM.userSubscriptionList.observeAsState(emptyList())
     // This holds the list to be displayed after sorting, ensuring the original fetched list remains unchanged.
     var displayedUserSubList = remember { mutableStateListOf<UserSubscription>() }
@@ -75,7 +77,6 @@ fun UserSubscriptionsScreen(
     var clickedToRemoveButton by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
-    val appManager = AppManager.getInstance(context)
 
     LaunchedEffect(Unit) {
         userSubsVM.fetchUserSubscriptionsFromFirestore()
@@ -99,13 +100,13 @@ fun UserSubscriptionsScreen(
         topBar = {
             CustomTopBar(
                 title = stringResource(id = R.string.your_subscriptions),
-                isDarkMode = appManager.isDarkMode.value,
+                isDarkMode = isDarkMode,
                 onSortButtonClicked = {
                     isSortPickerExpanded = !isSortPickerExpanded
                 }
             )
         },
-        backgroundColor = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor else LightThemeColors.BackgroundColor,
+        backgroundColor = if (isDarkMode) DarkThemeColors.BackgroundColor else LightThemeColors.BackgroundColor,
         content = { paddingValues ->
             Column(
                 modifier = modifier
@@ -144,20 +145,19 @@ fun UserSubscriptionsScreen(
                                 onRemove = { subscription ->
                                     selectedSubscriptionToRemove = subscription
                                     clickedToRemoveButton = true
-                                },
-                                appManager.isDarkMode.value
+                                }
                             )
                         } else {
                             CenteredText(
                                 text = stringResource(id = R.string.text_no_subscriptions),
-                                isDarkMode = appManager.isDarkMode.value
+                                isDarkMode = isDarkMode
                             )
                         }
                     }
 
                     UserSubscriptionViewModel.FetchingSubscriptionsState.FAILURE -> {
                         CenteredText(stringResource(id = R.string.error_fetching_subscription),
-                            isDarkMode = appManager.isDarkMode.value
+                            isDarkMode = isDarkMode
                         )
                     }
 
@@ -181,7 +181,7 @@ fun UserSubscriptionsScreen(
 
                         selectedSubscriptionToRemove = null
                     },
-                    isDarkMode = appManager.isDarkMode.value
+                    isDarkMode = isDarkMode
                 )
             }
         }
@@ -195,8 +195,7 @@ fun UserSubscriptionsScreen(
 private fun SubscriptionList(
     subscriptionList: List<UserSubscription>,
     onEdit: (UserSubscription) -> Unit,
-    onRemove: (UserSubscription) -> Unit,
-    isDarkMode: Boolean
+    onRemove: (UserSubscription) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier

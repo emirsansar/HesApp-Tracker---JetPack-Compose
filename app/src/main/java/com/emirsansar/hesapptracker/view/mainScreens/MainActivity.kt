@@ -112,6 +112,7 @@ fun MainActivityScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val appManager = AppManager.getInstance(context)
+    val isDarkMode = appManager.isDarkMode.value
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -141,19 +142,25 @@ fun MainActivityScreen(
                                         scope.launch {
                                             drawerState.open()
                                         }
-                                    }
+                                    },
+                                    isDarkMode = isDarkMode
                                 )
                             }
 
                             composable("services_screen") {
                                 ServicesScreen(
                                     modifier = Modifier.padding(paddingValues),
-                                    navController = navController
+                                    navController = navController,
+                                    isDarkMode = isDarkMode
                                 )
                             }
 
                             composable("usersubscriptions_screen") {
-                                UserSubscriptionsScreen(modifier = Modifier.padding(paddingValues))
+                                UserSubscriptionsScreen(
+                                    modifier = Modifier.padding(paddingValues),
+                                    appManager = appManager,
+                                    isDarkMode = isDarkMode
+                                )
                             }
 
                             composable("service_plans_screen/{serviceName}") { backStackEntry ->
@@ -161,7 +168,8 @@ fun MainActivityScreen(
                                 PlansScreen(
                                     modifier = Modifier.padding(paddingValues),
                                     serviceName = serviceName!!,
-                                    navController = navController
+                                    navController = navController,
+                                    isDarkMode = isDarkMode
                                 )
                             }
                         }
@@ -201,7 +209,7 @@ fun MainActivityScreen(
                         }
                     },
                     bottomBar = {
-                        ApplicationNavigationBar(items, selectedBar, navController, appManager)
+                        ApplicationNavigationBar(items, selectedBar, navController, isDarkMode)
                     }
                 )
             }
@@ -216,10 +224,10 @@ private fun ApplicationNavigationBar(
     items: List<BottomNavItem>,
     selectedBar: MutableState<Int>,
     navController: NavController,
-    appManager: AppManager
+    isDarkMode: Boolean
 ) {
     NavigationBar(
-        containerColor = if (appManager.isDarkMode.value) DarkThemeColors.BarColor else LightThemeColors.BarColor
+        containerColor = if (isDarkMode) DarkThemeColors.BarColor else LightThemeColors.BarColor
     ) {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
@@ -233,11 +241,11 @@ private fun ApplicationNavigationBar(
                 label = { Text(item.title) },
                 icon = { Icon(item.icon, contentDescription = item.title) },
                 colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = if (appManager.isDarkMode.value) Color.DarkGray else Color(0xFF84a4c4),
-                    selectedTextColor = if (appManager.isDarkMode.value) Color.White else Color.Black,
-                    unselectedTextColor = if (appManager.isDarkMode.value) Color.Gray else Color.DarkGray,
-                    selectedIconColor = if (appManager.isDarkMode.value) Color.White else Color.Black,
-                    unselectedIconColor = if (appManager.isDarkMode.value) Color.Gray else Color.DarkGray,
+                    indicatorColor = if (isDarkMode) Color.DarkGray else Color(0xFF84a4c4),
+                    selectedTextColor = if (isDarkMode) Color.White else Color.Black,
+                    unselectedTextColor = if (isDarkMode) Color.Gray else Color.DarkGray,
+                    selectedIconColor = if (isDarkMode) Color.White else Color.Black,
+                    unselectedIconColor = if (isDarkMode) Color.Gray else Color.DarkGray,
                 )
             )
         }

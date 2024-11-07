@@ -47,7 +47,8 @@ fun HomeScreen(
     modifier: Modifier,
     userSubVM: UserSubscriptionViewModel = UserSubscriptionViewModel(),
     userVM: UserViewModel = UserViewModel(),
-    onDrawerState: () -> Unit
+    onDrawerState: () -> Unit,
+    isDarkMode: Boolean
 ){
     val fetchingSummaryState by userSubVM.fetchingSummaryState.observeAsState(UserSubscriptionViewModel.FetchingSummaryState.IDLE)
     val fetchedSubsCount by userSubVM.totalSubscriptionCount.observeAsState(0)
@@ -55,7 +56,7 @@ fun HomeScreen(
     var userFullName by remember { mutableStateOf("") }
 
     val context = LocalContext.current
-    val appManager = AppManager.getInstance(context)
+    //val appManager = AppManager.getInstance(context)
 
 
     LaunchedEffect(Unit) {
@@ -70,10 +71,10 @@ fun HomeScreen(
         topBar = {
             TopBarHomeScreen(
                 onDrawerState = onDrawerState,
-                isDarkMode = appManager.isDarkMode.value
+                isDarkMode = isDarkMode
             )
         },
-        backgroundColor = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor
+        backgroundColor = if (isDarkMode) DarkThemeColors.BackgroundColor
                           else LightThemeColors.BackgroundColor,
         content = { paddingValues ->
             Column(
@@ -85,7 +86,7 @@ fun HomeScreen(
             ) {
                 WelcomeMessage(
                     userFullName = userFullName,
-                    isDarkMode = appManager.isDarkMode.value
+                    isDarkMode = isDarkMode
                 )
 
                 SubscriptionSummaryCard(
@@ -93,7 +94,7 @@ fun HomeScreen(
                     subscriptionCount = fetchedSubsCount,
                     monthlySpend = fetchedMonthlySpend,
                     annualSpend = fetchedMonthlySpend * 12,
-                    isDarkMode = appManager.isDarkMode.value
+                    isDarkMode = isDarkMode
                 )
             }
         }
@@ -114,10 +115,10 @@ private fun TopBarHomeScreen(
                 horizontalArrangement = Arrangement.Start
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.hesapp),
+                    painter = painterResource(id = R.drawable.hesapp_icon),
                     contentDescription = "application logo",
                     modifier = Modifier
-                        .width(130.dp)
+                        .width(110.dp)
                 )
             }
         },

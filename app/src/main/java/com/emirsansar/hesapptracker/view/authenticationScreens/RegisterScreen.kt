@@ -59,11 +59,11 @@ fun RegisterScreen(
     navController: NavController,
     authVM: AuthenticationViewModel = AuthenticationViewModel(),
     state: AuthStateOnGoogle,
-    onSignUpClick: () -> Unit
+    onSignUpClick: () -> Unit,
+    isDarkMode: Boolean
 ){
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val appManager = AppManager.getInstance(context)
     val focusManager = LocalFocusManager.current
 
     var nameState by remember { mutableStateOf("") }
@@ -76,7 +76,6 @@ fun RegisterScreen(
     val registerState by authVM.registerState.observeAsState(AuthenticationViewModel.RegisterState.IDLE)
     val registerError by authVM.registrationError.observeAsState()
 
-    var showErrorDialog by remember { mutableStateOf(false) }
     var isRegisteredByGoogle by remember { mutableStateOf(false) }
 
     BackHandler {
@@ -99,7 +98,7 @@ fun RegisterScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = if (appManager.isDarkMode.value) DarkThemeColors.BarColor
+        color = if (isDarkMode) DarkThemeColors.BarColor
                 else LightThemeColors.BarColor
     ) {
         Column(
@@ -112,7 +111,7 @@ fun RegisterScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                    .background(if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor
+                    .background(if (isDarkMode) DarkThemeColors.BackgroundColor
                                 else LightThemeColors.BackgroundColor
                     ),
                 verticalArrangement = Arrangement.Top,
@@ -120,7 +119,7 @@ fun RegisterScreen(
             {
                 HeaderTextForAuthScreen(
                     message = stringResource(id = R.string.label_create_account),
-                    isDarkMode = appManager.isDarkMode.value
+                    isDarkMode = isDarkMode
                 )
 
                 Column (
@@ -137,7 +136,7 @@ fun RegisterScreen(
                             value = nameState,
                             onValueChange = { nameState = it },
                             label = stringResource(id = R.string.label_name),
-                            isDarkMode = appManager.isDarkMode.value,
+                            isDarkMode = isDarkMode,
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxWidth()
@@ -149,7 +148,7 @@ fun RegisterScreen(
                             value = surnameState,
                             onValueChange = { surnameState = it },
                             label = stringResource(id = R.string.label_surname),
-                            isDarkMode = appManager.isDarkMode.value,
+                            isDarkMode = isDarkMode,
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxWidth()
@@ -162,7 +161,7 @@ fun RegisterScreen(
                         value = emailState,
                         onValueChange = { emailState = it },
                         label = stringResource(id = R.string.label_email),
-                        isDarkMode = appManager.isDarkMode.value,
+                        isDarkMode = isDarkMode,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 10.dp)
@@ -173,7 +172,7 @@ fun RegisterScreen(
                         value = passwordState,
                         onValueChange = { passwordState = it },
                         label = stringResource(id = R.string.label_password),
-                        isDarkMode = appManager.isDarkMode.value,
+                        isDarkMode = isDarkMode,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 10.dp),
@@ -186,7 +185,7 @@ fun RegisterScreen(
                         value = rePasswordState,
                         onValueChange = { rePasswordState = it },
                         label = stringResource(id = R.string.label_confirm_password),
-                        isDarkMode = appManager.isDarkMode.value,
+                        isDarkMode = isDarkMode,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 16.dp),
@@ -227,7 +226,7 @@ fun RegisterScreen(
 
                 HyperlinkTextForAuthScreens(
                     text = stringResource(id = R.string.label_navigate_to_login),
-                    isDarkMode = appManager.isDarkMode.value,
+                    isDarkMode = isDarkMode,
                     onClick = { navigateToLoginScreen(navController) }
                 )
 
@@ -246,7 +245,7 @@ fun RegisterScreen(
     when (registerState) {
         AuthenticationViewModel.RegisterState.SUCCESS -> {
             RegisterSuccessDialog(
-                isDarkMode = appManager.isDarkMode.value,
+                isDarkMode = isDarkMode,
                 onDismiss = {
                     navigateToLoginScreen(navController)
                 }
@@ -256,7 +255,7 @@ fun RegisterScreen(
         AuthenticationViewModel.RegisterState.FAILURE -> {
             ErrorDialogForAuthScreen(
                 message = stringResource(id = R.string.text_registration_failed, registerError!!),
-                isDarkMode = appManager.isDarkMode.value,
+                isDarkMode = isDarkMode,
                 onDismiss = {
                     authVM.setRegisterStateIdle()
                 }
@@ -268,7 +267,7 @@ fun RegisterScreen(
 
     if (isRegisteredByGoogle) {
         RegisterSuccessDialog(
-            isDarkMode = appManager.isDarkMode.value,
+            isDarkMode = isDarkMode,
             onDismiss = {
                 navigateToApplicationFromRegisterScreen(context)
             }
