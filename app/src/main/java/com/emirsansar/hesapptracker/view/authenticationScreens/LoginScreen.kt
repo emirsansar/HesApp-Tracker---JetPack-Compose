@@ -57,11 +57,11 @@ fun LoginScreen(
     navController: NavController,
     authVM: AuthenticationViewModel = AuthenticationViewModel(),
     state: AuthStateOnGoogle,
-    onSignInClick: () -> Unit
+    onSignInClick: () -> Unit,
+    isDarkMode: Boolean
 ){
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val appManager = AppManager.getInstance(context)
 
     var emailState by remember { mutableStateOf("") }
     var passwordState by remember { mutableStateOf("") }
@@ -73,7 +73,7 @@ fun LoginScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = if (appManager.isDarkMode.value) DarkThemeColors.BarColor
+        color = if (isDarkMode) DarkThemeColors.BarColor
                 else LightThemeColors.BarColor
     ) {
         LaunchedEffect(key1 = state.signInError) {
@@ -97,9 +97,9 @@ fun LoginScreen(
             Column (
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(24.dp))
+                    .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                     .background(
-                        if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor
+                        if (isDarkMode) DarkThemeColors.BackgroundColor
                         else LightThemeColors.BackgroundColor
                     ),
                 verticalArrangement = Arrangement.Top,
@@ -107,7 +107,7 @@ fun LoginScreen(
             ) {
                 HeaderTextForAuthScreen(
                     message = stringResource(id = R.string.label_login),
-                    isDarkMode = appManager.isDarkMode.value
+                    isDarkMode = isDarkMode
                 )
 
                 Column (
@@ -119,7 +119,7 @@ fun LoginScreen(
                         value = emailState,
                         onValueChange = { emailState = it },
                         label = stringResource(id = R.string.label_email),
-                        isDarkMode = appManager.isDarkMode.value,
+                        isDarkMode = isDarkMode,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 10.dp)
@@ -130,7 +130,7 @@ fun LoginScreen(
                         value = passwordState,
                         onValueChange = { passwordState = it },
                         label = stringResource(id = R.string.label_password),
-                        isDarkMode = appManager.isDarkMode.value,
+                        isDarkMode = isDarkMode,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 16.dp),
@@ -165,7 +165,7 @@ fun LoginScreen(
                 if (loginState != AuthenticationViewModel.LoginState.SUCCESS) {
                     HyperlinkTextForAuthScreens(
                         text = stringResource(id = R.string.label_navigate_to_register),
-                        isDarkMode = appManager.isDarkMode.value,
+                        isDarkMode = isDarkMode,
                         onClick = { navigateToRegisterScreen(navController) }
                     )
                 }
@@ -176,7 +176,7 @@ fun LoginScreen(
     when (loginState) {
         AuthenticationViewModel.LoginState.SUCCESS -> {
             LoginSuccessDialog(
-                isDarkMode = appManager.isDarkMode.value,
+                isDarkMode = isDarkMode,
                 navigateToApplication = {
                     navigateToApplicationFromLoginScreen(context)
                 }
@@ -186,7 +186,7 @@ fun LoginScreen(
         AuthenticationViewModel.LoginState.FAILURE -> {
             ErrorDialogForAuthScreen(
                 message = stringResource(id = R.string.text_login_failed, loggingError!!),
-                isDarkMode = appManager.isDarkMode.value,
+                isDarkMode = isDarkMode,
                 onDismiss = {
                     authVM.setLoginStateIdle()
                 }
@@ -197,7 +197,7 @@ fun LoginScreen(
 
     if (isLoggedByGoogle) {
         LoginSuccessDialog(
-            isDarkMode = appManager.isDarkMode.value,
+            isDarkMode = isDarkMode,
             navigateToApplication = {
                 navigateToApplicationFromLoginScreen(context)
             }

@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.emirsansar.hesapptracker.view.mainScreens.homeScreen
 
 import android.annotation.SuppressLint
@@ -12,25 +10,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.DrawerState
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,15 +37,9 @@ import com.emirsansar.hesapptracker.R
 import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
 import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
-import com.emirsansar.hesapptracker.view.mainScreens.homeScreen.components.ChangeLanguageDialog
-import com.emirsansar.hesapptracker.view.mainScreens.homeScreen.components.DrawerContent
-import com.emirsansar.hesapptracker.view.mainScreens.homeScreen.components.LogOutConfirmationDialog
-import com.emirsansar.hesapptracker.view.mainScreens.homeScreen.components.LogoutProgressDialog
 import com.emirsansar.hesapptracker.view.mainScreens.homeScreen.components.SubscriptionSummaryCard
 import com.emirsansar.hesapptracker.viewModel.UserSubscriptionViewModel
 import com.emirsansar.hesapptracker.viewModel.UserViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -61,20 +47,16 @@ fun HomeScreen(
     modifier: Modifier,
     userSubVM: UserSubscriptionViewModel = UserSubscriptionViewModel(),
     userVM: UserViewModel = UserViewModel(),
-    onSignOut: () -> Unit
+    onDrawerState: () -> Unit,
+    isDarkMode: Boolean
 ){
     val fetchingSummaryState by userSubVM.fetchingSummaryState.observeAsState(UserSubscriptionViewModel.FetchingSummaryState.IDLE)
     val fetchedSubsCount by userSubVM.totalSubscriptionCount.observeAsState(0)
     val fetchedMonthlySpend by userSubVM.totalMonthlySpending.observeAsState(0.0)
     var userFullName by remember { mutableStateOf("") }
-    var showLogoutConfirmationDialog by remember { mutableStateOf(false) }
-    var showLogoutProgressDialog by remember { mutableStateOf(false) }
-    var showChangeLanguageDialog by remember { mutableStateOf(false) }
 
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val appManager = AppManager.getInstance(context)
+    //val appManager = AppManager.getInstance(context)
 
 
     LaunchedEffect(Unit) {
@@ -85,84 +67,45 @@ fun HomeScreen(
         userSubVM.fetchSubscriptionsSummary()
     }
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            DrawerContent(
-                drawerState = drawerState,
-                scope = scope,
-                context = context,
-                setShowLogoutDialog = { showLogoutConfirmationDialog = it },
-                setShowSwitchLanguageMessage = { showChangeLanguageDialog = it},
-                appManager = appManager
+    Scaffold(
+        topBar = {
+            TopBarHomeScreen(
+                onDrawerState = onDrawerState,
+                isDarkMode = isDarkMode
             )
         },
-        content = {
-            Scaffold(
-                topBar = {
-                    TopBarHomeScreen(
-                        scope = scope,
-                        drawerState = drawerState,
-                        isDarkMode = appManager.isDarkMode.value
-                    )
-                },
-                backgroundColor = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor
-                                  else LightThemeColors.BackgroundColor,
-                content = { paddingValues ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
-                        verticalArrangement = Arrangement.Top,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        WelcomeMessage(
-                            userFullName = userFullName,
-                            isDarkMode = appManager.isDarkMode.value
-                        )
+        backgroundColor = if (isDarkMode) DarkThemeColors.BackgroundColor
+                          else LightThemeColors.BackgroundColor,
+        content = { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                WelcomeMessage(
+                    userFullName = userFullName,
+                    isDarkMode = isDarkMode
+                )
 
-                        SubscriptionSummaryCard(
-                            fetchingSummaryState = fetchingSummaryState,
-                            subscriptionCount = fetchedSubsCount,
-                            monthlySpend = fetchedMonthlySpend,
-                            annualSpend = fetchedMonthlySpend * 12,
-                            isDarkMode = appManager.isDarkMode.value
-                        )
-                    }
-                }
-            )
+                SubscriptionSummaryCard(
+                    fetchingSummaryState = fetchingSummaryState,
+                    subscriptionCount = fetchedSubsCount,
+                    monthlySpend = fetchedMonthlySpend,
+                    annualSpend = fetchedMonthlySpend * 12,
+                    isDarkMode = isDarkMode
+                )
+            }
         }
     )
-
-    if (showLogoutConfirmationDialog) {
-        LogOutConfirmationDialog(
-            setShowLogOutDialog = { showLogoutConfirmationDialog = it },
-            setShowLogoutProgressDialog = { showLogoutProgressDialog = it },
-            isDarkMode = appManager.isDarkMode.value,
-        )
-    }
-
-    if (showLogoutProgressDialog) {
-        LogoutProgressDialog(
-            context = context,
-            scope = scope,
-            progressLogOut = onSignOut,
-            isDarkMode = appManager.isDarkMode.value
-        )
-    }
-
-    if (showChangeLanguageDialog) {
-        ChangeLanguageDialog(context = context, isDarkMode = appManager.isDarkMode.value)
-    }
-
 }
 
 // Components:
 
 @Composable
 private fun TopBarHomeScreen(
-    scope: CoroutineScope,
-    drawerState: DrawerState,
+    onDrawerState: () -> Unit,
     isDarkMode: Boolean
 ) {
     TopAppBar(
@@ -172,16 +115,16 @@ private fun TopBarHomeScreen(
                 horizontalArrangement = Arrangement.Start
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.hesapp),
+                    painter = painterResource(id = R.drawable.hesapp_icon),
                     contentDescription = "application logo",
                     modifier = Modifier
-                        .width(130.dp)
+                        .width(110.dp)
                 )
             }
         },
         actions = {
             IconButton(onClick = {
-                scope.launch { drawerState.open() }
+                onDrawerState()
             }) {
                 Icon( imageVector = Icons.Default.Settings, contentDescription = "Settings",
                     tint = if (isDarkMode) Color.White else Color.Black )

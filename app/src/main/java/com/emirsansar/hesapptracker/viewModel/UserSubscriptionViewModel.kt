@@ -66,11 +66,11 @@ class UserSubscriptionViewModel: ViewModel() {
 
                 for ((serviceName, serviceDetails) in subscriptions) {
                     val planName = serviceDetails["PlanName"] as? String
-                    val planPrice = serviceDetails["Price"] as? Double
+                    val planPrice = serviceDetails["Price"] as? Number
                     val personCount = (serviceDetails["PersonCount"] as? Number)?.toInt()
 
                     if (planName != null && planPrice != null && personCount != null) {
-                        val userSub = UserSubscription(serviceName, planName, planPrice, personCount)
+                        val userSub = UserSubscription(serviceName, planName, planPrice.toDouble(), personCount)
 
                         fetchedSubscriptions.add(userSub)
                     }

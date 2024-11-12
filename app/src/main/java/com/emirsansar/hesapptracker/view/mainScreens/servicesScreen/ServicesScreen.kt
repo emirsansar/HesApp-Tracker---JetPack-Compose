@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.emirsansar.hesapptracker.R
-import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.model.Service
 import com.emirsansar.hesapptracker.ui.theme.DarkThemeColors
 import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
@@ -49,10 +48,10 @@ import com.emirsansar.hesapptracker.viewModel.ServiceViewModel
 fun ServicesScreen(
     modifier: Modifier,
     serviceVM: ServiceViewModel = ServiceViewModel(),
-    navController: NavController
+    navController: NavController,
+    isDarkMode: Boolean
 ){
     val context = LocalContext.current
-    val appManager = AppManager.getInstance(context)
 
     // Holds the original list of services fetched from Firestore.
     var originalServiceList by remember { mutableStateOf(emptyList<Service>()) }
@@ -75,7 +74,7 @@ fun ServicesScreen(
         topBar = {
             CustomTopBar(
                 title = stringResource(id = R.string.services),
-                isDarkMode = appManager.isDarkMode.value,
+                isDarkMode = isDarkMode,
                 onAddButtonClicked = {
                     val intent = Intent(context, CustomServiceScreen::class.java)
                     context.startActivity(intent)
@@ -85,7 +84,7 @@ fun ServicesScreen(
                 }
             )
         },
-        backgroundColor = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor
+        backgroundColor = if (isDarkMode) DarkThemeColors.BackgroundColor
                           else LightThemeColors.BackgroundColor,
         content = { paddingValues ->
             Column(
@@ -110,7 +109,7 @@ fun ServicesScreen(
                         isFilterPickerExpanded = false
                     },
                     onDismissRequest = { isFilterPickerExpanded = false },
-                    isDarkMode = appManager.isDarkMode.value,
+                    isDarkMode = isDarkMode,
                     context = context
                 )
             }

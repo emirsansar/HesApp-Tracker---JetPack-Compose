@@ -117,7 +117,7 @@
     <string name="label_adding_plan">Adding Plan</string>
     <string name="label_adding_service">Adding Service</string>
     <string name="label_plan">Plan:</string>
-    <string name="label_plans">Plans:</string>
+    <string name="label_plans">Plans</string>
     <string name="button_add">Add</string>
     <string name="text_plan_details">Plan Details:\n - Name: %1$s\n - Price: %2$s:</string>
     <string name="text_plan_details_with_person_count">Plan Details:\n - Name: %1$s\n - Price: %2$s\n - User Count %3$s</string>

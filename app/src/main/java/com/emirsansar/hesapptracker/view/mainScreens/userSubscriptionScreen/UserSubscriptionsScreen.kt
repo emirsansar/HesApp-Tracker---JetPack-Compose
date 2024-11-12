@@ -46,6 +46,7 @@ import com.emirsansar.hesapptracker.ui.theme.LightThemeColors
 import com.emirsansar.hesapptracker.view.mainScreens.editSubscriptionScreen.EditSubscriptionScreen
 import com.emirsansar.hesapptracker.view.mainScreens.userSubscriptionScreen.components.SortPicker
 import com.emirsansar.hesapptracker.view.mainScreens.sharedComponents.CustomTopBar
+import com.emirsansar.hesapptracker.view.mainScreens.userSubscriptionScreen.components.ConfirmationRemoveSubDialog
 import com.emirsansar.hesapptracker.viewModel.UserSubscriptionViewModel
 import kotlinx.coroutines.delay
 
@@ -61,8 +62,10 @@ enum class SortType {
 @Composable
 fun UserSubscriptionsScreen(
     modifier: Modifier, userSubsVM:
-    UserSubscriptionViewModel = UserSubscriptionViewModel())
-{
+    UserSubscriptionViewModel = UserSubscriptionViewModel(),
+    appManager: AppManager,
+    isDarkMode: Boolean
+) {
     val fetchedUserSubList by userSubsVM.userSubscriptionList.observeAsState(emptyList())
     // This holds the list to be displayed after sorting, ensuring the original fetched list remains unchanged.
     var displayedUserSubList = remember { mutableStateListOf<UserSubscription>() }
@@ -70,9 +73,10 @@ fun UserSubscriptionsScreen(
     var sortType by remember { mutableStateOf(SortType.Default) }
     val fetchingSubsState by userSubsVM.fetchingSubscriptionsState.observeAsState(UserSubscriptionViewModel.FetchingSubscriptionsState.IDLE)
     var isSortPickerExpanded by remember { mutableStateOf(false) }
+    var selectedSubscriptionToRemove by remember { mutableStateOf<UserSubscription?>(null) }
+    var clickedToRemoveButton by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
-    val appManager = AppManager.getInstance(context)
 
     LaunchedEffect(Unit) {
         userSubsVM.fetchUserSubscriptionsFromFirestore()
@@ -96,13 +100,13 @@ fun UserSubscriptionsScreen(
         topBar = {
             CustomTopBar(
                 title = stringResource(id = R.string.your_subscriptions),
-                isDarkMode = appManager.isDarkMode.value,
+                isDarkMode = isDarkMode,
                 onSortButtonClicked = {
                     isSortPickerExpanded = !isSortPickerExpanded
                 }
             )
         },
-        backgroundColor = if (appManager.isDarkMode.value) DarkThemeColors.BackgroundColor else LightThemeColors.BackgroundColor,
+        backgroundColor = if (isDarkMode) DarkThemeColors.BackgroundColor else LightThemeColors.BackgroundColor,
         content = { paddingValues ->
             Column(
                 modifier = modifier
@@ -139,21 +143,21 @@ fun UserSubscriptionsScreen(
                                     navigateToEditScreen(context, subscription)
                                 },
                                 onRemove = { subscription ->
-                                    removeSubscription(context, userSubsVM, subscription, displayedUserSubList)
-                                },
-                                appManager.isDarkMode.value
+                                    selectedSubscriptionToRemove = subscription
+                                    clickedToRemoveButton = true
+                                }
                             )
                         } else {
                             CenteredText(
                                 text = stringResource(id = R.string.text_no_subscriptions),
-                                isDarkMode = appManager.isDarkMode.value
+                                isDarkMode = isDarkMode
                             )
                         }
                     }
 
                     UserSubscriptionViewModel.FetchingSubscriptionsState.FAILURE -> {
                         CenteredText(stringResource(id = R.string.error_fetching_subscription),
-                            isDarkMode = appManager.isDarkMode.value
+                            isDarkMode = isDarkMode
                         )
                     }
 
@@ -161,6 +165,24 @@ fun UserSubscriptionsScreen(
                         CenteredCircularProgress()
                     }
                 }
+            }
+
+            if (clickedToRemoveButton && selectedSubscriptionToRemove != null) {
+                ConfirmationRemoveSubDialog(
+                    selectedSubscription = selectedSubscriptionToRemove!!,
+                    setShowRemoveDialog = { clickedToRemoveButton = false },
+                    onRemove = {
+                        removeSubscription(
+                            context = context,
+                            userSubsVM = userSubsVM,
+                            subscription = selectedSubscriptionToRemove!!,
+                            displayedUserSubList = displayedUserSubList
+                        )
+
+                        selectedSubscriptionToRemove = null
+                    },
+                    isDarkMode = isDarkMode
+                )
             }
         }
     )
@@ -173,8 +195,7 @@ fun UserSubscriptionsScreen(
 private fun SubscriptionList(
     subscriptionList: List<UserSubscription>,
     onEdit: (UserSubscription) -> Unit,
-    onRemove: (UserSubscription) -> Unit,
-    isDarkMode: Boolean
+    onRemove: (UserSubscription) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -185,8 +206,7 @@ private fun SubscriptionList(
             SubscriptionCard(
                 sub = sub,
                 onEditClick = { onEdit(sub) },
-                onRemove = { onRemove(sub) },
-                isDarkMode = isDarkMode
+                onRemove = { onRemove(sub) }
             )
         }
     }
@@ -197,8 +217,7 @@ private fun SubscriptionList(
 private fun SubscriptionCard(
     sub: UserSubscription,
     onEditClick: () -> Unit,
-    onRemove: () -> Unit,
-    isDarkMode: Boolean
+    onRemove: () -> Unit
 ) {
     var expandedMenu by remember { mutableStateOf(false) }
 
@@ -295,17 +314,24 @@ private fun sortSubscriptions(userSubList: List<UserSubscription>, sortType: Sor
     }
 }
 
-private fun removeSubscription(context: Context, userSubsVM: UserSubscriptionViewModel, sub: UserSubscription, displayedUserSubList: MutableList<UserSubscription>) {
-    userSubsVM.removeSubscriptionFromUser(sub) { success ->
+// Removes the subscription from the user's list and show a success or failure message.
+private fun removeSubscription(
+    context: Context,
+    userSubsVM: UserSubscriptionViewModel,
+    subscription: UserSubscription,
+    displayedUserSubList: MutableList<UserSubscription>
+) {
+    userSubsVM.removeSubscriptionFromUser(subscription) { success ->
         if (success) {
             Toast.makeText(context, R.string.text_subscription_removed_successfully, Toast.LENGTH_SHORT).show()
-            displayedUserSubList.remove(sub)
+            displayedUserSubList.remove(subscription)
         } else {
             Toast.makeText(context, R.string.text_subscription_remove_failed, Toast.LENGTH_SHORT).show()
         }
     }
 }
 
+// Navigate to the EditSubscriptionScreen with the selected subscription details.
 private fun navigateToEditScreen(context: Context, sub: UserSubscription){
     val intent = Intent(context, EditSubscriptionScreen::class.java).apply {
         putExtra("subscription", sub)

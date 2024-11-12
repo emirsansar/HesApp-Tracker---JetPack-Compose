@@ -26,6 +26,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.emirsansar.hesapptracker.R
+import com.emirsansar.hesapptracker.manager.AppManager
 import com.emirsansar.hesapptracker.manager.googleAuth.GoogleAuthUiClient
 import com.emirsansar.hesapptracker.ui.theme.HesAppTrackerTheme
 import com.emirsansar.hesapptracker.viewModel.AuthenticationViewModel
@@ -69,6 +70,9 @@ fun AuthenticationScreen(
     ) {
         val navController = rememberNavController()
 
+        val appManager = AppManager.getInstance(context)
+        val isDarkMode = appManager.isDarkMode.value
+
         val viewModel = viewModel<AuthenticationViewModel>()
         val state by viewModel.stateForGoogle.collectAsStateWithLifecycle()
 
@@ -93,7 +97,8 @@ fun AuthenticationScreen(
                     state = state,
                     onSignInClick = {
                         performSignIn(googleAuthUiClient, lifecycleScope, launcher, context)
-                    }
+                    },
+                    isDarkMode = isDarkMode
                 )
             }
 
@@ -103,7 +108,8 @@ fun AuthenticationScreen(
                     state = state,
                     onSignUpClick = {
                         performSignIn(googleAuthUiClient, lifecycleScope, launcher, context)
-                    }
+                    },
+                    isDarkMode = isDarkMode
                 )
             }
 
