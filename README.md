@@ -14,17 +14,3 @@ Here's a video of the application on Youtube:
 <a href="https://youtu.be/OT4P4Kk76Ss" target="_blank">
     <img src="https://img.youtube.com/vi/xzYlwQXcpyA/maxresdefault.jpg" alt="Watch the video" width="500" />
 </a>
-
-### Screens: <br>
-
-</br>
-
-| Home | Services | Subscriptions |
-| --- | --- | --- |
-<img src="https://i.hizliresim.com/rvcg2qb.png" width="200" height="400"/>|<img src="https://i.hizliresim.com/68o7740.png" width="200" height="400"/>|<img src="https://i.hizliresim.com/e67ycf9.png" width="200" height="400"/>
-
-<br>
-
-| Plans | Custom Service | 
-| --- | ---- |
-<img src="https://i.hizliresim.com/hg09c60.png" width="200" height="400"/>|<img src="https://i.hizliresim.com/f8xabf9.png" width="200" height="400"/>
